@@ -4,6 +4,7 @@
 //
 //  include lua
 //
+#define LUA_COMPAT_MODULE
 #include <lua.hpp>
 
 //

@@ -229,7 +229,8 @@ bool LuaState::load(const std::string& filename, const char* init )
     //  load moonscript environment
     //
     char script[ 256 ];
-    sprintf( script, "local loader = require 'moonscript.loader'; return loader.load('%s')", filename.c_str() );
+    sprintf( script, "local moonscript = require('moonscript.base'); local code = assert(moonscript.loadfile('%s')); if code then code() return true; end; return false;", filename.c_str() ); 
+
     
     TRACE( "executing %s", script );
     

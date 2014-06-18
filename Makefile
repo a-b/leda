@@ -30,7 +30,7 @@ PLATFORM_LDFLAGS ?=
 UNAME := $(shell uname)
 
 ifeq ($(UNAME), Linux)
-PLATFORM_LDFLAGS = -pthread -export-dynamic -lrt -ldl -luuid 
+PLATFORM_LDFLAGS = -pthread  -lrt -ldl -luuid 
 endif
 
 ifeq ($(UNAME), Darwin)
@@ -63,9 +63,9 @@ obj:
 
 all: obj/leda
 
-install: install_moon
+install: install_leda
 
-uninstall: uninstall_moon
+uninstall: uninstall_leda
 
 clean: 
 	rm -f obj/*.o
@@ -73,27 +73,32 @@ clean:
 	rm -f obj/leda
 	-(cd deps/libpropeller && $(MAKE) clean)
 	-(cd deps/luajit && $(MAKE) clean)
+	-(cd deps/lpeg && $(MAKE) clean)
+	-(cd deps/lfs && $(MAKE) clean)
 	
 	
 
 libs: 
-	cd deps/libpropeller && make && cd ../luajit  && make && rm src/libluajit.so
+	cd deps/libpropeller && make && cd ../luajit  && make && rm src/libluajit.so && cd ../lpeg && make && cd ../lfs && make
 
 
 obj/leda: libs $(LEDA_OBJECTS) 
 	$(CXX) -o $@ $(LEDA_OBJECTS)  -Ldeps/libpropeller/obj -Ldeps/libpropeller/deps/libevent/.libs -Ldeps/luajit/src  $(LDFLAGS) \
 	     -lpropeller -lluajit   -levent -levent_pthreads   $(PLATFORM_LDFLAGS)
 
-install_moon: obj/moon
+install_leda: obj/leda
 	$(INSTALL) -d $(DESTDIR)$(prefix)/bin
 	install -c obj/leda $(DESTDIR)$(prefix)/bin
-	# mkdir -p $(DESTDIR)$(prefix)/lib/breeze
+	mkdir -p $(DESTDIR)$(prefix)/lib/leda
 	# rsync -a --exclude='test' --exclude 'test.lua' lua/* $(DESTDIR)$(prefix)/lib/breeze/
-	# chmod -R a+r $(DESTDIR)$(prefix)/lib/breeze/
-	# cd deps/lua && make install
+	cd deps/luajit && make install
+	cp deps/lfs/lfs.so $(DESTDIR)$(prefix)/lib/lua/5.1/
+	cp deps/lpeg/lpeg.so $(DESTDIR)$(prefix)/lib/lua/5.1
+	chmod -R a+r $(DESTDIR)$(prefix)/lib/leda/
+	
 	# chmod -R a+r $(DESTDIR)$(prefix)/lib/lua/5.2/
 
-uninstall_moon: 
+uninstall_leda: 
 	rm -f $(DESTDIR)$(prefix)/bin/breeze
 
 obj/LEDA_Leda.o: src/Leda.cpp
