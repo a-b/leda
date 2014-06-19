@@ -83,9 +83,9 @@ void LuaState::loadlibs() const
         path.append( i->c_str( ) );
         path.append( "/?.moon" );
 
-        path.append( ";" );
-        path.append( i->c_str( ) );
-        path.append( "/?/init.moon" );
+//        path.append( ";" );
+//        path.append( i->c_str( ) );
+//        path.append( "/?/init.moon" );
         
         path.append( ";" );
         path.append( i->c_str( ) );
