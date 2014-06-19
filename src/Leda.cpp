@@ -63,26 +63,27 @@ extern "C"
  }
  
  
- int generateRandomString( lua_State* lua )
- {
-     TRACE_ENTERLEAVE();
-     
-     uuid_t out;
-     uuid_generate( out ); 
-   
-     char hex[32];
-     char* current = hex;
-     
-     for ( unsigned int i = 0; i < sizeof(uuid_t); i++ )
-     {
-         sprintf( current, "%x2", out[ i ] );
-         current +=2;
-     }
-     
-     lua_pushlstring( lua, hex, 32 );
-     
-     return 1;
- }
+// int generateRandomString( lua_State* lua )
+// {
+//     TRACE_ENTERLEAVE();
+//     
+//     uuid_t out;
+//     uuid_generate( out ); 
+//   
+//     char hex[32];
+//     char* current = hex;
+//     
+//     for ( unsigned int i = 0; i < sizeof(uuid_t); i++ )
+//     {
+//         sprintf( current, "%x2", out[ i ] );
+//         current +=2;
+//     }
+//     
+//     lua_pushlstring( lua, hex, 32 );
+//     
+//     return 1;
+// }
+// 
  
  int serverConnectionSendMessage( lua_State* lua )
  {

@@ -30,7 +30,7 @@ LuaState::LuaState( const std::string& filename )
     static const luaL_Reg functions[] = {
         {"serverAddTimer", serverAddTimer },
         {"serverCreate", serverCreate },
-        {"generateUniqueString", generateRandomString },
+//        {"generateUniqueString", generateRandomString },
         {"serverConnectionSendData", serverConnectionSendData },
         {"serverConnectionSendMessage", serverConnectionSendMessage },
         {"threadGetId", threadGetId },
