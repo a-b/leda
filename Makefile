@@ -91,13 +91,14 @@ install_leda: obj/leda
 	$(INSTALL) -d $(DESTDIR)$(prefix)/bin
 	install -c obj/leda $(DESTDIR)$(prefix)/bin
 	mkdir -p $(DESTDIR)$(prefix)/lib/leda
-	# rsync -a --exclude='test' --exclude 'test.lua' lua/* $(DESTDIR)$(prefix)/lib/breeze/
+	rsync -a --exclude='test' --exclude 'test.lua' lib/* $(DESTDIR)$(prefix)/lib/leda/
+	rm $(DESTDIR)$(prefix)/lib/leda/moonscript
+	cp -r deps/moonscript/moonscript $(DESTDIR)$(prefix)/lib/leda/
 	cd deps/luajit && make install
 	cp deps/lfs/lfs.so $(DESTDIR)$(prefix)/lib/lua/5.1/
 	cp deps/lpeg/lpeg.so $(DESTDIR)$(prefix)/lib/lua/5.1
 	chmod -R a+r $(DESTDIR)$(prefix)/lib/leda/
-	
-	# chmod -R a+r $(DESTDIR)$(prefix)/lib/lua/5.2/
+	chmod -R a+r $(DESTDIR)$(prefix)/lib/lua/5.1/
 
 uninstall_leda: 
 	rm -f $(DESTDIR)$(prefix)/bin/breeze

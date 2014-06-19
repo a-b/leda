@@ -1,6 +1,14 @@
 leda
 ====
 
-high performance framework for creating network applications in moonscript (http://www.moonscript.org). 
+high performance framework for creating mnetwork applications using moonscript (http://www.moonscript.org). 
 
-It is powered by LuaJIT(http://luajit.org) and libpropeller(https://github.com/sergeyzavadski/libpropeller)
+Features:
+
+* Synchronous scripting with moonscript (http://www.moonscript.org)
+* Super fast VM with LuaJIT(http://luajit.org)
+* Multithreaded process architecture and asynchronous networking with libevent
+
+  
+
+
