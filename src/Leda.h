@@ -36,9 +36,13 @@ extern int clientConnectionSendMessage( lua_State* lua );
 extern int clientConnectionClose( lua_State* lua );
 extern int serverConnectionSendMessage( lua_State* lua );
 extern int serverConnectionSendData( lua_State* lua );
+extern int serverConnectionGetAddress( lua_State* lua );
+extern int serverConnectionGetId( lua_State* lua );
 extern int serverCreate( lua_State* lua );
 extern int serverAddTimer( lua_State* lua );
 extern int getpid( lua_State* lua );
+extern int threadGetId( lua_State* lua );
+
 
     
 class Leda 
@@ -113,9 +117,9 @@ public:
     void callTimer( const LuaState& lua, TimerData* data );
     void callTerminate( const LuaState& lua );
     
-    LuaState& lua()
+    const LuaState& lua() const
     {
-        return m_luaState;
+        return *m_lua;
     }
     
 
@@ -126,7 +130,7 @@ private:
     std::string m_script;
     static Leda* m_instance;
     PathList m_paths;
-    LuaState m_luaState;
+    LuaState* m_lua;
     propeller::Client* m_client;
     propeller::Server* m_server;
     ServerType m_serverType;

@@ -48,9 +48,10 @@ LEDA_OBJECTS =  \
 	obj/LEDA_Leda.o \
 	obj/LEDA_main.o \
 	obj/LEDA_trace.o \
-	obj/LEDA_LuaState.o # \
+	obj/LEDA_LuaState.o  \
+	obj/LEDA_Server.o 
 # 	obj/LEDA_Client.o \
-# 	obj/LEDA_Server.o \
+ 	
 # 	obj/LEDA_HttpServer.o
 
 ### Conditionally set variables: ###

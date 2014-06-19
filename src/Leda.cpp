@@ -19,7 +19,7 @@ limitations under the License.
 #include <stdexcept>
 
 // #include "Client.h"
-// #include "Server.h"
+ #include "Server.h"
 // #include "HttpServer.h"
 
 extern "C" 
@@ -31,79 +31,124 @@ extern "C"
 //
 // exported c functions
 //
-// int serverAddTimer( lua_State* lua )
-// {
-//     TRACE_ENTERLEAVE();
-//     
-//     int callback = luaL_ref( lua, LUA_REGISTRYINDEX );
-//     bool once = lua_toboolean( lua, -1 );
-//     int interval = lua_tointeger( lua, -2 );
-//     
-//     Leda::instance()->server()->addTimer( interval, once, new Leda::TimerData( callback, once ) );
-//     return 0;
-// }
-// 
-// 
-// int serverCreate( lua_State* lua )
-// {
-//     TRACE_ENTERLEAVE();
-//     
-//     if ( !Leda::instance()->server() )
-//     {
-//         Leda::instance()->serverCreate( lua );
-//     }
-//     
-//     
-//     return 0;
-// }
-// 
-// 
-// int generateRandomString( lua_State* lua )
-// {
-//     TRACE_ENTERLEAVE();
-//     
-//     uuid_t out;
-//     uuid_generate( out );
-//    
-//     char hex[32];
-//     char* current = hex;
-//     
-//     for ( unsigned int i = 0; i < sizeof(uuid_t); i++ )
-//     {
-//         sprintf( current, "%x2", out[ i ] );
-//         current +=2;
-//     }
-//     
-//     lua_pushlstring( lua, hex, 32 );
-//     
-//     return 1;
-// }
-// 
-// int serverConnectionSendMessage( lua_State* lua )
-// {
-//     propeller::Server::Connection* connection = ( propeller::Server::Connection* ) lua_touserdata( lua, -2 );   
-//     size_t size = 0;
-//     
-//     const char* data = lua_tolstring( lua, -1, &size );
-//     
-//     connection->sendMessage( data, size );
-//     lua_pop( lua, 2 );
-//     
-//     return 0;
-// }
-// 
-// int serverConnectionSendData( lua_State* lua )
-// {
-//     propeller::Server::Connection* connection = ( propeller::Server::Connection* ) lua_touserdata( lua, -2 );   
-//     size_t size = 0;
-//     
-//     const char* data = lua_tolstring( lua, -1, &size );
-//     
-//     connection->write( data, size );
-//     lua_pop( lua, 2 );
-//     
-//     return 0;
-// }
+ int serverAddTimer( lua_State* lua )
+ {
+     TRACE_ENTERLEAVE();
+     
+     int callback = luaL_ref( lua, LUA_REGISTRYINDEX );
+     bool once = lua_toboolean( lua, -1 );
+     int interval = lua_tointeger( lua, -2 );
+     
+     Server* server = ( Server* ) Leda::instance()->server();
+     if ( !once )
+     {
+         server->setTimer( lua, interval, new Leda::TimerData( callback, once ) );
+     }
+     
+             //->addTimer( interval, once,  );
+     return 0;
+ }
+ 
+ 
+ int serverCreate( lua_State* lua )
+ {
+     TRACE_ENTERLEAVE();
+     
+     if ( !Leda::instance()->server() )
+     {
+         Leda::instance()->serverCreate( lua );
+     }
+     
+     return 0;
+ }
+ 
+ 
+ int generateRandomString( lua_State* lua )
+ {
+     TRACE_ENTERLEAVE();
+     
+     uuid_t out;
+     uuid_generate( out ); 
+   
+     char hex[32];
+     char* current = hex;
+     
+     for ( unsigned int i = 0; i < sizeof(uuid_t); i++ )
+     {
+         sprintf( current, "%x2", out[ i ] );
+         current +=2;
+     }
+     
+     lua_pushlstring( lua, hex, 32 );
+     
+     return 1;
+ }
+ 
+ int serverConnectionSendMessage( lua_State* lua )
+ {
+     propeller::Server::Connection* connection = ( propeller::Server::Connection* ) lua_touserdata( lua, -2 );   
+     size_t size = 0;
+     
+     const char* data = lua_tolstring( lua, -1, &size );
+     
+     connection->sendMessage( data, size );
+     lua_pop( lua, 2 );
+     
+     return 0;
+ }
+ 
+ int serverConnectionSendData( lua_State* lua )
+ {
+     propeller::Server::Connection* connection = ( propeller::Server::Connection* ) lua_touserdata( lua, -2 );   
+     size_t size = 0;
+     
+     const char* data = lua_tolstring( lua, -1, &size );
+     
+     connection->write( data, size );
+     lua_pop( lua, 2 );
+     
+     return 0;
+ }
+ 
+ int serverConnectionGetAddress( lua_State* lua )
+ {
+    propeller::Server::Connection* connection = ( propeller::Server::Connection* ) lua_touserdata( lua, -1 );   
+    char address[1200];
+    sprintf( address, "%s (%s)", connection->hostname().c_str(), connection->ip().c_str() );
+    
+    lua_pop( lua, 1 );
+    
+    lua_pushstring( lua, address );
+    
+    return 1;
+ }
+ 
+ int serverConnectionGetId( lua_State* lua )
+ {
+    propeller::Server::Connection* connection = ( propeller::Server::Connection* ) lua_touserdata( lua, -1 );   
+    lua_pop( lua, 1 );
+    
+    lua_pushnumber( lua, ( unsigned int ) connection->fd() );
+    return 1;
+ }
+ 
+ 
+ 
+ int threadGetId( lua_State* lua )
+ {
+     TRACE_ENTERLEAVE();
+     
+     propeller::Server::Thread* thread = ( propeller::Server::Thread* ) lua_touserdata( lua, -1 );   
+     
+     
+     lua_pop( lua, 1 );
+     
+     lua_pushinteger( lua, thread->id() );
+     
+     return 1;
+ }
+ 
+ 
 // 
 // int clientCreate( lua_State* lua )
 // {
@@ -176,12 +221,13 @@ extern "C"
 //     return 0;
 // }
 // 
-// int getpid( lua_State* lua )
-// {
-//     lua_pushnumber( lua, ::getpid() );
-//     
-//     return 1;
-// }
+ 
+ int getpid( lua_State* lua )
+ {
+     lua_pushnumber( lua, ::getpid() );
+     
+     return 1;
+ }
 
 
 Leda* Leda::m_instance = NULL;
@@ -190,6 +236,11 @@ Leda::Leda( )
 :  m_client( NULL ), m_server( NULL ), m_serverType( ServerHttp ), m_debug( false )
 {
     TRACE_ENTERLEAVE();
+    
+    if (getenv( "LEDA_DEBUG" ) )
+    {
+        m_debug = true;
+    }
 }
 
 Leda::~Leda( )
@@ -207,21 +258,22 @@ Leda* Leda::instance()
     return m_instance;
 }
 
-// void Leda::callTimer( const LuaState& lua, TimerData* data )
-// {
-//     TRACE_ENTERLEAVE();
-// 
-//     lua.call( "", data->index );
-// 
-//     if ( data->once )
-//     {
-//         //
-//         // remove callback function from registry
-//         //
-//         luaL_unref( lua, LUA_REGISTRYINDEX, data->index );
-//         delete data;
-//     }
-// }
+ void Leda::callTimer( const LuaState& lua, TimerData* data )
+ {
+     TRACE_ENTERLEAVE();
+ 
+     lua.call( "", data->index );
+ 
+     if ( data->once )
+     {
+         //
+         // remove callback function from registry
+         //
+         luaL_unref( lua, LUA_REGISTRYINDEX, data->index );
+         delete data;
+     }
+ }
+ 
 // 
 // void Leda::callTerminate( const LuaState& lua )
 // {
@@ -230,99 +282,97 @@ Leda* Leda::instance()
 //     
 // }
 // 
-// void Leda::serverCreate( lua_State* lua )
-// {
-//     TRACE_ENTERLEAVE( );
-//     
-//     lua_getfield( lua, -1, "type" );
-//     std::string type = lua_tostring( lua, -1 );
-//     lua_pop( lua, 1 );
-//     
-//     propeller::Server* server;
-//     
-//     if ( type == "http" )
-//     {
-// 
-//         m_serverType = ServerHttp;
-//         m_server = new HttpServer();
-//         m_server->setConnectionReadTimeout( 30 );
-//         m_server->setConnectionWriteTimeout( 30 );
-//     }
-//     else
-//     {
-//         m_server = new Server(type );
-//         m_serverType = ServerMessage;
-//     }
-// 
-//     
-//     //
-//     //  get server options
-//     //
-//     lua_pushnil( lua );
-//     while ( lua_next( lua, -2 ) != 0 )
-//     {
-//         const char* name = lua_tostring( lua, -2 );
-//         
-//         if ( !strcmp( name, "port" ) )
-//         {            
-//             m_server->setPort( lua_tonumber( lua, -1 ) );
-//         }
-//         
-//         if ( !strcmp( name, "host" ) )
-//         {
-//             m_server->setHost( lua_tostring( lua, -1 ) );
-//         }
-//         
-//         if ( !strcmp( name, "connectionReadTimeout" ) )
-//         {
-//             m_server->setConnectionReadTimeout( lua_tonumber( lua, -1 ) );
-//         }
-// 
-//         if ( !strcmp( name, "connectionWriteTimeout" ) )
-//         {
-//             m_server->setConnectionWriteTimeout( lua_tonumber( lua, -1 ) );
-//         }
-// 
-//         if ( !strcmp( name, "poolThreadCount" ) )
-//         {
-//             if ( m_serverType == ServerHttp )
-//             {
-//                 if ( !m_debug )
-//                 {
-//                     ( ( propeller::http::Server* ) m_server )->setPoolThreadCount( lua_tonumber( lua, -1 ) );
-//                 }
-//             }
-//         }
-// 
-//         if ( !strcmp( name, "connectionThreadCount" ) )
-//         {
-//             if ( m_serverType == ServerHttp )
-//             {
-//                 if ( !m_debug )
-//                 {
-//                     m_server->setThreadCount( lua_tonumber( lua, -1 ) );
-//                 }
-//             }
-//         }
-// 
-//         if ( !strcmp( name, "debug" ) )
-//         {
-//             m_debug = lua_toboolean( lua, -1 );
-//             
-//             if ( m_serverType == ServerHttp )
-//             {
-//                 ( ( propeller::http::Server* ) m_server )->setPoolThreadCount( 1 );
-//             }
-//             
-//             m_server->setThreadCount( 1 );            
-//             
-//         }
-// 
-//         lua_pop( lua, 1 );
-//     }
-// 
-//     lua_pop( lua, 1 );
-// }
+ void Leda::serverCreate( lua_State* lua )
+ {
+     TRACE_ENTERLEAVE( );
+     
+     lua_getfield( lua, -1, "type" );
+     std::string type = lua_tostring( lua, -1 );
+     lua_pop( lua, 1 );
+     
+     propeller::Server* server;
+     
+     if ( type == "http" )
+     {
+ 
+         m_serverType = ServerHttp;
+         ///m_server = new HttpServer();
+         m_server->setConnectionReadTimeout( 30 );
+         m_server->setConnectionWriteTimeout( 30 );
+     }
+     else
+     {
+         m_server = new Server(type );
+         m_serverType = ServerMessage;
+     }
+ 
+     
+     //
+     //  get server options
+     //
+     lua_pushnil( lua );
+     while ( lua_next( lua, -2 ) != 0 )
+     {
+         const char* name = lua_tostring( lua, -2 );
+         
+         if ( !strcmp( name, "port" ) )
+         {            
+             m_server->setPort( lua_tonumber( lua, -1 ) );
+         }
+         
+         if ( !strcmp( name, "host" ) )
+         {
+             m_server->setHost( lua_tostring( lua, -1 ) );
+         }
+         
+         if ( !strcmp( name, "connectionReadTimeout" ) )
+         {
+             m_server->setConnectionReadTimeout( lua_tonumber( lua, -1 ) );
+         }
+ 
+         if ( !strcmp( name, "connectionWriteTimeout" ) )
+         {
+             m_server->setConnectionWriteTimeout( lua_tonumber( lua, -1 ) );
+         }
+ 
+         if ( !strcmp( name, "pool" ) )
+         {
+             if ( m_serverType == ServerHttp )
+             {
+                 if ( !m_debug )
+                 {
+                     ( ( propeller::http::Server* ) m_server )->setPoolThreadCount( lua_tonumber( lua, -1 ) );
+                 }
+             }
+         }
+ 
+        if ( !strcmp( name, "threads" ) )
+        {
+            if ( !m_debug )
+            {
+                m_server->setThreadCount( lua_tonumber( lua, -1 ) );
+            }
+            
+         }
+ 
+         if ( !strcmp( name, "debug" ) )
+         {
+             m_debug = lua_toboolean( lua, -1 );
+             
+             if ( m_serverType == ServerHttp )
+             {
+                 ( ( propeller::http::Server* ) m_server )->setPoolThreadCount( 1 );
+             }
+             
+             m_server->setThreadCount( 1 );            
+             
+         }
+ 
+         lua_pop( lua, 1 );
+     }
+ 
+     lua_pop( lua, 1 );
+ }
 
 void Leda::execScript() 
 {
@@ -331,7 +381,8 @@ void Leda::execScript()
     // //
 //     // load default lua environment for reading init settings
 //     //
-     if ( !m_luaState.load( m_script, "breezeApi.INIT=true" ) )
+    m_lua = new LuaState( m_script );
+    if ( !m_lua->load( "__init=true" ) )
     {
         throw std::runtime_error( "" );
      }
@@ -341,17 +392,17 @@ void Leda::execScript()
 //          m_client->start();         
 //      }
 //      
-//      if ( m_server )
-//      {
-//          try
-//          {
-//             m_server->start();
-//          }
-//          catch ( ... )
-//          {
-//              throw std::runtime_error("");
-//          }
-//      }
+      if ( m_server )
+      {
+          try
+          {
+             m_server->start();
+          }
+          catch ( ... )
+          {
+              throw std::runtime_error("");
+          }
+      }
 }
  
  void Leda::onTerminate()
@@ -360,8 +411,6 @@ void Leda::execScript()
 
      if ( m_server )
      {
-         sys::LockEnterLeave lock( Leda::instance()->lua().lock() );
-         
          m_server->stop();
          m_server = NULL;
 

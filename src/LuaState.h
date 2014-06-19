@@ -19,13 +19,13 @@
 class LuaState
 {
 public:
-    LuaState();
+    LuaState( const std::string& filename );
     LuaState( const LuaState& lua );
     virtual ~LuaState( );
     
-    bool load( const std::string& script, const char* init = NULL );
+    bool load( const char* init = NULL ) const;
     void call( const std::string& callbackName, int registryIndex = -1, bool exception = false) const; 
-    bool reload( const std::string& script );
+    bool reload( ) const;
     void execute( const std::string& script ) const;
     
     operator lua_State*() const
@@ -45,13 +45,14 @@ public:
     
     
 private:
-     void create();   
+     void loadlibs() const;   
      
     
 private:
     lua_State* m_lua;
     bool m_close;    
     sys::Lock m_lock;
+    std::string m_filename;
 };
 
 #endif	/* LUASTATE_H */
