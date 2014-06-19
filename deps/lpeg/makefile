@@ -1,5 +1,5 @@
 LIBNAME = lpeg
-LUADIR = /usr/include/lua5.1/
+LUADIR = ../luajit/src
 
 COPT = -O2
 # COPT = -DLPEG_DEBUG -g
@@ -40,8 +40,8 @@ PLATFORM_LDFLAGS = -bundle -undefined dynamic_lookup
 endif
 
 
-all:
-	make lpeg.so 
+
+all: lpeg.so 
 
 lpeg.so: $(FILES)
 	env $(CC) $(PLATFORM_LDFLAGS) $(FILES) -o lpeg.so
@@ -60,3 +60,4 @@ lpcode.o: lpcode.c lptypes.h lpcode.h lptree.h lpvm.h lpcap.h
 lpprint.o: lpprint.c lptypes.h lpprint.h lptree.h lpvm.h lpcap.h
 lptree.o: lptree.c lptypes.h lpcap.h lpcode.h lptree.h lpvm.h lpprint.h
 lpvm.o: lpvm.c lpcap.h lptypes.h lpvm.h lpprint.h lptree.h
+
