@@ -2,7 +2,7 @@ T= lfs
 
 # Compilation directives
 
-LUA_INC =   ../lua/src
+LUA_INC =   ../luajit/src
 INCS= -I$(LUA_INC)
 CC= gcc
 
