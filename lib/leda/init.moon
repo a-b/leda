@@ -64,6 +64,7 @@ class Server
                 
 
     -- method stubs                 
+    
     onThreadStarted: (thread) =>
         
     onThreadStopped: (thread) =>
@@ -80,6 +81,9 @@ class Server
         
     setTimer: (timeout, callback) =>
         __api.serverAddTimer(timeout, false, callback)    
+        
+    setTimeout: (timeout, callback) =>
+            __api.serverAddTimer(timeout, true, callback)    
         
     send: (connection, data) =>
         connection\send(data)  

@@ -12,7 +12,6 @@ class MyServer extends Server
                 connection\send("timer") 
             
         self\setTimer(1, callback)    
-        
     
     test: =>
         print @threads    
