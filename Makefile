@@ -30,7 +30,7 @@ PLATFORM_LDFLAGS ?=
 UNAME := $(shell uname)
 
 ifeq ($(UNAME), Linux)
-PLATFORM_LDFLAGS = -pthread  -lrt -ldl -lm -export_dynamic
+PLATFORM_LDFLAGS = -pthread  -lrt -ldl -lm -export-dynamic
 endif
 
 ifeq ($(UNAME), Darwin)
