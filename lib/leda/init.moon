@@ -27,8 +27,6 @@ class Server
     port: 8000
     -- default host
     host: '127.0.0.1'
-    -- server unique id
-    id: __api.generateUniqueString()
     -- default thread count
     threads: 1
     -- connections map
