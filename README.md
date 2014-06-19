@@ -1,7 +1,7 @@
 leda
 ====
 
-high performance framework for creating mnetwork applications using moonscript (http://www.moonscript.org). 
+high performance framework for creating powerful mnetwork applications with leightweight scripting
 
 Features:
 
