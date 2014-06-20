@@ -22,7 +22,7 @@ class Connection
 -- server class
 class TCPServer
     --default type
-    type: "generic"
+    type: "tcp"
     -- default port
     port: 8000
     -- default host
@@ -62,25 +62,32 @@ class TCPServer
 
     -- method stubs                 
     
+    -- new thread was started
     onThreadStarted: (thread) =>
         
+    -- thread was stopped 
     onThreadStopped: (thread) =>
         
+    -- new connection has been opened by server    
     onConnectionOpened: (connection) =>    
         @connections[connection\id!] = connection
         
+    -- connection    
     onConnectionClosed: (connection) =>    
         @connections[connection\id!] = nil
         
-        
+    -- data was received on one of the connections
     onDataReceived: (connection, data) =>
-        
+    
+    -- set timer. function specified in callback will be called every number of seconds specified by timeout    
     setTimer: (timeout, callback) =>
         __api.serverAddTimer(timeout, false, callback)    
-        
+    
+    -- set timeout. function specified in callback will be called once the timeout passes     
     setTimeout: (timeout, callback) =>
             __api.serverAddTimer(timeout, true, callback)    
         
+    -- send data on connection    
     send: (connection, data) =>
         connection\send(data)  
           

@@ -6,11 +6,16 @@ class MyServer extends TCPServer
         connection\send(data)
         
     onThreadStarted: (thread) =>
+        callback = ->
+            print "callback"
+        
+        self\setTimeout(1, callback)    
+        
         callback = -> 
             for id, connection in pairs @connections
                 connection\send("timer") 
             
-        self\setTimer(1, callback)    
+--        self\setTimer(1, callback)    
     
     test: =>
         print @threads    
