@@ -22,10 +22,7 @@ Running:
 
 To run an application that starts server TCP listening on se port 8000 that sends back all data it receives and sends "hello" every second to cononections:
 
-
-    $ leda server.moon
-
-`server.moon` looks like this:
+Edit `server.moon` looks like this:
 
 	class MyServer extends TCPServer
     
@@ -43,6 +40,11 @@ To run an application that starts server TCP listening on se port 8000 that send
     
   
     MyServer!    
+
+Run
+
+    $ leda server.moon
+
 
   
 		
