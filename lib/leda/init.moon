@@ -35,7 +35,6 @@ class Server
     -- constructor
     new: =>
         if __init 
-            print "need to start threads", @threads
             --create server
             __api.serverCreate({
                 type: @type,
@@ -69,7 +68,6 @@ class Server
         
     onConnectionOpened: (connection) =>    
         @connections[connection\id!] = connection
-        print @connections
         
     onConnectionClosed: (connection) =>    
         @connections[connection\id!] = nil

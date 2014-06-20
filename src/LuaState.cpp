@@ -59,45 +59,53 @@ LuaState::LuaState( const LuaState& lua)
     
 }
 
+void LuaState::addPaths( const char* name ) const
+{
+    TRACE_ENTERLEAVE();
+    
+    //
+    // modify package search path
+    //
+    lua_getglobal( m_lua, "package" );
+    lua_getfield( m_lua, -1, name );
+    
+    std::string path = lua_tostring( m_lua, -1 );
+    
+    std::string initName =  path.substr( path.find_last_of( "/") ).c_str();
+    const char* ext = strstr( initName.c_str(), "." );
+    
+    
+
+    for ( std::list< std::string >::const_iterator i = Leda::instance()->paths().begin( ); i != Leda::instance()->paths().end( ); i++ )
+    {
+        path.append( ";" );
+        path.append( i->c_str( ) );
+        path.append( "/?" );
+        path.append( ext );
+        
+        
+        path.append( ";" );
+        path.append( i->c_str( ) );
+        path.append( "/?" );
+        path.append( initName );
+    }
+
+    TRACE( "%s: %s", name, path.c_str( ) );
+    lua_pop( m_lua, 1 );
+    lua_pushstring( m_lua, path.c_str( ) );
+    lua_setfield( m_lua, -2, name );
+    lua_pop( m_lua, 1 );
+}
+
+
 void LuaState::loadlibs() const
 {
     TRACE_ENTERLEAVE();
             
     luaL_openlibs( m_lua );
     
-    //
-    // modify package search path
-    //
-    lua_getglobal( m_lua, "package" );
-    lua_getfield( m_lua, -1, "path" );
-
-    std::string path = lua_tostring( m_lua, -1 );
-
-    for ( std::list< std::string >::const_iterator i = Leda::instance()->paths().begin( ); i != Leda::instance()->paths().end( ); i++ )
-    {
-        path.append( ";" );
-        path.append( i->c_str( ) );
-        path.append( "/?.lua" );
-        
-        path.append( ";" );
-        path.append( i->c_str( ) );
-        path.append( "/?.moon" );
-
-//        path.append( ";" );
-//        path.append( i->c_str( ) );
-//        path.append( "/?/init.moon" );
-        
-        path.append( ";" );
-        path.append( i->c_str( ) );
-        path.append( "/?/init.lua" );
-    }
-
-    TRACE( "lua library path: %s", path.c_str( ) );
-
-    lua_pop( m_lua, 1 );
-    lua_pushstring( m_lua, path.c_str( ) );
-    lua_setfield( m_lua, -2, "path" );
-    lua_pop( m_lua, 1 );
+    
+    
  }
 
 LuaState::~LuaState( )
@@ -239,12 +247,20 @@ bool LuaState::load( const char* init ) const
         luaL_dostring( m_lua, init );
     }
     
+    addPaths( "path" );
+
+    luaL_dostring( m_lua, "require 'leda'");
+    luaL_dostring( m_lua, "require 'moonscript';");
+    
+    addPaths( "moonpath" );
+    
     //
     //  load moonscript environment
     //
     char script[ 256 ];
-    sprintf( script, "require 'leda'; local moonscript = require('moonscript'); local init = moonscript.loadstring(\"require 'leda.init'\"); init(); "
+    sprintf( script, "local moonscript = require('moonscript'); local init = moonscript.loadstring(\"require 'leda.init'\"); init(); "
             "local code = assert(moonscript.loadfile('%s')); if code then code() return true; end; return false;", m_filename.c_str() ); 
+    
 
     TRACE( "executing %s", script );
     
@@ -276,6 +292,5 @@ bool LuaState::load( const char* init ) const
     //
     lua_pop( m_lua, 3 );
     
-    
-    return success;
+   return success;
 }

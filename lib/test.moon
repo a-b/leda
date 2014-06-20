@@ -7,7 +7,6 @@ class MyServer extends Server
         
     onThreadStarted: (thread) =>
         callback = -> 
-            print @connections
             for id, connection in pairs @connections
                 connection\send("timer") 
             
@@ -19,7 +18,7 @@ class MyServer extends Server
         
         
 with MyServer!    
-    \test!
+--    \test!
     
     
 

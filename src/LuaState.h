@@ -46,6 +46,7 @@ public:
     
 private:
      void loadlibs() const;   
+     void addPaths( const char* name ) const;
      
     
 private:
