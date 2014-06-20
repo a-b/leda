@@ -28,20 +28,20 @@ To run an application that starts server TCP listening on se port 8000 that send
 
 	class MyServer extends TCPServer
     
-    onDataReceived: (connection, data) =>
-	-- send data back on connection
-        connection\send(data)
+        onDataReceived: (connection, data) =>
+            -- send data back on connection
+            connection\send(data)
         
 	
-    onThreadStarted: (thread) =>
-        callback = -> 
-            for id, connection in pairs @connections
-                connection\send("hello") 
+        onThreadStarted: (thread) =>
+            callback = -> 
+                for id, connection in pairs @connections
+                    connection\send("hello") 
             
-        self\setTimer(1, callback)    
+            self\setTimer(1, callback)    
     
   
-        MyServer!    
+    MyServer!    
 
   
 		
