@@ -12,6 +12,7 @@ Features:
 Installing:
 
     $ git clone https://github.com/sergeyzavadski/leda.git
+    $ cd leda
     $ ./configure
     $ make
     $ sudo make install
