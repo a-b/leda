@@ -225,12 +225,17 @@ int main( int argc, char** argv, char** envp )
         path = script.substr( 0, lastSlash );
         script = script.substr( lastSlash + 1 );
     }
-        
+    
+    TRACE("script %s, path %s", script.c_str(), path.c_str());
+    
     //
     //  get script path
     //
-    if ( script[0] != '/' )
+    if ( path[0] != '/' )
     {
+        //
+        //  form the absolute path in case of relative script path
+        //  
         char buffer[256] = "/0";
         getcwd( buffer, sizeof( buffer ) );
         
