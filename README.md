@@ -9,11 +9,24 @@ Features:
 * Super fast VM with LuaJIT(http://luajit.org)
 * Multithreaded process architecture and asynchronous networking with libevent
 
-Example:
+Installing:
 
-	application that starts server TCP listening on se port 8000 that sends back all data it receives and sends "hello" every second to cooonections:
+    $ git clone https://github.com/sergeyzavadski/leda.git
+    $ ./configure
+    $ make
+    $ sudo make install
+    
 
-	class MyServer extends Server
+Running:
+
+To run an application that starts server TCP listening on se port 8000 that sends back all data it receives and sends "hello" every second to cononections:
+
+
+    $ leda server.moon
+
+`server.moon` looks like this:
+	class MyServer extends TCPServer
+    
     onDataReceived: (connection, data) =>
 	-- send data back on connection
         connection\send(data)
@@ -27,8 +40,7 @@ Example:
         self\setTimer(1, callback)    
     
   
-
-MyServer!    
+        MyServer!    
 
   
 		

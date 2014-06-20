@@ -20,7 +20,7 @@ class Connection
         
         
 -- server class
-class Server
+class TCPServer
     --default type
     type: "generic"
     -- default port

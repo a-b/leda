@@ -1,4 +1,4 @@
-class MyServer extends Server
+class MyServer extends TCPServer
     test: =>
         print "test method override"
             
