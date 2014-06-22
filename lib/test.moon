@@ -3,9 +3,12 @@ require 'leda.tcp_server'
 --
 class MyServer extends TCPServer
     port: 12000
+    threads: 4
 
     onDataReceived: (connection, data) =>
         connection\send(data)
+        
+        
 
     onThreadStarted: (thread) =>
         
@@ -16,7 +19,8 @@ class MyServer extends TCPServer
             for id, connection in pairs @connections
                 connection\send("timer")
 
---        self\setTimer(1, callback)
+        self\setTimer(1, callback)
+        
 
 --
 --

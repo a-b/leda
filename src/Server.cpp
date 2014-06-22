@@ -1,4 +1,3 @@
- 
 #include "Server.h"
 #include "Leda.h"
 
@@ -8,7 +7,6 @@ Server::Server( propeller::Server::Type type )
     TRACE_ENTERLEAVE();
     
     TRACE( "created server type %d", type );
-    
     
 }
 
@@ -36,19 +34,15 @@ void Server::onThreadStarted( propeller::Server::Thread& thread )
     //  
     LuaState* lua = new LuaState( Leda::instance()->script() );
     lua->load( );
+
+    TRACE( "storing thread in lua 0x%x", &thread );
+    //
+    //  store thread pointer in lua state
+    //
+    lua_pushinteger( *lua, thread.id() );
+    lua_setglobal( *lua, "__threadId" );
+
     thread.setData( lua ); 
-    
-    {
-        //
-        //  thread locking code here
-        //
-        sys::LockEnterLeave lock( m_lock );
-        m_threads[ *lua ] = &thread;
-    }
-    
-    
-    lua_pushlightuserdata( *lua, ( void* ) &thread );
-    lua_setglobal( *lua, "__thread" );
     
     lua->call( "onThreadStarted" );
 }
@@ -61,10 +55,7 @@ void Server::onThreadStopped( const propeller::Server::Thread& thread )
     //Leda::instance()->callTerminate( m_lua );
     
     const LuaState& lua = *( ( LuaState* ) thread.data() );
-    
-    lua_pushlightuserdata( lua, ( void* ) &thread );
-    lua_setglobal( lua, "__thread" );
-    
+        
     lua.call( "onThreadStopped" );
     
     m_stop.post();
@@ -103,8 +94,8 @@ void Server::onDataReceived( const propeller::Server::Connection& connection, co
     
     LuaState& lua = *( ( LuaState* ) connection.thread().data() );
     
-    lua_pushnumber( lua, ( unsigned int ) connection.fd() );
-    lua_setglobal( lua, "__connectionId" );
+    lua_pushlightuserdata( lua, ( void* ) &connection );
+    lua_setglobal( lua, "__connection" );
     
     lua_pushlstring( lua, data, length );
     lua_setglobal( lua, "__data" );
@@ -156,17 +147,11 @@ void Server::addTimer( lua_State* lua, unsigned int timeout, bool once, void* da
 {
     TRACE_ENTERLEAVE();
     
-    LuaThreadMap::const_iterator found = threads().find( lua );
-    if ( found != threads().end() )
-    {
-        propeller::Server::Thread* thread = found->second;
-        TRACE( "found thread 0x%x for lua state 0x%x", thread, lua );
-        propeller::Server::addTimer( timeout, thread->id(), once, data );
-    }
-    else
-    {
-        TRACE("not found thread for lua state 0x%x", lua );
-    }
+    lua_getglobal( lua, "__threadId" );
+    unsigned int threadId = lua_tonumber( lua, -1 );
+    
+    TRACE( "adding timer to thread id %d", threadId );
+    propeller::Server::addTimer( timeout, threadId, once, data );
 }
 
 

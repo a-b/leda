@@ -29,19 +29,10 @@ public:
 
 private:
     typedef std::map< lua_State*, propeller::Server::Thread* > LuaThreadMap; 
-    
-    const LuaThreadMap threads() const
-    {
-        return m_threads;
-    }
-    
+        
 
 private:
     sys::Semaphore m_stop;
-    LuaThreadMap m_threads;
-    sys::Lock m_lock;
-    
-
 };
 
 #endif	/* _SERVER_H */
