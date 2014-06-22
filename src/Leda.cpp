@@ -304,10 +304,11 @@ Leda* Leda::instance()
          {
              serverType = propeller::Server::Udp;
          }
-         else
+         else if (type == "simple")
          {
              serverType = propeller::Server::Simple;
          }
+                 
          m_server = new Server( serverType );
          m_serverType = ServerMessage;
      }

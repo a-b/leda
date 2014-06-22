@@ -7,6 +7,8 @@ Server::Server( propeller::Server::Type type )
 {
     TRACE_ENTERLEAVE();
     
+    TRACE( "created server type %d", type );
+    
     
 }
 
