@@ -40,6 +40,8 @@ Edit `server.moon` looks like this:
         
 	
         onThreadStarted: (thread) =>
+            print "started thread ", thread.id
+            
             callback = -> 
                 for id, connection in pairs @connections
                     connection\send("hello") 
