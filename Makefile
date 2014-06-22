@@ -87,9 +87,10 @@ obj/leda: libs $(LEDA_OBJECTS)
 	$(CXX) -o $@ $(LEDA_OBJECTS)  -Ldeps/libpropeller/obj -Ldeps/libpropeller/deps/libevent/.libs -Ldeps/luajit/src  $(LDFLAGS) \
 	     -lpropeller -lluajit   -levent -levent_pthreads   $(PLATFORM_LDFLAGS)
 
-install_leda: obj/leda
+install_leda: 
 	$(INSTALL) -d $(DESTDIR)$(prefix)/bin
 	install -c obj/leda $(DESTDIR)$(prefix)/bin
+	rm -rf $(DESTDIR)$(prefix)/lib/leda
 	mkdir -p $(DESTDIR)$(prefix)/lib/leda
 	rsync -a --exclude='test' --exclude 'test.lua' lib/* $(DESTDIR)$(prefix)/lib/leda/
 	rm $(DESTDIR)$(prefix)/lib/leda/moonscript
