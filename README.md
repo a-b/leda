@@ -28,7 +28,11 @@ Edit `server.moon` looks like this:
     
 	class MyServer extends TCPServer
     
+        -- port 12000
         port: 12000
+        
+        -- set number of threads to 4
+        threads: 4
     
         onDataReceived: (connection, data) =>
             -- send data back on connection
