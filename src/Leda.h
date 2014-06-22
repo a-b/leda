@@ -114,7 +114,7 @@ public:
         return m_debug;
     }
 
-    void callTimer( const LuaState& lua, TimerData* data );
+    void callTimer( LuaState& lua, TimerData* data );
     void callTerminate( const LuaState& lua );
     
     const LuaState& lua() const

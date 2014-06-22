@@ -14,15 +14,46 @@ LuaState::LuaState( const std::string& filename )
 {
     TRACE_ENTERLEAVE();
     
+    create();
+    
+}
 
-    TRACE( "creating new lua state", "" );
+LuaState::LuaState( const LuaState& lua)
+: m_lua( lua.m_lua ), m_close( true )
+{
+    m_lua = lua.m_lua;
+    
+}
 
+void LuaState::destroy()
+{
+    TRACE_ENTERLEAVE();
+    
+    if ( m_lua && m_close )
+    {
+        //
+        //  close lua state if it was created by this instance
+        //
+        lua_close( m_lua );
+        
+        m_lua = NULL;
+    }
+}
+
+
+void LuaState::create()
+{
+    if ( m_lua )
+    {
+        return;
+    }
+    
+    TRACE_ENTERLEAVE();
+    
     //
     //  create new lua state
     //
     m_lua = luaL_newstate( );
-
-    TRACE( "%0x", m_lua );
 
     // //
     // //  register api functons
@@ -50,12 +81,6 @@ LuaState::LuaState( const std::string& filename )
     luaL_register( m_lua, "__api", functions );
     
     loadlibs();
-}
-
-LuaState::LuaState( const LuaState& lua)
-: m_lua( lua.m_lua ), m_close( true )
-{
-    m_lua = lua.m_lua;
     
 }
 
@@ -69,13 +94,17 @@ void LuaState::addPaths( const char* name ) const
     lua_getglobal( m_lua, "package" );
     lua_getfield( m_lua, -1, name );
     
+    if ( lua_isnil( m_lua, -1 ) )
+    {
+        TRACE( "package.%s is not set in lua", name );
+        return;
+    }
+    
     std::string path = lua_tostring( m_lua, -1 );
     
     std::string initName =  path.substr( path.find_last_of( "/") ).c_str();
     const char* ext = strstr( initName.c_str(), "." );
     
-    
-
     for ( std::list< std::string >::const_iterator i = Leda::instance()->paths().begin( ); i != Leda::instance()->paths().end( ); i++ )
     {
         path.append( ";" );
@@ -104,21 +133,13 @@ void LuaState::loadlibs() const
             
     luaL_openlibs( m_lua );
     
-    
-    
  }
 
 LuaState::~LuaState( )
 {
     TRACE_ENTERLEAVE();
-
-    if ( m_lua && m_close )
-    {
-        //
-        //  close lua state if it was created by this instance
-        //
-        lua_close( m_lua );
-    }
+    
+    destroy();    
 }
 
 void LuaState::execute( const std::string& script ) const
@@ -127,17 +148,12 @@ void LuaState::execute( const std::string& script ) const
 }
 
 
-void LuaState::call( const std::string& callbackName, int registryIndex, bool exception ) const
+void LuaState::call( const std::string& callbackName, int registryIndex, bool exception ) 
 {
     
     TRACE_ENTERLEAVE();
     
     TRACE( "callback name: %s, callback index %d", callbackName.c_str(), registryIndex );
-    
-    if ( !m_lua )
-    {
-        throw std::runtime_error("cannot call without a loaded script first");
-    }
     
     if ( Leda::instance()->debug() )
     {
@@ -216,10 +232,17 @@ void LuaState::call( const std::string& callbackName, int registryIndex, bool ex
     //  pop all from stack
     //
     lua_pop( m_lua, -debugIndex );
+    
+    if ( Leda::instance()->debug() )
+    {
+        //destroy();
+    }
+    
+    
 }
 
 
-bool LuaState::reload( ) const
+bool LuaState::reload( )
 {
     TRACE_ENTERLEAVE();
     
@@ -228,16 +251,18 @@ bool LuaState::reload( ) const
         throw std::runtime_error("cannot reload without a loaded script first");
     }
     
-    luaL_dostring( m_lua, "for key, value in pairs(package.loaded) do package.loaded[key] = nil end" );
+    luaL_dostring( m_lua, "packages.loaded = {}" );
+    
     loadlibs( );
 
     //
     //  reload script
     //
-    return load( );
+    return load( NULL, true );
 }
 
-bool LuaState::load( const char* init ) const
+
+bool LuaState::load( const char* init, bool reload ) 
 {
     TRACE_ENTERLEAVE();
     
@@ -249,13 +274,24 @@ bool LuaState::load( const char* init ) const
         TRACE( "%s", init );
         luaL_dostring( m_lua, init );
     }
+  
     
-    addPaths( "path" );
+    
+    if ( !reload )
+    {
+        addPaths( "path" );
+    }
+    
 
     luaL_dostring( m_lua, "require 'leda'");
     luaL_dostring( m_lua, "require 'moonscript'");
     
-    addPaths( "moonpath" );
+    if ( !reload )
+    {
+        this->addPaths( "moonpath" );
+    }
+    
+  
     
     //
     //  load moonscript environment
@@ -295,4 +331,27 @@ bool LuaState::load( const char* init ) const
     lua_pop( m_lua, 3 );
     
    return success;
+}
+
+void LuaState::setGlobal( const std::string& name, unsigned int value )
+{
+    
+    reload();
+    lua_pushinteger( m_lua, value );
+    lua_setglobal( m_lua, name.c_str() );
+}
+
+
+void LuaState::setGlobal( const std::string& name, void* value )
+{
+    reload();
+    lua_pushlightuserdata( m_lua, value );
+    lua_setglobal( m_lua, name.c_str()  );
+}
+
+void LuaState::setGlobal( const std::string& name, const char* value, unsigned int length )
+{
+    reload();
+    lua_pushlstring( m_lua, value, length );
+    lua_setglobal( m_lua, name.c_str()  );
 }

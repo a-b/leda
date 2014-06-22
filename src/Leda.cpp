@@ -255,7 +255,7 @@ Leda* Leda::instance()
     return m_instance;
 }
 
- void Leda::callTimer( const LuaState& lua, TimerData* data )
+ void Leda::callTimer( LuaState& lua, TimerData* data )
  {
      TRACE_ENTERLEAVE();
  

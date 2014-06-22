@@ -23,9 +23,9 @@ public:
     LuaState( const LuaState& lua );
     virtual ~LuaState( );
     
-    bool load( const char* init = NULL ) const;
-    void call( const std::string& callbackName, int registryIndex = -1, bool exception = false) const; 
-    bool reload( ) const;
+    bool load( const char* init = NULL, bool reload = false );
+    void call( const std::string& callbackName, int registryIndex = -1, bool exception = false); 
+    bool reload( );
     void execute( const std::string& script ) const;
     
     operator lua_State*() const
@@ -43,10 +43,21 @@ public:
         return m_lock;
     }
     
+    void setGlobal( const std::string& name, unsigned int value );
+    void setGlobal( const std::string& name, void* value );
+    void setGlobal( const std::string& name, const char* value, unsigned int length );
+    
+protected:
+    
+    
     
 private:
      void loadlibs() const;   
      void addPaths( const char* name ) const;
+     void destroy();
+     void create();
+     
+     
      
     
 private:

@@ -5,11 +5,15 @@
 #include "LuaState.h"
 #include <propeller/Server.h>
 
+
+
 class Server: public propeller::Server
 {
 public:
     Server( propeller::Server::Type type );
     virtual ~Server( );
+    
+    
     
     //
     //  propeller::Server overloads

@@ -35,13 +35,10 @@ void Server::onThreadStarted( propeller::Server::Thread& thread )
     LuaState* lua = new LuaState( Leda::instance()->script() );
     lua->load( );
 
-    TRACE( "storing thread in lua 0x%x", &thread );
     //
     //  store thread pointer in lua state
     //
-    lua_pushinteger( *lua, thread.id() );
-    lua_setglobal( *lua, "__threadId" );
-
+    lua->setGlobal( "__threadId", thread.id() );
     thread.setData( lua ); 
     
     lua->call( "onThreadStarted" );
@@ -52,11 +49,10 @@ void Server::onThreadStopped( const propeller::Server::Thread& thread )
 {
     TRACE_ENTERLEAVE();
     
-    //Leda::instance()->callTerminate( m_lua );
+    LuaState* lua =  ( LuaState* ) thread.data();
     
-    const LuaState& lua = *( ( LuaState* ) thread.data() );
-        
-    lua.call( "onThreadStopped" );
+    lua->setGlobal( "__threadId", thread.id() );
+    lua->call( "onThreadStopped" );
     
     m_stop.post();
 }
@@ -66,11 +62,7 @@ void Server::onConnectionAccepted( const propeller::Server::Connection& connecti
     TRACE_ENTERLEAVE();
     
     LuaState& lua = *( ( LuaState* ) connection.thread().data() );
-    
-    lua_pushlightuserdata( lua, ( void* ) &connection );
-    lua_setglobal( lua, "__connection" );
-    
-    
+    lua.setGlobal( "__connection", ( void* ) &connection );
     lua.call( "onConnectionAccepted" );
 
 }
@@ -94,11 +86,9 @@ void Server::onDataReceived( const propeller::Server::Connection& connection, co
     
     LuaState& lua = *( ( LuaState* ) connection.thread().data() );
     
-    lua_pushlightuserdata( lua, ( void* ) &connection );
-    lua_setglobal( lua, "__connection" );
+    lua.setGlobal( "__connection", ( void* ) &connection );
+    lua.setGlobal( "__data", data, length );
     
-    lua_pushlstring( lua, data, length );
-    lua_setglobal( lua, "__data" );
 
     lua.call( "onConnectionDataReceived" ); 
  }
@@ -109,11 +99,8 @@ void Server::onDataReceived( const propeller::Server::Thread& thread, const std:
     
     LuaState& lua = *( ( LuaState* ) thread.data() );
     
-    lua_pushlstring( lua, data, length );
-    lua_setglobal( lua, "__data" );
-    
-    lua_pushstring( lua, from.c_str() );
-    lua_setglobal( lua, "__from" );
+    lua.setGlobal( "__data", data, length );
+    lua.setGlobal(  "__from", from.c_str(), length );
 
     lua.call( "onUdpDataReceived" );        
 }
@@ -124,10 +111,8 @@ void Server::onConnectionClosed( const propeller::Server::Connection& connection
     TRACE_ENTERLEAVE();
     
     LuaState& lua = *( ( LuaState* ) connection.thread().data() );
-    
-    lua_pushlightuserdata( lua, ( void* ) &connection );
-    lua_setglobal( lua, "__connection" );
-    
+    lua.setGlobal( "__connection", ( void* ) &connection );
+
     lua.call( "onConnectionClosed" );
 }
 
@@ -148,14 +133,14 @@ void Server::addTimer( lua_State* lua, unsigned int timeout, bool once, void* da
     TRACE_ENTERLEAVE();
     
     lua_getglobal( lua, "__threadId" );
+    
+    
     unsigned int threadId = lua_tonumber( lua, -1 );
     
     TRACE( "adding timer to thread id %d", threadId );
     propeller::Server::addTimer( timeout, threadId, once, data );
 }
 
-
-    
 Server::~Server( )
 {
 }
