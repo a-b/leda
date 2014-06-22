@@ -20,11 +20,15 @@ Installing:
 
 Running:
 
-To run an application that starts server TCP is listening on port 8000 and sends back all data it receives as well as sends "hello" every second to cononections:
+To run an application that starts server TCP that is listening on port 1200 and sends back all data it receives as well as sends "hello" every second to cononections:
 
 Edit `server.moon` looks like this:
 
+    require 'leda.tcp_server'
+    
 	class MyServer extends TCPServer
+    
+        port: 12000
     
         onDataReceived: (connection, data) =>
             -- send data back on connection
