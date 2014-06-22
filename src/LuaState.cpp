@@ -129,7 +129,10 @@ void LuaState::execute( const std::string& script ) const
 
 void LuaState::call( const std::string& callbackName, int registryIndex, bool exception ) const
 {
+    
     TRACE_ENTERLEAVE();
+    
+    TRACE( "callback name: %s, callback index %d", callbackName.c_str(), registryIndex );
     
     if ( !m_lua )
     {
