@@ -2,14 +2,12 @@
 #include "Server.h"
 #include "Leda.h"
 
-Server::Server( const std::string& type )
+Server::Server( propeller::Server::Type type )
+: propeller::Server( type )
 {
     TRACE_ENTERLEAVE();
     
-    if ( type == "simple")
-    {
-        setType( propeller::Server::Simple );
-    }
+    
 }
 
 void Server::stop( )
@@ -37,7 +35,6 @@ void Server::onThreadStarted( propeller::Server::Thread& thread )
     LuaState* lua = new LuaState( Leda::instance()->script() );
     lua->load( );
     thread.setData( lua ); 
-    
     
     {
         //
@@ -113,6 +110,21 @@ void Server::onDataReceived( const propeller::Server::Connection& connection, co
     lua.call( "onConnectionDataReceived" ); 
  }
 
+void Server::onDataReceived( const propeller::Server::Thread& thread, const std::string& from, const char* data, unsigned int length )
+{
+    TRACE_ENTERLEAVE();
+    
+    LuaState& lua = *( ( LuaState* ) thread.data() );
+    
+    lua_pushlstring( lua, data, length );
+    lua_setglobal( lua, "__data" );
+    
+    lua_pushstring( lua, from.c_str() );
+    lua_setglobal( lua, "__from" );
+
+    lua.call( "onUdpDataReceived" );        
+}
+
 
 void Server::onConnectionClosed( const propeller::Server::Connection& connection )
 {
@@ -138,7 +150,7 @@ void Server::onTimer( const propeller::Server::Thread& thread, void* data )
     }
 }
 
-void Server::setTimer( lua_State* lua, unsigned int timeout, void* data )
+void Server::addTimer( lua_State* lua, unsigned int timeout, bool once, void* data )
 {
     TRACE_ENTERLEAVE();
     
@@ -147,7 +159,11 @@ void Server::setTimer( lua_State* lua, unsigned int timeout, void* data )
     {
         propeller::Server::Thread* thread = found->second;
         TRACE( "found thread 0x%x for lua state 0x%x", thread, lua );
-        addTimer( timeout, thread->id(), false, data );
+        propeller::Server::addTimer( timeout, thread->id(), once, data );
+    }
+    else
+    {
+        TRACE("not found thread for lua state 0x%x", lua );
     }
 }
 

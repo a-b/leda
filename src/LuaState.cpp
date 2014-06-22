@@ -258,7 +258,7 @@ bool LuaState::load( const char* init ) const
     //  load moonscript environment
     //
     char script[ 256 ];
-    sprintf( script, "local moonscript = require('moonscript'); local init = moonscript.loadstring(\"require 'leda.init'\"); init(); "
+    sprintf( script, "local moonscript = require('moonscript'); "
             "moonscript.dofile('%s');", m_filename.c_str() ); 
     
     TRACE( "executing %s", script );

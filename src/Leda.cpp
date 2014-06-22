@@ -40,12 +40,8 @@ extern "C"
      int interval = lua_tointeger( lua, -2 );
      
      Server* server = ( Server* ) Leda::instance()->server();
-     if ( !once )
-     {
-         server->setTimer( lua, interval, new Leda::TimerData( callback, once ) );
-     }
+     server->addTimer( lua, interval, once, new Leda::TimerData( callback, once ) );
      
-             //->addTimer( interval, once,  );
      return 0;
  }
  
@@ -303,7 +299,16 @@ Leda* Leda::instance()
      }
      else
      {
-         m_server = new Server(type );
+         propeller::Server::Type serverType = propeller::Server::Tcp;
+         if ( type == "udp" )
+         {
+             serverType = propeller::Server::Udp;
+         }
+         else
+         {
+             serverType = propeller::Server::Simple;
+         }
+         m_server = new Server( serverType );
          m_serverType = ServerMessage;
      }
  

@@ -1,36 +1,17 @@
 export ^
 
-class Thread
-    new: => 
-        @thread = __thread
-        @id = __api.threadGetId(@thread)
+require 'leda.common'
         
--- connection class
-class Connection
-    new: =>
-        -- assigning via property results in @connection equal nil
-        @connection = __connection
-    
-    address: => __api.serverConnectionGetAddress(@connection) 
-    
-    id: => __api.serverConnectionGetId(@connection) 
-        
-    send: (data) =>
-        __api.serverConnectionSendData(@connection, data)
-        
-        
--- server class
-class TCPServer
+-- UDP server class
+class UDPServer
     --default type
-    type: "tcp"
+    type: "udp"
     -- default port
     port: 8000
     -- default host
     host: '127.0.0.1'
     -- default thread count
     threads: 1
-    -- connections map
-    connections: {}
     
     -- constructor
     new: =>
@@ -49,15 +30,9 @@ class TCPServer
                 
             __leda.onThreadStopped = ->
                 self\onThreadStopped(Thread!)    
-            
-            __leda.onConnectionAccepted = ->
-                self\onConnectionOpened(Connection!)
-                
-            __leda.onConnectionClosed = ->
-                    self\onConnectionClosed(Connection!)    
-                
-            __leda.onConnectionDataReceived = ->
-                self\onDataReceived(Connection!, __data)    
+
+            __leda.onUdpDataReceived = ->
+                self\onDataReceived(__from, __data)    
                 
 
     -- method stubs                 
@@ -67,17 +42,9 @@ class TCPServer
         
     -- thread was stopped 
     onThreadStopped: (thread) =>
-        
-    -- new connection has been opened by server    
-    onConnectionOpened: (connection) =>    
-        @connections[connection\id!] = connection
-        
-    -- connection    
-    onConnectionClosed: (connection) =>    
-        @connections[connection\id!] = nil
-        
-    -- data was received on one of the connections
-    onDataReceived: (connection, data) =>
+                
+    -- data was received from the address
+    onDataReceived: (address, data) =>
     
     -- set timer. function specified in callback will be called every number of seconds specified by timeout    
     setTimer: (timeout, callback) =>
