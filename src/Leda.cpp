@@ -145,6 +145,26 @@ extern "C"
      return 1;
  }
  
+ int serverSendTo( lua_State* lua )
+ {
+     TRACE_ENTERLEAVE();
+     
+     size_t size = 0;
+     
+     const char* data = lua_tolstring( lua, -1, &size );
+     unsigned int port = lua_tointeger( lua, -2 );
+     const char* ip = lua_tostring( lua, -3 );
+     
+     TRACE( "%s:%d", ip, port );
+     
+     Leda::instance()->server()->sendTo( ip, port, data, size );
+     
+     lua_pop( lua, 3 );
+     
+     return 0;
+     
+ }
+ 
  
 // 
 // int clientCreate( lua_State* lua )

@@ -67,6 +67,8 @@ void LuaState::create()
         {"threadGetId", threadGetId },
         {"serverConnectionGetAddress", serverConnectionGetAddress},
         {"serverConnectionGetId", serverConnectionGetId},
+        {"serverSendTo", serverSendTo},
+        
         
         //             {"clientCreate", clientCreate },
         //             {"clientConnect", clientConnect },
@@ -233,10 +235,6 @@ void LuaState::call( const std::string& callbackName, int registryIndex, bool ex
     //
     lua_pop( m_lua, -debugIndex );
     
-    if ( Leda::instance()->debug() )
-    {
-        //destroy();
-    }
     
     
 }
@@ -335,8 +333,6 @@ bool LuaState::load( const char* init, bool reload )
 
 void LuaState::setGlobal( const std::string& name, unsigned int value )
 {
-    
-    reload();
     lua_pushinteger( m_lua, value );
     lua_setglobal( m_lua, name.c_str() );
 }
@@ -344,14 +340,18 @@ void LuaState::setGlobal( const std::string& name, unsigned int value )
 
 void LuaState::setGlobal( const std::string& name, void* value )
 {
-    reload();
     lua_pushlightuserdata( m_lua, value );
     lua_setglobal( m_lua, name.c_str()  );
 }
 
 void LuaState::setGlobal( const std::string& name, const char* value, unsigned int length )
 {
-    reload();
     lua_pushlstring( m_lua, value, length );
+    lua_setglobal( m_lua, name.c_str()  );
+}
+
+void LuaState::setGlobal( const std::string& name, const std::string& value )
+{
+    lua_pushstring( m_lua, value.c_str() );
     lua_setglobal( m_lua, name.c_str()  );
 }

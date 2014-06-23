@@ -100,7 +100,7 @@ void Server::onDataReceived( const propeller::Server::Thread& thread, const std:
     LuaState& lua = *( ( LuaState* ) thread.data() );
     
     lua.setGlobal( "__data", data, length );
-    lua.setGlobal(  "__from", from.c_str(), length );
+    lua.setGlobal(  "__from", from.c_str() );
 
     lua.call( "onUdpDataReceived" );        
 }
@@ -144,4 +144,5 @@ void Server::addTimer( lua_State* lua, unsigned int timeout, bool once, void* da
 Server::~Server( )
 {
 }
+
 

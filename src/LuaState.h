@@ -46,6 +46,8 @@ public:
     void setGlobal( const std::string& name, unsigned int value );
     void setGlobal( const std::string& name, void* value );
     void setGlobal( const std::string& name, const char* value, unsigned int length );
+    void setGlobal( const std::string& name, const std::string& value );
+    
     
 protected:
     
