@@ -20,42 +20,30 @@ Installing:
 
 Running:
 
-To run an application that starts server TCP that is listening on port 1200 and sends back all data it receives as well as sends "hello" every second to cononections:
+Example HTTP server listening on port 9090 and respondin  with 'hello' on every request
 
 Edit `server.moon` looks like this:
 
-    require 'leda.tcp_server'
+    -- example of HTTP server listening on port 9090 that responds with 'hello world' on every request
+    require 'leda.http_server'
+
+    class ExampleServer extends HTTPServer
+        port: 9090
     
-	class MyServer extends TCPServer
-    
-        -- port 12000
-        port: 12000
+        onStart: =>
+            print string.format("starting http server on port %s", @port)
         
-        -- set number of threads to 4
-        threads: 4
-    
-        onDataReceived: (connection, data) =>
-            -- send data back on connection
-            connection\send(data)
+        onRequest: =>
+            print string.format("%s %s", @request.method, @request.url)
+            @response.body = "hello world"
         
-	
-        onThreadStarted: (thread) =>
-            print "started thread ", thread.id
-            
-            callback = -> 
-                for id, connection in pairs @connections
-                    connection\send("hello") 
-            
-            self\setTimer(1, callback)    
-    
-  
-    MyServer!    
+    ExampleServer!    
 
 Run
 
     $ leda server.moon
 
 
-  
+For more examples see [examples](https://github.com/sergeyzavadski/leda/tree/master/examples)
 		
 
