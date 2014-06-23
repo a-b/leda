@@ -22,10 +22,6 @@ limitations under the License.
  #include "Server.h"
 // #include "HttpServer.h"
 
-extern "C" 
-{
-    #include <uuid/uuid.h>
-}
 
 
 //
