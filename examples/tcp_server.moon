@@ -19,7 +19,7 @@ class ExampleServer extends TCPServer
 
         callback = -> 
             for id, connection in pairs @connections
-                connection\send("hello") 
+                connection\send("hello\n") 
 
         self\setTimer(1, callback)    
         
@@ -35,5 +35,4 @@ class ExampleServer extends TCPServer
     
         print string.format("closed client connectionid  %s", connection\id!)    
         
-
 ExampleServer!    
