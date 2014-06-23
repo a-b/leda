@@ -1,37 +1,20 @@
-require 'leda.tcp_server'
+--for key, value in pairs package
+ --   print key
+
+
+
+require 'leda.http_server'
 
 --
-class MyServer extends TCPServer
-    port: 12000
-    threads: 4
+class MyServer extends HTTPServer
 
-    onDataReceived: (connection, data) =>
-        connection\send(data)
-        
-        
-
-    onThreadStarted: (thread) =>
-        
-
-        --self\setTimeout(1, callback)
-
-        callback = ->
-            for id, connection in pairs @connections
-                connection\send("timer")
-
-        self\setTimer(1, callback)
-        
-
---
---
---
 MyServer!
 -- --    \test!
 --
---
---
---
---
+-- --
+-- --
+-- --
+-- --
 --
 --
 --

@@ -24,7 +24,7 @@ public:
     virtual ~LuaState( );
     
     bool load( const char* init = NULL, bool reload = false );
-    void call( const std::string& callbackName, int registryIndex = -1, bool exception = false); 
+    void call( const std::string& callbackName, int registryIndex = -1, bool exception = false ); 
     bool reload( );
     void execute( const std::string& script ) const;
     

@@ -52,11 +52,11 @@ class UDPServer
     
     -- set timeout. function specified in callback will be called once the timeout passes     
     setTimeout: (timeout, callback) =>
-            __api.serverAddTimer(timeout, true, callback)    
+        __api.serverAddTimer(timeout, true, callback)    
         
     -- send data on connection    
-    send: (connection, data) =>
-        connection\send(data)  
+    sendTo: (ip, port, data) =>
+        __api.serverSendTo(ip, port, data)
           
             
         
