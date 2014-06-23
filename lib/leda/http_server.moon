@@ -57,9 +57,8 @@ class HTTPServer
             __leda.onHttpRequest = ->
                 @response = Response!
                 @request = Request!
-                
                 self\onRequest!    
-                print @response.body
+                
                 @response\send!
                 
             __leda.onThreadStarted = ->
