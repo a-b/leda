@@ -20,7 +20,7 @@ Installing:
 
 Running:
 
-Example HTTP server listening on port 9090 and respondin  with 'hello' on every request
+Example HTTP server listening on port 9090 and responding  with 'hello' on every request
 
 Edit `server.moon` looks like this:
 
