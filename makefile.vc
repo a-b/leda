@@ -1,0 +1,82 @@
+# -------------------------------------------------------------------------
+# These are configurable options:
+# -------------------------------------------------------------------------
+
+# C++ compiler 
+CXX = cl
+
+# Standard flags for C++ 
+CXXFLAGS = 
+
+# Standard preprocessor flags (common for CC and CXX) 
+CPPFLAGS = 
+
+# Standard linker flags 
+LDFLAGS = 
+
+
+
+### Variables: ###
+
+LEDA_CXXFLAGS = /MT /DWIN32 /DDEBUG /Ideps\libpropeller\deps\libevent\WIN32-Code /Ideps\LIBpropeller\include \
+	/Ideps\libpropeller\deps\libevent\include /Ideps\luajit\src /GR /EHsc $(CPPFLAGS) $(CXXFLAGS)
+
+LEDA_OBJECTS =  \
+	obj\LEDA_HttpServer.obj \
+	obj\LEDA_main.obj \
+	obj\LEDA_Server.obj \
+	obj\LEDA_LuaState.obj \
+	obj\LEDA_trace.obj \
+	obj\LEDA_Leda.obj
+
+### Conditionally set variables: ###
+
+
+
+all: obj
+obj:
+	-if not exist obj mkdir obj
+
+### Targets: ###
+
+all: obj\leda.exe
+
+clean: 
+	-if exist obj\*.obj del obj\*.obj
+	-if exist obj\*.res del obj\*.res
+	-if exist obj\*.pch del obj\*.pch
+	-if exist obj\*.exe del obj\*.exe
+	
+	cd deps/libpropeller  && nmake /f Makefile.vc clean
+
+libpropeller: 
+	cd deps/libpropeller && nmake /f makefile.vc
+
+luajit: 
+	 cd deps/luajit/src/ && call msvcbuild.bat
+
+obj\leda.exe:  libpropeller $(LEDA_OBJECTS)
+	link  /NOLOGO /OUT:$@   /LIBPATH:deps\libpropeller\obj /LIBPATH:deps\luajit\src $(LDFLAGS) @<<
+	$(LEDA_OBJECTS) libpropeller.lib lua51.lib
+<<
+
+
+obj\LEDA_HttpServer.obj: src\HttpServer.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\HttpServer.cpp
+
+obj\LEDA_Leda.obj: src\Leda.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\Leda.cpp
+
+
+
+obj\LEDA_Server.obj: src\Server.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\Server.cpp
+
+obj\LEDA_main.obj: src\main.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\main.cpp
+
+
+obj\LEDA_trace.obj: src\trace.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\trace.cpp
+
+

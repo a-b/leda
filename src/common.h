@@ -24,8 +24,10 @@
 #include "trace.h"
 #include "version.h"
 
+#ifndef WIN32
 #include <sys/time.h>
 #include <unistd.h>
+#endif
 
 
 #endif //_COMMON_H_

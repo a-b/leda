@@ -1,10 +1,12 @@
 
 #include "Leda.h"
-#include <signal.h>
-#include <execinfo.h>
 #include <stdexcept>  
 #include "version.h"
 #include <stdio.h>
+
+#ifndef WIN32
+#include <signal.h>
+#include <execinfo.h>
 
 void sigSegvHandler( int sig ) 
 {
@@ -23,6 +25,8 @@ void sigKillHandler( int sig )
     Leda::instance()->onTerminate();  
     exit( 1 );
 }
+
+#endif
 
 class CmdOption
 {
@@ -142,6 +146,7 @@ const CmdOption* findOption( const char* arg )
 
 int main( int argc, char** argv, char** envp )
 {
+#ifndef WIN32
     //
     // install signal handlers
     //
@@ -152,12 +157,13 @@ int main( int argc, char** argv, char** envp )
     signal( SIGURG, sigKillHandler );
     
     
+#endif
     options.push_back( CmdOption( "-h", "--help", "\t\tprints help", "help" ) );
     options.push_back( CmdOption( "", "--version", "\t\tprints version", "version" ) );
     
     //
     //  parse command line
-    //
+        //
     std::string script;
     try
     {
@@ -275,7 +281,9 @@ int main( int argc, char** argv, char** envp )
        // 
        //   crash
        // 
+#ifndef WIN32
        raise( SIGSEGV ); 
+#endif       
        return 1;
     }
     
