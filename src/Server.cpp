@@ -139,6 +139,8 @@ void Server::addTimer( lua_State* lua, unsigned int timeout, bool once, void* da
     
     TRACE( "adding timer to thread id %d", threadId );
     propeller::Server::addTimer( timeout, threadId, once, data );
+    
+    lua_pop( lua, 1 );
 }
 
 Server::~Server( )

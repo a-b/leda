@@ -9,7 +9,7 @@
 #include "Leda.h"
 
 HttpServer::HttpServer()
-: m_stoppedThreads( 0 ), m_threadId( 0 )
+: m_stoppedThreads( 0 ), m_threadId( 0 ), m_poolThreadId( 0 )
 {
     TRACE_ENTERLEAVE();
     
@@ -35,38 +35,65 @@ void HttpServer::onThreadStop( const sys::ThreadPool::Worker& thread )
 {
     TRACE_ENTERLEAVE();
     
+    onThreadStopCommon( thread );
+}
+
+void HttpServer::onThreadStopCommon( const sys::Thread& thread )
+{
     LuaState* lua = ( LuaState* ) thread.data();
     lua->call( "onThreadStopped" );
 
-    unsigned int old = sys::General::interlockedIncrement( &m_stoppedThreads );
-    if ( old == getPoolThreadCount() - 1  )
+    unsigned int value = sys::General::interlockedIncrement( &m_stoppedThreads );
+    if ( value == getPoolThreadCount() +  getThreadCount() )
     {
         lua->call( "onServerStopped" );
         
-        TRACE("all pool threads stopped", "");
         m_stop.post();
     }
+}
+void HttpServer::onThreadStopped( const propeller::Server::Thread& thread )
+{
+    TRACE_ENTERLEAVE();
+    
+    onThreadStopCommon( thread );
+}
+
+LuaState* HttpServer::onThreadStartCommon( sys::Thread& thread, unsigned int id )
+{
+    LuaState* lua = new LuaState( Leda::instance()->script() );
+    lua->load();
+    lua->setGlobal( "__threadId", id );
+    thread.setData( lua );
+    lua->call( "onThreadStarted" );
+    
+    return lua;
 }
 
 void HttpServer::onThreadStart( sys::ThreadPool::Worker& thread )
 {
     TRACE_ENTERLEAVE();
-    LuaState* lua = new LuaState( Leda::instance()->script() );
-    lua->load();
-    lua->setGlobal( "__threadId", m_threadId );
-    thread.setData( lua );
+    onThreadStartCommon( thread, m_poolThreadId );
     
-    TRACE("%d", m_threadId );
+    
+    m_poolThreadId ++;
+    
+}
+
+void HttpServer::onThreadStarted( propeller::Server::Thread& thread )
+{
+    TRACE_ENTERLEAVE();
+    
+    LuaState* lua = onThreadStartCommon( thread, m_threadId );
     
     if ( !m_threadId )
     {
         lua->call( "onServerStarted" );
     }
+
     
     m_threadId ++;
     
-    lua->call( "onThreadStarted" );
-  
+    
 }
 
 void HttpServer::onRequest( const propeller::http::Request& request, propeller::http::Response& response,  sys::ThreadPool::Worker& thread )
@@ -170,58 +197,27 @@ void HttpServer::onRequest( const propeller::http::Request& request, propeller::
     lua_pop( lua, 2 );
 }
 
-//void HttpServer::onTimer( void* data )
-//{
-//    TRACE_ENTERLEAVE();
-//        
-//    for ( sys::ThreadPool::WorkerList::iterator i =  threads().begin(); i != threads().end(); i++ )
-//    {
-//
-//        sys::ThreadPool::Worker* worker = *i;
-//        TRACE("need to lock thread %d", worker->workerId());
-//
-//        sys::LockEnterLeave lock(worker->lock());
-//        sys::LockEnterLeave lock1(Leda::instance()->lua().lock());
-//        LuaState& lua = *((LuaState*) worker->data());
-//        lua.call("__onCollectMetrics");
-//
-//
-//        lua_getglobal(lua, "__metrics");
-//        lua_pushnil(lua);
-//        lua_newtable(Leda::instance()->lua());
-//
-//        while ( lua_next( lua, -2 ) ) 
-//        {
-//            if ( lua_isnumber( lua, -1 ) ) 
-//            {
-//                lua_pushnumber( Leda::instance()->lua(), lua_tonumber( lua, -1 ) );
-//                lua_setfield( Leda::instance()->lua(), -2, lua_tostring( lua, -2 ) );
-//
-//            }
-//           lua_pop(lua, 1);
-//        }
-//        lua_pop( lua, 1 );
-//        
-//        lua_setglobal( Leda::instance()->lua(), "__threadMetrics" );
-//        
-//        Leda::instance()->lua().execute("if not __totalMetrics then __totalMetrics = table.clone(__threadMetrics) else "
-//                "for k, v in pairs(__threadMetrics) do  __totalMetrics[k] = __totalMetrics[k] + v  end end;");
-//    }
-//    
-//    
-//    
-//    sys::LockEnterLeave lock( Leda::instance()->lua().lock() );
-//    Leda::instance()->lua().call( "__onCollectMetricsTotals" );
-//    
-//}
-//
-//void HttpServer::onStarted( )
-//{
-//    TRACE_ENTERLEAVE();
-//    
-//    
-//    addTimer( 1, false, NULL );
-//    
-//    
-//    
-//}
+void HttpServer::addTimer( lua_State* lua, unsigned int timeout, bool once, void* data )
+{
+    TRACE_ENTERLEAVE();
+    
+    lua_getglobal( lua, "__threadId" );
+    
+    unsigned int threadId = lua_tonumber( lua, -1 );
+    
+    TRACE( "adding timer to thread id %d", threadId );
+    propeller::Server::addTimer( timeout, threadId, once, data );
+    lua_pop( lua, 1 );
+}
+
+void HttpServer::onTimer( const propeller::Server::Thread& thread, void* data )
+{
+    TRACE_ENTERLEAVE();
+    
+    LuaState& lua = *( ( LuaState* ) thread.data() );
+    
+    if ( data )
+    {
+        Leda::instance()->callTimer( lua, ( Leda::TimerData* ) data );
+    }
+}

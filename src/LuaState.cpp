@@ -60,6 +60,8 @@ void LuaState::create()
     // //
     static const luaL_Reg functions[] = {
         {"serverAddTimer", serverAddTimer },
+        {"serverHttpAddTimer", serverHttpAddTimer },
+        
         {"serverCreate", serverCreate },
 //        {"generateUniqueString", generateRandomString },
         {"serverConnectionSendData", serverConnectionSendData },
