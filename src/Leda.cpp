@@ -236,7 +236,7 @@
  
  int getpid( lua_State* lua )
  {
-     lua_pushnumber( lua, ::getpid() );
+     lua_pushnumber( lua, sys::General::getProcessId() );
      
      return 1;
  }
