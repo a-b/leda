@@ -243,7 +243,8 @@ int main( int argc, char** argv, char** envp )
         //  form the absolute path in case of relative script path
         //  
         char buffer[256] = "/0";
-        getcwd( buffer, sizeof( buffer ) );
+        
+        sys::General::getCurrentDirectory( buffer, sizeof( buffer ) );
         
         leda->addPath( buffer );
         
@@ -262,7 +263,7 @@ int main( int argc, char** argv, char** envp )
     //
     //  set working directory
     //
-    chdir( path.c_str() );
+    sys::General::setCurrentDirectory( path.c_str() );
     
     leda->addPath( path );
     leda->setScript( script );
