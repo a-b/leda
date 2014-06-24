@@ -41,6 +41,7 @@ extern int serverConnectionGetId( lua_State* lua );
 extern int serverSendTo( lua_State* lua );
 extern int serverCreate( lua_State* lua );
 extern int serverAddTimer( lua_State* lua );
+extern int serverHttpAddTimer( lua_State* lua );
 extern int getpid( lua_State* lua );
 extern int threadGetId( lua_State* lua );
 

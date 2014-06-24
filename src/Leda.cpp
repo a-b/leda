@@ -18,7 +18,23 @@
      bool once = lua_toboolean( lua, -1 );
      int interval = lua_tointeger( lua, -2 );
      
+    
      Server* server = ( Server* ) Leda::instance()->server();
+     server->addTimer( lua, interval, once, new Leda::TimerData( callback, once ) );
+     
+     return 0;
+ }
+ 
+ int serverHttpAddTimer( lua_State* lua )
+ {
+     TRACE_ENTERLEAVE();
+     
+     int callback = luaL_ref( lua, LUA_REGISTRYINDEX );
+     bool once = lua_toboolean( lua, -1 );
+     int interval = lua_tointeger( lua, -2 );
+     
+    
+     HttpServer* server = ( HttpServer* ) Leda::instance()->server();
      server->addTimer( lua, interval, once, new Leda::TimerData( callback, once ) );
      
      return 0;

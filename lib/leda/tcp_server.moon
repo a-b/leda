@@ -1,7 +1,6 @@
 export ^
 
 require 'leda.common'
-
         
 -- connection class
 class Connection
@@ -52,7 +51,7 @@ class TCPServer
                 self\onConnectionOpened(Connection!)
                 
             __leda.onConnectionClosed = ->
-                    self\onConnectionClosed(Connection!)    
+                self\onConnectionClosed(Connection!)    
                 
             __leda.onConnectionDataReceived = ->
                 self\onDataReceived(Connection!, __data)    
@@ -83,7 +82,7 @@ class TCPServer
     
     -- set timeout. function specified in callback will be called once the timeout passes     
     setTimeout: (timeout, callback) =>
-            __api.serverAddTimer(timeout, true, callback)    
+        __api.serverAddTimer(timeout, true, callback)    
         
     -- send data on connection    
     send: (connection, data) =>

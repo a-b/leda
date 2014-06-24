@@ -38,8 +38,8 @@ class HTTPServer
     port: 8080
     -- default host
     host: '127.0.0.1'
-    -- default thread count
-    threads: 1    
+    -- default thread count (listening for connections)
+    threads: 1   
     -- default pool thread count
     pool: 1
     -- constructor
@@ -88,11 +88,11 @@ class HTTPServer
         
     -- set timer. function specified in callback will be called every number of seconds specified by timeout    
     setTimer: (timeout, callback) =>
-        __api.serverAddTimer(timeout, false, callback)    
+        __api.serverHttpAddTimer(timeout, false, callback)    
     
     -- set timeout. function specified in callback will be called once the timeout passes     
     setTimeout: (timeout, callback) =>
-            __api.serverAddTimer(timeout, true, callback)    
+        __api.serverHttpAddTimer(timeout, true, callback)    
           
             
         

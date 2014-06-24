@@ -12,9 +12,10 @@ class Server: public propeller::Server
 public:
     Server( propeller::Server::Type type );
     virtual ~Server( );
+    void addTimer( lua_State* lua, unsigned int timeout, bool once, void* data );
     
     
-    
+ protected:
     //
     //  propeller::Server overloads
     //  
@@ -30,12 +31,10 @@ public:
     virtual void stop();
     
     
-    void addTimer( lua_State* lua, unsigned int timeout, bool once, void* data );
+    
 
 private:
-    typedef std::map< lua_State*, propeller::Server::Thread* > LuaThreadMap; 
-        
-
+    
 private:
     sys::Semaphore m_stop;
 };
