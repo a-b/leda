@@ -215,7 +215,18 @@ int main(int argc, char* argv[])
     
     if ( !frameworkPath )
     {
+#ifdef WIN32
+        char path[ MAX_PATH ];
+        GetModuleFileName( NULL, path, MAX_PATH );
+        TRACE( "module filename %s", path );
+        
+        *strchr( path, '\\' ) = 0;
+        std::string path = slash;
+        dllPath.append("\\lib");
         leda->addPath( LEDA_PATH );
+#else
+        leda->addPath( LEDA_PATH );
+#endif
     }
     else
     {
@@ -226,7 +237,12 @@ int main(int argc, char* argv[])
     //  add paths to locate lua files
     //
     std::string path;
-    size_t lastSlash = script.rfind( '/' );
+    
+    char separator = '/';
+#ifdef WIN32
+    separator = '\\';
+#endif
+    size_t lastSlash = script.rfind( separator );
     
     if ( lastSlash != std::string::npos )
     {

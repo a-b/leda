@@ -106,20 +106,27 @@ void LuaState::addPaths( const char* name ) const
     
     std::string path = lua_tostring( m_lua, -1 );
     
-    std::string initName =  path.substr( path.find_last_of( "/") ).c_str();
+    std::string separator = "/";
+#ifdef WIN32
+    separator = "\\";
+#endif
+    
+    std::string initName =  path.substr( path.find_last_of( separator ) );
     const char* ext = strstr( initName.c_str(), "." );
     
     for ( std::list< std::string >::const_iterator i = Leda::instance()->paths().begin( ); i != Leda::instance()->paths().end( ); i++ )
     {
         path.append( ";" );
-        path.append( i->c_str( ) );
-        path.append( "/?" );
+        path.append( *i );
+        path.append( separator );
+        path.append( "?" );
         path.append( ext );
         
         
         path.append( ";" );
-        path.append( i->c_str( ) );
-        path.append( "/?" );
+        path.append( *i );
+        path.append( separator );
+        path.append( "?" );
         path.append( initName );
     }
 
@@ -280,6 +287,7 @@ bool LuaState::load( const char* init, bool reload )
     if ( !reload )
     {
         addPaths( "path" );
+        addPaths( "cpath" );
     }
     
 
