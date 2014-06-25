@@ -1,4 +1,4 @@
-# -------------------------------------------------------------------------
+	# -------------------------------------------------------------------------
 # These are configurable options:
 # -------------------------------------------------------------------------
 
@@ -15,10 +15,9 @@ CPPFLAGS =
 LDFLAGS = 
 
 
-
 ### Variables: ###
 
-LEDA_CXXFLAGS = /MT /DWIN32 /DDEBUG /Ideps\libpropeller\deps\libevent\WIN32-Code /Ideps\LIBpropeller\include \
+LEDA_CXXFLAGS = /MT /DWIN32 /Ideps\libpropeller\deps\libevent\WIN32-Code /Ideps\LIBpropeller\include \
 	/Ideps\libpropeller\deps\libevent\include /Ideps\luajit\src /GR /EHsc $(CPPFLAGS) $(CXXFLAGS)
 
 LEDA_OBJECTS =  \
@@ -30,6 +29,8 @@ LEDA_OBJECTS =  \
 	obj\LEDA_Leda.obj
 
 ### Conditionally set variables: ###
+
+ 
 
 
 
@@ -47,18 +48,37 @@ clean:
 	-if exist obj\*.pch del obj\*.pch
 	-if exist obj\*.exe del obj\*.exe
 	
-	cd deps/libpropeller  && nmake /f Makefile.vc clean
+	cd deps/libpropeller  && nmake /f Makefile.nmake clean
+	cd deps/lpeg  && nmake /f Makefile.nmake clean
+	cd deps/lfs  && nmake /f Makefile.nmake clean
+	
+	 
+
 
 libpropeller: 
-	cd deps/libpropeller && nmake /f makefile.vc
+	cd deps/libpropeller && nmake /f makefile.nmake
 
 luajit: 
 	 cd deps/luajit/src/ && call msvcbuild.bat
 
-obj\leda.exe:  libpropeller $(LEDA_OBJECTS)
-	link  /NOLOGO /OUT:$@   /LIBPATH:deps\libpropeller\obj /LIBPATH:deps\luajit\src $(LDFLAGS) @<<
-	$(LEDA_OBJECTS) libpropeller.lib lua51.lib
-<<
+
+lpeg:
+	cd deps/lpeg && nmake -f makefile.nmake
+
+lfs:
+        cd deps/lfs && nmake -f makefile.nmake 
+	
+
+dist:
+	-if not exist dist mkdir dist
+	-if not exist dist\lib mkdir dist\lib
+	create_dist
+
+	
+	
+obj\leda.exe:  libpropeller luajit lpeg lfs $(LEDA_OBJECTS)
+	link /SUBSYSTEM:CONSOLE /NOLOGO /OUT:$@  /LIBPATH:deps\libpropeller\obj /LIBPATH:deps\luajit\src $(LDFLAGS) $(LEDA_OBJECTS) libpropeller.lib lua51.lib
+	
 
 
 obj\LEDA_HttpServer.obj: src\HttpServer.cpp
@@ -79,4 +99,6 @@ obj\LEDA_main.obj: src\main.cpp
 obj\LEDA_trace.obj: src\trace.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\trace.cpp
 
+obj\LEDA_LuaState.obj: src\LuaState.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\LuaState.cpp
 

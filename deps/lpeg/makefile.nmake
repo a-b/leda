@@ -1,0 +1,26 @@
+LUA_INC=../luajit/src
+LUA_LIB=../luajit/src/lua51.lib
+
+MYNAME=lpeg
+
+#no need to modify things below
+T=$(MYNAME).dll
+OBJS = lpvm.obj lpcap.obj lptree.obj lpcode.obj lpprint.obj
+CC=cl.exe
+LINK=link.exe
+
+#CFLAGS = /MD /O2 /W3 /c /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE /DLUA_LIB /DLUA_BUILD_AS_DLL
+CFLAGS = /MT /O2 /W3 /c /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE /DLUA_LIB /DLUA_BUILD_AS_DLL
+
+.c.obj:
+	$(CC) /Fo$@ $(CFLAGS) /I$(LUA_INC) $<
+
+build: $T 
+
+$T: $(OBJS)
+	$(LINK) /dll /out:$@ $(OBJS) /DEF:lpeg.def $(LUA_LIB)
+
+clean: 
+	del *.obj
+	del *.dll
+	del *.manifest
