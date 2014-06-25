@@ -12,6 +12,10 @@
 #define TRACE_LEVEL_VERBOSE			0	
 
 
+#ifndef __PRETTY_FUNCTION__
+#define __PRETTY_FUNCTION__ __FUNCTION__
+#endif
+
 void moonTraceText ( const char* scope, unsigned long level, const char *format, ... );
 
 class TraceEnterLeave
@@ -23,7 +27,7 @@ public:
     {
         size_t brace = m_function.find ( '(' );
 
-        if ( brace )
+        if ( brace != std::string::npos )
         {
             m_function[brace] = 0 ;
             m_function.append ( "()" );

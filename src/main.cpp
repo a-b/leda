@@ -1,7 +1,7 @@
 
 #include "Leda.h"
 #include <stdexcept>  
-#include "version.h"
+
 #include <stdio.h>
 
 #ifndef WIN32
@@ -131,7 +131,7 @@ void usage( bool help = false )
 
 const CmdOption* findOption( const char* arg )
 {
-    for ( int i = 0; i < options.size( ); i++ )
+    for ( unsigned int i = 0; i < options.size( ); i++ )
     {
         const CmdOption* option = &options[i];
         
@@ -144,7 +144,7 @@ const CmdOption* findOption( const char* arg )
     return NULL;
 }
 
-int main( int argc, char** argv, char** envp )
+int main(int argc, char* argv[])
 {
 #ifndef WIN32
     //
@@ -158,8 +158,10 @@ int main( int argc, char** argv, char** envp )
     
     
 #endif
+
     options.push_back( CmdOption( "-h", "--help", "\t\tprints help", "help" ) );
     options.push_back( CmdOption( "", "--version", "\t\tprints version", "version" ) );
+    
     
     //
     //  parse command line
@@ -171,8 +173,8 @@ int main( int argc, char** argv, char** envp )
         {
             if ( CmdOption::isOption( argv[i] ) )
             {
-                const CmdOption* option = findOption( argv[i] );
 
+                const CmdOption* option = findOption( argv[i] );
                 if ( !option )
                 {
                     printf( "Unrecognized option %s \n", argv[i] );
@@ -277,16 +279,18 @@ int main( int argc, char** argv, char** envp )
     {
         return 1;
     }
-    catch( ... )
+
+#ifndef WIN32
+	catch( ... )
     {          
        // 
        //   crash
        // 
-#ifndef WIN32
        raise( SIGSEGV ); 
-#endif       
        return 1;
     }
+#endif       
+
     
     return 0;
 }
