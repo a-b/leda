@@ -26,6 +26,24 @@ void sigKillHandler( int sig )
     exit( 1 );
 }
 
+#else
+
+BOOL ctrlHandler( DWORD ctrlType )
+{
+	switch ( ctrlType )
+	{
+	case CTRL_C_EVENT:
+	case CTRL_CLOSE_EVENT:
+	case CTRL_BREAK_EVENT:
+		Leda::instance( )->onTerminate( );
+		exit( 1 );
+		return TRUE;
+
+	default:
+		return FALSE;
+	}
+}
+
 #endif
 
 class CmdOption
@@ -156,7 +174,8 @@ int main(int argc, char* argv[])
     signal( SIGABRT, sigKillHandler );
     signal( SIGURG, sigKillHandler );
     
-    
+#else
+	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) ctrlHandler, TRUE );
 #endif
 
     options.push_back( CmdOption( "-h", "--help", "\t\tprints help", "help" ) );
