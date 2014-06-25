@@ -8,8 +8,9 @@ Features:
 * Synchronous scripting with moonscript (http://www.moonscript.org)
 * Super fast VM with LuaJIT(http://luajit.org)
 * Multithreaded process architecture and asynchronous networking with libevent (via https://github.com/sergeyzavadski/libpropeller)
+* Cross platform (Unix and Windows)
 
-Installing:
+Installing on Unix:
 
     $ git clone https://github.com/sergeyzavadski/leda.git
     $ cd leda
@@ -46,5 +47,6 @@ Run
 
 
 For more examples see [examples](https://github.com/sergeyzavadski/leda/tree/master/examples)
-		
+
+For more information see [wiki](https://github.com/sergeyzavadski/leda/wiki)		
 
