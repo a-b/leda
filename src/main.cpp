@@ -217,13 +217,13 @@ int main(int argc, char* argv[])
     {
 #ifdef WIN32
         char path[ MAX_PATH ];
-        GetModuleFileName( NULL, path, MAX_PATH );
+        GetModuleFileNameA( NULL, path, MAX_PATH );
         TRACE( "module filename %s", path );
         
-        *strchr( path, '\\' ) = 0;
-        std::string path = slash;
+        *strrchr( path, '\\' ) = 0;
+        std::string dllPath = path;
         dllPath.append("\\lib");
-        leda->addPath( LEDA_PATH );
+        leda->addPath( dllPath );
 #else
         leda->addPath( LEDA_PATH );
 #endif
