@@ -60,7 +60,7 @@ void LuaState::create()
     // //
     static const luaL_Reg functions[] = {
         {"serverAddTimer", serverAddTimer },
-        {"serverHttpAddTimer", serverHttpAddTimer },
+        
         
         {"serverCreate", serverCreate },
 //        {"generateUniqueString", generateRandomString },
@@ -70,11 +70,9 @@ void LuaState::create()
         {"serverConnectionGetAddress", serverConnectionGetAddress},
         {"serverConnectionGetId", serverConnectionGetId},
         {"serverSendTo", serverSendTo},
-        
-        
-        //             {"clientCreate", clientCreate },
+        {"clientCreate", clientCreate },
         //             {"clientConnect", clientConnect },
-        //             {"clientAddTimer", clientAddTimer },
+        {"clientAddTimer", clientAddTimer },
         //             {"clientConnectionSendMessage", clientConnectionSendMessage },
         //             {"clientConnectionClose", clientConnectionClose },
         {"getpid", getpid },
@@ -298,8 +296,6 @@ bool LuaState::load( const char* init, bool reload )
     {
         this->addPaths( "moonpath" );
     }
-    
-  
     
     //
     //  load moonscript environment

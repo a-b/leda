@@ -60,13 +60,7 @@ class HTTPServer
                 self\onRequest!    
                 
                 @response\send!
-                
-            __leda.onThreadStarted = ->
-                self\onThreadStarted(Thread!)    
-                
-            __leda.onThreadStopped = ->
-                self\onThreadStopped(Thread!)        
-                
+                                
             __leda.onServerStarted = ->
                 self\onStart!    
                 
@@ -79,22 +73,7 @@ class HTTPServer
 
     onStop: =>    
         
-        
-    onThreadStarted: (thread) =>
-        
-    onThreadStopped: (thread) =>    
-        
-    onRequest: (request, response) =>    
-        
-    -- set timer. function specified in callback will be called every number of seconds specified by timeout    
-    setTimer: (timeout, callback) =>
-        __api.serverHttpAddTimer(timeout, false, callback)    
-    
-    -- set timeout. function specified in callback will be called once the timeout passes     
-    setTimeout: (timeout, callback) =>
-        __api.serverHttpAddTimer(timeout, true, callback)    
-          
-            
+    onRequest:  =>    
         
         
                 

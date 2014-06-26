@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-// #include "Client.h"
+ #include "Client.h"
  #include "Server.h"
  #include "HttpServer.h"
 
@@ -24,22 +24,6 @@
      
      return 0;
  }
- 
- int serverHttpAddTimer( lua_State* lua )
- {
-     TRACE_ENTERLEAVE();
-     
-     int callback = luaL_ref( lua, LUA_REGISTRYINDEX );
-     bool once = lua_toboolean( lua, -1 );
-     int interval = lua_tointeger( lua, -2 );
-     
-    
-     HttpServer* server = ( HttpServer* ) Leda::instance()->server();
-     server->addTimer( lua, interval, once, new Leda::TimerData( callback, once ) );
-     
-     return 0;
- }
- 
  
  int serverCreate( lua_State* lua )
  {
@@ -162,17 +146,17 @@
  
  
 // 
-// int clientCreate( lua_State* lua )
-// {
-//     TRACE_ENTERLEAVE();
-//     
-//     if ( !Leda::instance()->client() )
-//     {
-//         Leda::instance()->clientCreate();
-//     }
-//             
-//     return 0;
-// }
+ int clientCreate( lua_State* lua )
+ {
+     TRACE_ENTERLEAVE();
+     
+     if ( !Leda::instance()->client() )
+     {
+         Leda::instance()->clientCreate();
+     }
+             
+     return 0;
+ }
 // 
 // int clientConnect( lua_State* lua )
 // {
@@ -188,22 +172,26 @@
 //     return 0;
 // }
 // 
-// int clientAddTimer( lua_State* lua )
-// {
-//     TRACE_ENTERLEAVE();
-//     int callback = luaL_ref( lua, LUA_REGISTRYINDEX );
-//     
-//     int interval = lua_tointeger( lua, -2 );
-//     bool once = lua_toboolean( lua, -1 );
-//     lua_pop( lua, 2 );
-//     
-//     BREEZE_TRACE( "callback index %d %d", callback, once );
-//     
-//     
-//     Leda::instance()->client()->addTimer( interval, once, new Leda::TimerData( callback, once ) );
-//     
-//     return 0;
-// }
+ int clientAddTimer (lua_State* lua )
+ {
+     TRACE_ENTERLEAVE();
+     
+     
+     int callback = luaL_ref( lua, LUA_REGISTRYINDEX );
+     
+     int interval = lua_tointeger( lua, -2 );
+     bool once = lua_toboolean( lua, -1 );
+     lua_pop( lua, 2 );
+     
+     if ( !Leda::instance()->client() )
+     {
+         Leda::instance()->clientCreate();
+     }
+     
+     Leda::instance()->client()->addTimer( interval, once, new Leda::TimerData( callback, once ) );
+     
+     return 0;
+ }
 // 
 // int clientConnectionSendMessage( lua_State* lua )
 // {
@@ -286,14 +274,6 @@ Leda* Leda::instance()
      }
  }
  
-// 
-// void Leda::callTerminate( const LuaState& lua )
-// {
-//     lua.call( "__onTerminate" );
-// 
-//     
-// }
-// 
  void Leda::serverCreate( lua_State* lua )
  {
      TRACE_ENTERLEAVE( );
@@ -396,37 +376,57 @@ Leda* Leda::instance()
      lua_pop( lua, 1 );
  }
 
-void Leda::execScript() 
+void Leda::ClientWorkerThread::routine()
 {
-     TRACE_ENTERLEAVE();
+    TRACE_ENTERLEAVE();
+    
+    if ( Leda::instance()->client() )
+    {
+        Leda::instance()->client()->start();
+    }
+}
 
-    // //
-//     // load default lua environment for reading init settings
-//     //
+void Leda::execScript( )
+{
+    TRACE_ENTERLEAVE( );
+
+    //
+    //  create new lua environment
+    //
     m_lua = new LuaState( m_script );
     if ( !m_lua->load( "__init=true" ) )
     {
         throw std::runtime_error( "" );
-     }
-//     
-//      if ( m_client )
-//      {
-//          m_client->start();         
-//      }
-//      
-      if ( m_server )
-      {
-          try
-          {
-             m_server->start();
-          }
-          catch ( ... )
-          {
-              throw std::runtime_error("");
-          }
-      }
+    }
+
+    if ( m_server )
+    {
+        if ( m_client )
+        {
+            //
+            //    start client in a new thread
+            //
+            ( new ClientWorkerThread( ) )->start( );
+        }
+
+        try
+        {
+            m_server->start( );
+        }
+        catch( ... )
+        {
+            throw std::runtime_error( "" );
+        }
+    }
+    else
+    {
+        if ( m_client )
+        {
+            m_client->start( );
+        }
+    }
 }
- 
+
  void Leda::onTerminate()
  {
      TRACE_ENTERLEAVE();
@@ -444,11 +444,11 @@ void Leda::execScript()
          m_client = NULL;
      }
  }
-//  
-//  void Leda::clientCreate(  )
-//  {
-//      TRACE_ENTERLEAVE();
-//      m_client = new Client(  );
-//   }
-//  
-//  
+
+void Leda::clientCreate( )
+{
+    TRACE_ENTERLEAVE( );
+    m_client = new Client( );
+}
+
+  

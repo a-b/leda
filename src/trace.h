@@ -12,7 +12,7 @@
 #define TRACE_LEVEL_VERBOSE			0	
 
 
-#ifndef __PRETTY_FUNCTION__
+#ifdef WIN32
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #endif
 
