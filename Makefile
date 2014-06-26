@@ -50,8 +50,8 @@ LEDA_OBJECTS =  \
 	obj/LEDA_trace.o \
 	obj/LEDA_LuaState.o  \
 	obj/LEDA_Server.o \
-	obj/LEDA_HttpServer.o
-# 	obj/LEDA_Client.o \
+	obj/LEDA_HttpServer.o \
+ 	obj/LEDA_Client.o 
  	
  	
 
@@ -78,8 +78,6 @@ clean:
 	-(cd deps/lpeg && $(MAKE) clean)
 	-(cd deps/lfs && $(MAKE) clean)
 	
-	
-
 libs: 
 	cd deps/libpropeller && make && cd ../luajit  && make && rm src/libluajit.so && cd ../lpeg && make && cd ../lfs && make
 
