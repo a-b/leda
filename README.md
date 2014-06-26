@@ -21,32 +21,25 @@ Installing on Unix:
 
 Running:
 
-Example HTTP server listening on port 9090 and responding  with 'hello' on every request
+Example HTTP server listening on port 9090 and responding  with 'hello world!' on every request
 
 Edit `server.moon` looks like this:
 
     -- example of HTTP server listening on port 9090 that responds with 'hello world' on every request
-    require 'leda.http_server'
-
-    class ExampleServer extends HTTPServer
-        port: 9090
+    require 'leda.tcp_server'
     
-        onStart: =>
-            print string.format("starting http server on port %s", @port)
-        
-        onRequest: =>
-            print string.format("%s %s", @request.method, @request.url)
-            @response.body = "hello world"
-        
-    ExampleServer!    
-
+    with HTTPServer!
+        .port = 9090
+        .on_request = (server, request, response)  ->
+            response.body = 'hello world!'
+        \start!    
+    
 Run
 
     $ leda server.moon
 
 
-
 For more examples see [examples](https://github.com/sergeyzavadski/leda/tree/master/examples)
 
-For more information see [wiki](https://github.com/sergeyzavadski/leda/wiki)		
+For more information see [API Reference](https://github.com/sergeyzavadski/leda/tree/master/doc) or [wiki](https://github.com/sergeyzavadski/leda/wiki)		
 
