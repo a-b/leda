@@ -1,7 +1,7 @@
 HTTP
 ====
 
-To add functionality of a generic htttp server one has to create new instance of `HttpServer` class or a custom class derived from it.
+To add functionality of a generic htttp server one has to create new instance of `HttpServer` class with `on_request` field initialized
 
 ## `HttpServer` class
 
@@ -51,7 +51,6 @@ Consider the following example that creates HTTP server listening on port 9090 a
             .port = 9090
             .on_request = (server, request, response)  ->
                 response.body = 'hello world!'
-        
             \start!    
 
 
