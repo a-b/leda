@@ -39,7 +39,7 @@ Run
     $ leda server.moon
 
 
-For more examples see [examples](https://github.com/sergeyzavadski/leda/tree/master/examples)
+For more usage examples see [examples](https://github.com/sergeyzavadski/leda/tree/master/examples)
 
-For more information see [API Reference](https://github.com/sergeyzavadski/leda/tree/master/doc) or [wiki](https://github.com/sergeyzavadski/leda/wiki)		
+More information can be found in [API Reference](https://github.com/sergeyzavadski/leda/tree/master/doc) or [wiki](https://github.com/sergeyzavadski/leda/wiki)		
 
