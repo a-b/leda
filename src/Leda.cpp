@@ -78,6 +78,11 @@
      propeller::Server::Connection* connection = ( propeller::Server::Connection* ) lua_touserdata( lua, -2 );   
      size_t size = 0;
      
+     if ( lua_isnil( lua, -1 ) )
+     {
+         return 0;
+     }
+     
      const char* data = lua_tolstring( lua, -1, &size );
      
      connection->write( data, size );
@@ -183,10 +188,6 @@
      bool once = lua_toboolean( lua, -1 );
      lua_pop( lua, 2 );
      
-     if ( !Leda::instance()->client() )
-     {
-         Leda::instance()->clientCreate();
-     }
      
      Leda::instance()->client()->addTimer( interval, once, new Leda::TimerData( callback, once ) );
      
@@ -372,8 +373,10 @@ Leda* Leda::instance()
  
          lua_pop( lua, 1 );
      }
- 
+     
      lua_pop( lua, 1 );
+     
+     TRACE( "created %s server on %s:%d" , type.c_str(), m_server->host(), m_server->port() );
  }
 
 void Leda::ClientWorkerThread::routine()

@@ -42,9 +42,28 @@ class HTTPServer
     threads: 1   
     -- default pool thread count
     pool: 1
+    -- on request callback
+    on_request: nil
     -- constructor
     new: =>
-        if __init 
+        __leda.onHttpRequest = ->
+            @response = Response!
+            @request = Request!
+            self\onRequest!
+
+            @response\send!
+
+        __leda.onServerStarted = ->
+            self\onStart!
+
+        __leda.onServerStopped = ->
+            self\onStop!
+
+
+                
+    -- starts the server 
+    start: =>
+        if __init
             --create server
             __api.serverCreate({
                 type: @type,
@@ -53,27 +72,17 @@ class HTTPServer
                 threads: @threads
                 pool: @pool
         })
-        else
-            __leda.onHttpRequest = ->
-                @response = Response!
-                @request = Request!
-                self\onRequest!    
-                
-                @response\send!
-                                
-            __leda.onServerStarted = ->
-                self\onStart!    
-                
-            __leda.onServerStopped = ->
-                self\onStop!        
+        
+        
 
-                
-    -- method stubs                 
-    onStart: =>
-
+    onStart: =>    
+            
     onStop: =>    
         
-    onRequest:  =>    
+    onRequest:  =>
+        if @on_request 
+            @on_request(@request, @response)
+                
         
         
                 
