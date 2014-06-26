@@ -1,9 +1,9 @@
 HTTP
 ====
 
-To add functionality of a generic htttp server one has to create new instance of `HttpServer` class with `on_request` field initialized
+To add functionality of a generic HTTP server one has to create new instance of `HTTPServer` class with `on_request` field initialized
 
-## `HttpServer` class
+## `HTTPServer` class
 
 Fields:
 
@@ -47,6 +47,8 @@ Response objects have following fields:
 
 Consider the following example that creates HTTP server listening on port 9090 and sends a string "hello world!" in response to every request:
 
+        require 'leda.tcp_server'
+        
         with HTTPServer!
             .port = 9090
             .on_request = (server, request, response)  ->
