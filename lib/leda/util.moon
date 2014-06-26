@@ -1,13 +1,14 @@
-setTimer = (timeout, callback) ->
-    set = __threadId == 0 or __init
-        
-    __api.clientAddTimer(timeout, false, callback) if set
+addTimer = (timeout, once, callback) ->
+    __api.clientCreate() if __init    
+    __api.clientAddTimer(timeout, once, callback) if __client
+
+setTimer = (timeout, callback) ->    
+    addTimer(timeout, false, callback)
+    
     
 
 setTimeout = (timeout, callback) ->
-    set = __threadId == 0 or __init
-        
-    __api.clientAddTimer(timeout, true, callback) if set
+    addTimer(timeout, true, callback)
     
 {
     :setTimer, :setTimeout
