@@ -11,6 +11,5 @@
 #define LEDA_PATH "/usr/local/lib/leda"
 
 
-
 #endif	/* _VERSION_H */
 

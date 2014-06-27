@@ -355,7 +355,6 @@ Leda* Leda::instance()
             
          }
  
- 
          lua_pop( lua, 1 );
      }
 
@@ -436,14 +435,18 @@ void Leda::execScript( )
      if ( m_server )
      {
          m_server->stop();
+         delete m_server;
          m_server = NULL;
+         
 
      }
 
      if ( m_client )
      {
          m_client->stop();
+         delete m_server;
          m_client = NULL;
+         
      }
  }
 
