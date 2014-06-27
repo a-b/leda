@@ -18,7 +18,7 @@ class UDPServer extends CommonServer
             @on_data(address, data)
             
     -- send data on connection    
-    sendTo: (ip, port, data) =>
+    send: (ip, port, data) =>
         __api.serverSendTo(ip, port, data)
           
             

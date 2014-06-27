@@ -42,13 +42,13 @@ class TCPServer extends CommonServer
     onConnectionOpened: (connection) =>    
         @connections[connection\id!] = connection
         if @on_connection
-            @on_connection(conection, true)
+            @on_connection(connection, true)
         
     -- connection    
     onConnectionClosed: (connection) =>    
         @connections[connection\id!] = nil
         if @on_connection
-            @on_connection(conection, false)
+            @on_connection(connection, false)
         
     -- data was received on one of the connections
     onDataReceived: (connection, data) =>
