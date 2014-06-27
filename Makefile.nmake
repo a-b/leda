@@ -25,6 +25,7 @@ LEDA_OBJECTS =  \
 	obj\LEDA_main.obj \
 	obj\LEDA_Server.obj \
 	obj\LEDA_LuaState.obj \
+	obj\LEDA_Client.obj \
 	obj\LEDA_trace.obj \
 	obj\LEDA_Leda.obj
 
@@ -86,6 +87,10 @@ obj\LEDA_HttpServer.obj: src\HttpServer.cpp
 
 obj\LEDA_Leda.obj: src\Leda.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\Leda.cpp
+
+
+obj\LEDA_Client.obj: src\Client.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\Client.cpp
 
 
 
