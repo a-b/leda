@@ -76,10 +76,11 @@ class HTTPServer extends CommonServer
     onRequest:  =>
         if @on_request 
             @on_request(@request, @response)
+            
+        @response.headers['Date'] = __leda.formatTime(os.time())
                 
         
-        
-                
+                                
             
     
  
