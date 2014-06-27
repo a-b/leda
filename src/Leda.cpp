@@ -94,12 +94,9 @@
  int serverConnectionGetAddress( lua_State* lua )
  {
     propeller::Server::Connection* connection = ( propeller::Server::Connection* ) lua_touserdata( lua, -1 );   
-    char address[1200];
-    sprintf( address, "%s (%s)", connection->hostname().c_str(), connection->ip().c_str() );
-    
     lua_pop( lua, 1 );
     
-    lua_pushstring( lua, address );
+    lua_pushstring( lua, connection->address().c_str() );
     
     return 1;
  }
