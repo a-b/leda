@@ -10,9 +10,9 @@ class CommonServer
     -- default port
     port: 8000
     -- default host
-    host: '127.0.0.1'
+    host: 'localhost'
     -- default thread count
-    threads: 1
+    threads: 4
     -- constructor
     new: =>
         -- set callback functions

@@ -31,19 +31,13 @@ class Response
      
      
 -- HTTP server class
-class HTTPServer
+class HTTPServer extends CommonServer
     --default type
     type: "http"
     -- default port
     port: 8080
-    -- default host
-    host: '127.0.0.1'
-    -- default thread count (listening for connections)
-    threads: 1   
     -- default pool thread count
-    pool: 1
-    -- on request callback
-    on_request: nil
+    pool: 8
     -- constructor
     new: =>
         __leda.onHttpRequest = ->

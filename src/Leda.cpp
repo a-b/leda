@@ -235,7 +235,7 @@ Leda::Leda( )
 {
     TRACE_ENTERLEAVE();
     
-    if (getenv( "LEDA_DEBUG" ) )
+    if ( getenv( "LEDA_DEBUG" ) )
     {
         m_debug = true;
     }
@@ -355,21 +355,23 @@ Leda* Leda::instance()
             
          }
  
-         if ( !strcmp( name, "debug" ) )
-         {
-             m_debug = lua_toboolean( lua, -1 );
-             
-             if ( m_serverType == ServerHttp )
-             {
-                 ( ( propeller::http::Server* ) m_server )->setPoolThreadCount( 1 );
-             }
-             
-             m_server->setThreadCount( 1 );            
-             
-         }
  
          lua_pop( lua, 1 );
      }
+
+    if ( m_debug )
+    {
+        TRACE( "enabling debug mode", "" );
+        if ( m_serverType == ServerHttp )
+        {
+            ( ( propeller::http::Server* ) m_server )->setPoolThreadCount( 1 );
+        }
+
+        m_server->setThreadCount( 1 );
+    }
+    
+             
+
      
      lua_pop( lua, 1 );
      

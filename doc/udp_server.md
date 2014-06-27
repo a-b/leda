@@ -9,7 +9,7 @@ Fields:
 
 **port**: listening port. defaults to 8080
 
-**host**: hostname or ip that server binds to. defaults to '127.0.0.1'. empty means accept all incoming connections
+**host**: hostname or ip that server binds to. defaults to 'localhost'.leave empty to accept all incoming connections
 
 **on_data**: function that gets invoked whenever http server processes an incoming request. This function is passed three arguments: server object,address string and data received
 
