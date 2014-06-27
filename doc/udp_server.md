@@ -21,6 +21,8 @@ Methods:
 
 **start()**: starts up the TCP server
 
+**send(host, portm=, data)**: send the provided `data` to address provided in `host` and `port`
+
 **setTimer(timeout, callback)**: calls the timer to call the function provided in the  `callback` parameter every number of seconds specified by `timeout` value
 
 **setTimeout(timeout, callback)**: calls the function provided in the  `callback` parameter once after the number of seconds provided in the `timeout` parameter passes
