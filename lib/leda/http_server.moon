@@ -37,7 +37,7 @@ class HTTPServer extends CommonServer
     -- default port
     port: 8080
     -- default pool thread count
-    pool: 8
+    pool: 10
     -- constructor
     new: =>
         __leda.onHttpRequest = ->

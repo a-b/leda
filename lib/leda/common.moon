@@ -12,7 +12,7 @@ class CommonServer
     -- default host
     host: 'localhost'
     -- default thread count
-    threads: 4
+    threads: 5
     -- constructor
     new: =>
         -- set callback functions
