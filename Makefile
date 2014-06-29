@@ -41,7 +41,7 @@ endif
 ### Variables: ###
 
 CPPDEPS = -MT$@ -MF`echo $@ | sed -e 's,\.o$$,.d,'` -MD -MP
-LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -O2 -D_THREAD_SAFE -pthread \
+LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -Ideps/cjson -O2 -D_THREAD_SAFE -pthread \
 	$(CPPFLAGS) $(CXXFLAGS) 
 		
 LEDA_OBJECTS =  \
@@ -76,15 +76,15 @@ clean:
 	-(cd deps/libpropeller && $(MAKE) clean)
 	-(cd deps/luajit && $(MAKE) clean)
 	-(cd deps/lpeg && $(MAKE) clean)
-	-(cd deps/lfs && $(MAKE) clean)
+	-(cd deps/cjson && $(MAKE) clean)
 	
 libs: 
-	cd deps/libpropeller && make && cd ../luajit  && make && rm src/libluajit.so && cd ../lpeg && make && cd ../lfs && make
+	cd deps/libpropeller && make && cd ../luajit  && make && rm src/libluajit.so && cd ../lpeg && make && cd ../cjson && make
 
 
 obj/leda: libs $(LEDA_OBJECTS) 
-	$(CXX) -o $@ $(LEDA_OBJECTS)  -Ldeps/libpropeller/obj -Ldeps/libpropeller/deps/libevent/.libs -Ldeps/luajit/src  $(LDFLAGS) \
-	     -lpropeller -lluajit   -levent -levent_pthreads   $(PLATFORM_LDFLAGS)
+	$(CXX) -o $@ $(LEDA_OBJECTS)  -Ldeps/libpropeller/obj -Ldeps/libpropeller/deps/libevent/.libs -Ldeps/luajit/src -Ldeps/cjson  $(LDFLAGS) \
+	     -lpropeller -lluajit   -levent -levent_pthreads -lcjson   $(PLATFORM_LDFLAGS)
 
 install_leda: 
 	$(INSTALL) -d $(DESTDIR)$(prefix)/bin

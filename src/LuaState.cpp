@@ -8,6 +8,8 @@
 #include "LuaState.h"
 #include "Leda.h"
 
+#include <lua_cjson.h>
+
 
 LuaState::LuaState( const std::string& filename )
 : m_lua( NULL ), m_close( true ), m_filename( filename )
@@ -81,6 +83,8 @@ void LuaState::create()
     };
 
     luaL_register( m_lua, "__api", functions );
+    
+    luaopen_cjson( m_lua );
     
     loadlibs();
     
