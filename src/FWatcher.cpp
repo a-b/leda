@@ -59,7 +59,7 @@ void callback(
     }
 }
 
-#endif  
+
 
 void FWatcher::startOSX()
 {
@@ -91,3 +91,5 @@ void FWatcher::startOSX()
     
   TRACE("created fs event stream: 0x%x", stream );  
 }
+
+#endif
