@@ -1,6 +1,6 @@
 /* 
  * File:   Client.cpp
- * Author: sergey
+     * Author: sergey
  * 
  * Created on January 3, 2014, 8:27 AM
  */

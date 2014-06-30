@@ -226,12 +226,29 @@
      
      return 1;
  }
+ 
+ int processorCount( lua_State* lua )
+ {
+     unsigned int processors = 0;
+#ifdef WIN32
+     SYSTEM_INFO sysinfo;
+    GetSystemInfo( &sysinfo );
+
+    processors = sysinfo.dwNumberOfProcessors;
+#else
+    processors = sysconf( _SC_NPROCESSORS_ONLN  );
+#endif
+            
+     lua_pushnumber( lua, processors );
+
+     return 1;
+ }
 
 
 Leda* Leda::m_instance = NULL;
 
 Leda::Leda( )
-:  m_client( NULL ), m_server( NULL ), m_serverType( ServerHttp ), m_debug( false )
+:  m_client( NULL ), m_server( NULL ), m_serverType( ServerHttp ), m_debug( false ), m_fwatcher( NULL ), m_changes( 0 )
 {
     TRACE_ENTERLEAVE();
     
@@ -390,6 +407,11 @@ void Leda::ClientWorkerThread::routine()
 void Leda::execScript( )
 {
     TRACE_ENTERLEAVE( );
+    
+    if ( m_debug )
+    {
+        m_fwatcher = new FWatcher( "./" );
+    }
 
     //
     //  create new lua environment
@@ -456,4 +478,20 @@ void Leda::clientCreate( )
     m_client = new Client( );
 }
 
-  
+void Leda::addFileChange()  
+{
+    TRACE_ENTERLEAVE();
+    sys::General::interlockedIncrement( &m_changes );
+    
+}
+
+void Leda::resetChanges()  
+{
+    TRACE_ENTERLEAVE();
+ 
+    for ( unsigned int i = 0; i < m_changes; i++ )
+    {
+        sys::General::interlockedDecrement( &m_changes );
+    }
+    
+}

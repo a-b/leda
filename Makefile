@@ -34,7 +34,7 @@ PLATFORM_LDFLAGS = -pthread  -lrt -ldl -lm -export-dynamic
 endif
 
 ifeq ($(UNAME), Darwin)
-PLATFORM_LDFLAGS = -pagezero_size 10000 -image_base 100000000
+PLATFORM_LDFLAGS = -pagezero_size 10000 -image_base 100000000 -framework CoreServices
 endif
 
 
@@ -51,9 +51,9 @@ LEDA_OBJECTS =  \
 	obj/LEDA_LuaState.o  \
 	obj/LEDA_Server.o \
 	obj/LEDA_HttpServer.o \
- 	obj/LEDA_Client.o 
- 	
- 	
+ 	obj/LEDA_Client.o \
+	obj/LEDA_FWatcher.o
+	
 
 ### Conditionally set variables: ###
 
@@ -122,6 +122,9 @@ obj/LEDA_main.o: src/main.cpp
 	$(CXX) -c -o $@ $(LEDA_CXXFLAGS) $(CPPDEPS) $<
 
 obj/LEDA_trace.o: src/trace.cpp
+	$(CXX) -c -o $@ $(LEDA_CXXFLAGS) $(CPPDEPS) $<
+	
+obj/LEDA_FWatcher.o: src/FWatcher.cpp
 	$(CXX) -c -o $@ $(LEDA_CXXFLAGS) $(CPPDEPS) $<
 	
 

@@ -12,7 +12,8 @@ class CommonServer
     -- default host
     host: 'localhost'
     -- default thread count
-    threads: 5
+    threads: __api.processorCount()
+    
     -- constructor
     new: =>
         -- set callback functions

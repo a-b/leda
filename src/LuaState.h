@@ -25,7 +25,7 @@ public:
     
     bool load( const char* init = NULL, bool reload = false );
     void call( const std::string& callbackName, int registryIndex = -1, bool exception = false ); 
-    bool reload( );
+    
     void execute( const std::string& script ) const;
     
     operator lua_State*() const
@@ -48,12 +48,15 @@ public:
     void setGlobal( const std::string& name, const char* value, unsigned int length );
     void setGlobal( const std::string& name, const std::string& value );
     
+    static LuaState& luaFromThread( const sys::Thread& thread, unsigned int threadId ); 
+    
     
 protected:
     
     
     
 private:
+    void reload( unsigned int threadId );
      void loadlibs() const;   
      void addPaths( const char* name ) const;
      void destroy();

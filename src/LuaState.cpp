@@ -68,7 +68,7 @@ void LuaState::create()
 //        {"generateUniqueString", generateRandomString },
         {"serverConnectionSendData", serverConnectionSendData },
         {"serverConnectionSendMessage", serverConnectionSendMessage },
-        {"threadGetId", threadGetId },
+        
         {"serverConnectionGetAddress", serverConnectionGetAddress},
         {"serverConnectionGetId", serverConnectionGetId},
         {"serverSendTo", serverSendTo},
@@ -78,6 +78,7 @@ void LuaState::create()
         //             {"clientConnectionSendMessage", clientConnectionSendMessage },
         //             {"clientConnectionClose", clientConnectionClose },
         {"getpid", getpid },
+        {"processorCount", processorCount},
 
         {NULL, NULL }
     };
@@ -168,10 +169,6 @@ void LuaState::call( const std::string& callbackName, int registryIndex, bool ex
     
     TRACE( "callback name: %s, callback index %d", callbackName.c_str(), registryIndex );
     
-    if ( Leda::instance()->debug() )
-    {
-        reload();
-    }
             
     //
     //  load debug.traceback
@@ -181,6 +178,7 @@ void LuaState::call( const std::string& callbackName, int registryIndex, bool ex
     
     
     int debugIndex = -2;
+    
     //
     //  load callback function to the top of the stack
     //
@@ -205,7 +203,7 @@ void LuaState::call( const std::string& callbackName, int registryIndex, bool ex
     {
         TRACE( "no lua function found on top of stack", "" );
         
-        lua_pop( m_lua, 3 );
+        lua_pop( m_lua, -debugIndex + 1 );
         return;
     }
     //
@@ -251,7 +249,7 @@ void LuaState::call( const std::string& callbackName, int registryIndex, bool ex
 }
 
 
-bool LuaState::reload( )
+void LuaState::reload( unsigned int threadId )
 {
     TRACE_ENTERLEAVE();
     
@@ -260,14 +258,17 @@ bool LuaState::reload( )
         throw std::runtime_error("cannot reload without a loaded script first");
     }
     
-    luaL_dostring( m_lua, "packages.loaded = {}" );
-    
-    loadlibs( );
-
-    //
-    //  reload script
-    //
-    return load( NULL, true );
+    if ( Leda::instance()->debug() && Leda::instance()->changes() > 0 )
+    {
+        TRACE("have %d filesystem changes, need to reload lua", Leda::instance()->changes() );
+        destroy();
+        create();
+        loadlibs();
+        load();
+        setGlobal( "__threadId", threadId );
+        
+        Leda::instance()->resetChanges();
+    }
 }
 
 
@@ -364,4 +365,13 @@ void LuaState::setGlobal( const std::string& name, const std::string& value )
 {
     lua_pushstring( m_lua, value.c_str() );
     lua_setglobal( m_lua, name.c_str()  );
+}
+
+LuaState& LuaState::luaFromThread( const sys::Thread& thread, unsigned int threadId )
+{
+    TRACE_ENTERLEAVE();
+    
+    LuaState& lua = *( ( LuaState* ) thread.data() );
+    lua.reload( threadId );
+    return lua;
 }

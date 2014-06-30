@@ -30,4 +30,11 @@
 #endif
 
 
+#ifdef __MACH__
+#include <CoreServices/CoreServices.h>
+#endif
+
+
+
+
 #endif //_COMMON_H_

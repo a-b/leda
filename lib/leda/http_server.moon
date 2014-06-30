@@ -19,6 +19,7 @@ class Response
      
      new: =>
          @response = __httpResponse
+         @headers = {}
          
      send: =>
          --@headers = {} if type(@headers) ~= 'table'
@@ -36,8 +37,9 @@ class HTTPServer extends CommonServer
     type: "http"
     -- default port
     port: 8080
-    -- default pool thread count
-    pool: 10
+    -- default  thread count
+    pool: math.floor(__api.processorCount() / 1.5)
+    threads: math.floor(__api.processorCount() / 3)
     -- constructor
     new: =>
         __leda.onHttpRequest = ->
@@ -68,15 +70,25 @@ class HTTPServer extends CommonServer
         })
         
         
-
     onStart: =>    
             
     onStop: =>    
         
     onRequest:  =>
-        if @on_request 
+        if @on_request
             @on_request(@request, @response)
-            
+
+        -- set some headers and serialize tables to json
+        if not @response.headers['Content-Type']
+            local contentType
+            if type(@response.body) == 'table'
+                contentType = 'application/json'
+                @response.body = json.encode(@response.body)
+            else
+                contentType = 'text/plain'
+
+            @response.headers['Content-Type'] = contentType
+
         @response.headers['Date'] = __leda.formatTime(os.time())
                 
         
@@ -84,6 +96,7 @@ class HTTPServer extends CommonServer
             
     
  
+
 
 
 
