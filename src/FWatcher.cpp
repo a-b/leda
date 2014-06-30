@@ -8,6 +8,10 @@
 #include "FWatcher.h"
 #include "Leda.h"
 
+#ifdef __linux
+ #include <sys/inotify.h>
+#endif
+
 FWatcher::FWatcher( const std::string& path ) 
 : m_path( path ) 
 {
@@ -22,17 +26,6 @@ FWatcher::~FWatcher( )
 {
 }
 
-void FWatcher::start()
-{
-    TRACE_ENTERLEAVE();
-    
-#ifdef __MACH__
-    startOSX();
-    
-    CFRunLoopRun();
-    
-#endif
-}
 
 #ifdef __MACH__
 
@@ -60,11 +53,16 @@ void callback(
 }
 
 
-
-void FWatcher::startOSX()
+#endif
+void FWatcher::start()
 {
     TRACE_ENTERLEAVE();
-    
+
+#ifdef __MACH__    
+    //
+    //  OSX
+    //
+
     CFStringRef path = CFStringCreateWithCString( NULL, m_path.c_str(), kCFStringEncodingUTF8 );
     
     FSEventStreamContext context;
@@ -88,8 +86,38 @@ void FWatcher::startOSX()
   FSEventStreamScheduleWithRunLoop( stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode );
 
   FSEventStreamStart( stream ); 
+
+  CFRunLoopRun();
     
   TRACE("created fs event stream: 0x%x", stream );  
-}
 
 #endif
+
+#ifdef __linux
+
+    while ( true )
+    {
+
+        char buffer[ 1024 * 4 ];
+
+        int notify = inotify_init();
+        int watch = inotify_add_watch( notify, m_path.c_str(), IN_MODIFY | IN_CREATE | IN_DELETE );
+         
+
+        int length = read( notify, buffer, sizeof( buffer ) );
+
+        int current = 0;
+
+        while ( current < length )
+        {
+             struct inotify_event *event = ( struct inotify_event * ) &buffer[ current ];
+             TRACE( "file change  with mask %d", event-> mask );
+             Leda::instance()->addFileChange();
+
+             current += event->len + sizeof( struct inotify_event );
+        }  
+    }
+
+#endif 
+
+}

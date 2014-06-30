@@ -22,9 +22,8 @@ public:
     
 private:
     
-#ifdef __MACH__
-    void startOSX();
-#endif
+    void startInternal();
+
     
     class WorkerThread: public sys::Thread
     {
