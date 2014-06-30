@@ -84,7 +84,7 @@ libs:
 
 obj/leda: libs $(LEDA_OBJECTS) 
 	$(CXX) -o $@ $(LEDA_OBJECTS)  -Ldeps/libpropeller/obj -Ldeps/libpropeller/deps/libevent/.libs -Ldeps/luajit/src -Ldeps/cjson  $(LDFLAGS) \
-	     -lpropeller -lluajit   -levent -levent_pthreads -lcjson   $(PLATFORM_LDFLAGS)
+	     -lpropeller -lluajit   -levent -levent_pthreads  -lcjson   $(PLATFORM_LDFLAGS)
 
 install_leda: 
 	$(INSTALL) -d $(DESTDIR)$(prefix)/bin
@@ -95,7 +95,6 @@ install_leda:
 	rm $(DESTDIR)$(prefix)/lib/leda/moonscript
 	cp -r deps/moonscript/moonscript $(DESTDIR)$(prefix)/lib/leda/
 	cd deps/luajit && make install
-	cp deps/lfs/lfs.so $(DESTDIR)$(prefix)/lib/lua/5.1/
 	cp deps/lpeg/lpeg.so $(DESTDIR)$(prefix)/lib/lua/5.1
 	chmod -R a+r $(DESTDIR)$(prefix)/lib/leda/
 	chmod -R a+r $(DESTDIR)$(prefix)/lib/lua/5.1/
