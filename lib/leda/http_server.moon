@@ -38,8 +38,8 @@ class HTTPServer extends CommonServer
     -- default port
     port: 8080
     -- default  thread count
-    pool: math.floor(__api.processorCount() / 1.5)
-    threads: math.floor(__api.processorCount() / 3)
+    pool: math.floor(__api.processorCount() / 2)
+    threads: math.floor(__api.processorCount() / 2)
     -- constructor
     new: =>
         __leda.onHttpRequest = ->
