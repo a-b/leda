@@ -53,9 +53,6 @@ private:
 private:
     std::string m_path;
     
-#ifdef __MACH__
-    FSEventStreamRef m_stream;
-#endif
 };
 
 #endif	/* FSWATCHER_H */

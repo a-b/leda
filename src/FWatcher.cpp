@@ -26,7 +26,7 @@ void FWatcher::start()
 {
     TRACE_ENTERLEAVE();
     
-#if __MACH__
+#ifdef __MACH__
     startOSX();
     
     CFRunLoopRun();
@@ -73,7 +73,7 @@ void FWatcher::startOSX()
     
             
     
-    m_stream = FSEventStreamCreate( 
+    FSEventStreamRef stream = FSEventStreamCreate( 
             NULL,
             &callback,
             &context,
@@ -85,9 +85,9 @@ void FWatcher::startOSX()
    );
  
   
-  FSEventStreamScheduleWithRunLoop( m_stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode );
+  FSEventStreamScheduleWithRunLoop( stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode );
 
-  FSEventStreamStart( m_stream ); 
+  FSEventStreamStart( stream ); 
     
-  TRACE("created fs event stream: 0x%x", m_stream );  
+  TRACE("created fs event stream: 0x%x", stream );  
 }
