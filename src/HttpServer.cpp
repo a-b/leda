@@ -113,7 +113,7 @@ void HttpServer::onRequest( const propeller::http::Request& request, propeller::
     lua_setfield( lua, -2, "headers" );
     lua_setfield( lua, -2, "httpRequest" );
     
-    lua_pop( lua, 1 );
+    lua_pop( lua, 2 );
     
     
     //
