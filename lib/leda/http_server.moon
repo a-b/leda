@@ -6,10 +6,10 @@ require 'leda.common'
 -- http request class
 class Request
     new: =>
-        @body= __httpRequest.body
-        @url= __httpRequest.url
-        @method= __httpRequest.method
-        @headers= __httpRequest.headers
+        @body= __leda.httpRequest.body
+        @url= __leda.httpRequest.url
+        @method= __leda.httpRequest.method
+        @headers= __leda.httpRequest.headers
         
         
 class Response
@@ -38,8 +38,8 @@ class HTTPServer extends CommonServer
     -- default port
     port: 8080
     -- default  thread count
-    pool: math.floor(__api.processorCount() / 1.5)
-    threads: math.floor(__api.processorCount() / 3)
+    pool: math.floor(__api.processorCount() / 2)
+    threads: math.floor(__api.processorCount() / 2)
     -- constructor
     new: =>
         __leda.onHttpRequest = ->
