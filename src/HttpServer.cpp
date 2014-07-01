@@ -31,7 +31,7 @@ void HttpServer::stop(  )
     m_stop.wait();
 }
 
-void HttpServer::onThreadStop( const sys::ThreadPool::Worker& thread )
+void HttpServer::onThreadStopped( const propeller::Server::Thread& thread )
 {
     TRACE_ENTERLEAVE();
     
@@ -47,7 +47,7 @@ void HttpServer::onThreadStop( const sys::ThreadPool::Worker& thread )
     }
 }
 
-void HttpServer::onThreadStart( sys::ThreadPool::Worker& thread )
+void HttpServer::onThreadStarted( propeller::Server::Thread& thread )
 {
     TRACE_ENTERLEAVE();
     
@@ -55,7 +55,7 @@ void HttpServer::onThreadStart( sys::ThreadPool::Worker& thread )
     
     LuaState* lua = new LuaState( Leda::instance()->script() );
     lua->load();
-    lua->setGlobal( "__threadId", thread.workerId() );
+    lua->setGlobal( "__threadId", thread.id() );
     thread.setData( lua );
     lua->call( "onThreadStarted" );
     
@@ -67,11 +67,11 @@ void HttpServer::onThreadStart( sys::ThreadPool::Worker& thread )
 
 
 
-void HttpServer::onRequest( const propeller::http::Request& request, propeller::http::Response& response,  sys::ThreadPool::Worker& thread )
+void HttpServer::onRequest( const propeller::http::Request& request, propeller::http::Response& response,  const propeller::Server::Thread& thread )
 {
     TRACE_ENTERLEAVE();
     
-    LuaState& lua = LuaState::luaFromThread( thread, thread.workerId() );
+    LuaState& lua = LuaState::luaFromThread( thread, thread.id() );
     
     //
     //  export request to lua
@@ -106,6 +106,7 @@ void HttpServer::onRequest( const propeller::http::Request& request, propeller::
     }
     
     lua_setfield( lua, -2, "headers" );
+
     lua_setglobal( lua, "__httpRequest" );
     
     //
