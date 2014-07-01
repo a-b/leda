@@ -22,9 +22,9 @@ public:
     
 protected:
     
-    virtual void onRequest( const propeller::http::Request& request, propeller::http::Response& response, sys::ThreadPool::Worker& thread );
-    virtual void onThreadStart( sys::ThreadPool::Worker& thread );
-    virtual void onThreadStop( const sys::ThreadPool::Worker& thread );
+    virtual void onRequest( const propeller::http::Request& request, propeller::http::Response& response, const propeller::Server::Thread& thread );
+    virtual void onThreadStarted( propeller::Server::Thread& thread );
+    virtual void onThreadStopped( const propeller::Server::Thread& thread );
     virtual void stop();
     virtual void start();
     
