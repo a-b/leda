@@ -95,7 +95,7 @@ install_leda:
 	rm  $(DESTDIR)$(prefix)/lib/leda/moonscript
 	rm  $(DESTDIR)$(prefix)/lib/leda/lapis
 	cp -r deps/moonscript/moonscript $(DESTDIR)$(prefix)/lib/leda/
-	cp -r deps/moonscript/lapis $(DESTDIR)$(prefix)/lib/leda/
+	cp -r deps/lapis/lapis $(DESTDIR)$(prefix)/lib/leda/
 	
 	cd deps/luajit && make install
 	cp deps/lpeg/lpeg.so $(DESTDIR)$(prefix)/lib/lua/5.1
