@@ -68,7 +68,7 @@ void LuaState::create()
 //        {"generateUniqueString", generateRandomString },
         {"serverConnectionSendData", serverConnectionSendData },
         {"serverConnectionSendMessage", serverConnectionSendMessage },
-        
+            
         {"serverConnectionGetAddress", serverConnectionGetAddress},
         {"serverConnectionGetId", serverConnectionGetId},
         {"serverSendTo", serverSendTo},
@@ -204,6 +204,11 @@ void LuaState::call( const std::string& callbackName, int registryIndex, bool ex
         TRACE( "no lua function found on top of stack", "" );
         
         lua_pop( m_lua, -debugIndex + 1 );
+        if ( exception )
+        {
+            throw std::runtime_error( "" );
+        }
+        
         return;
     }
     //
@@ -292,8 +297,8 @@ bool LuaState::load( const char* init, bool reload )
         addPaths( "path" );
         addPaths( "cpath" );
     }
-    
-
+//    
+//
     luaL_dostring( m_lua, "require 'leda'");
     luaL_dostring( m_lua, "require 'moonscript'");
     
@@ -306,8 +311,8 @@ bool LuaState::load( const char* init, bool reload )
     //  load moonscript environment
     //
     char script[ 256 ];
-    sprintf( script, "local moonscript = require('moonscript'); "
-            "moonscript.dofile('%s');", m_filename.c_str() ); 
+  sprintf( script, "require 'leda'; local moonscript = require('moonscript'); local init = moonscript.loadstring(\"require 'leda.init'\"); init(); "
+            "local code, err = assert(moonscript.loadfile('%s')); if code then __leda.run(code()) return true; end; print(err); return false;", m_filename.c_str() ); 
     
     TRACE( "executing %s", script );
     

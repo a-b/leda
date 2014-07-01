@@ -7,3 +7,6 @@
 [submodule "deps/moonscript"]
 	path = deps/moonscript
 	url = https://github.com/leafo/moonscript.git
+[submodule "deps/lapis"]
+	path = deps/lapis
+	url = git@github.com:sergeyzavadski/lapis.git

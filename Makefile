@@ -41,7 +41,7 @@ endif
 ### Variables: ###
 
 CPPDEPS = -MT$@ -MF`echo $@ | sed -e 's,\.o$$,.d,'` -MD -MP
-LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -Ideps/cjson -O2 -D_THREAD_SAFE -pthread \
+LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -Ideps/cjson  -O2 -D_THREAD_SAFE -pthread \
 	$(CPPFLAGS) $(CXXFLAGS) 
 		
 LEDA_OBJECTS =  \
@@ -92,8 +92,11 @@ install_leda:
 	rm -rf $(DESTDIR)$(prefix)/lib/leda
 	mkdir -p $(DESTDIR)$(prefix)/lib/leda
 	rsync -a --exclude='test' --exclude 'test.lua' lib/* $(DESTDIR)$(prefix)/lib/leda/
-	rm $(DESTDIR)$(prefix)/lib/leda/moonscript
+	rm  $(DESTDIR)$(prefix)/lib/leda/moonscript
+	rm  $(DESTDIR)$(prefix)/lib/leda/lapis
 	cp -r deps/moonscript/moonscript $(DESTDIR)$(prefix)/lib/leda/
+	cp -r deps/moonscript/lapis $(DESTDIR)$(prefix)/lib/leda/
+	
 	cd deps/luajit && make install
 	cp deps/lpeg/lpeg.so $(DESTDIR)$(prefix)/lib/lua/5.1
 	chmod -R a+r $(DESTDIR)$(prefix)/lib/leda/

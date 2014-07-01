@@ -73,6 +73,8 @@ void HttpServer::onRequest( const propeller::http::Request& request, propeller::
     
     LuaState& lua = LuaState::luaFromThread( thread, thread.workerId() );
     
+    lua_getglobal( lua, "__leda" );
+    
     //
     //  export request to lua
     //
@@ -95,6 +97,9 @@ void HttpServer::onRequest( const propeller::http::Request& request, propeller::
     lua_pushstring( lua, request.method() );
     lua_setfield( lua, -2, "method" );
     
+    lua_pushstring( lua, request.connection().address().c_str() );
+    lua_setfield( lua, -2, "remoteAddress" );
+    
     lua_newtable( lua );
     
     for ( propeller::http::Request::HeaderList::const_iterator i = request.headers().begin(); i != request.headers().end(); i++ )
@@ -106,7 +111,8 @@ void HttpServer::onRequest( const propeller::http::Request& request, propeller::
     }
     
     lua_setfield( lua, -2, "headers" );
-    lua_setglobal( lua, "__httpRequest" );
+    lua_setfield( lua, -2, "httpRequest" );
+    
     
     //
     //  call lua 
@@ -117,7 +123,7 @@ void HttpServer::onRequest( const propeller::http::Request& request, propeller::
         lua.call( "onHttpRequest", -1, true );
     }
     
-    catch ( std::runtime_error& e )
+    catch ( const std::runtime_error& e )
     {
         response.setStatus( 500 );
         
@@ -138,6 +144,13 @@ void HttpServer::onRequest( const propeller::http::Request& request, propeller::
     //
     lua_getglobal( lua, "__leda" );
     lua_getfield( lua, -1, "httpResponse" );
+    
+    if ( lua_isnil( lua, -1 ) )
+    {
+        TRACE( "response was not set in lua", "" );
+        return;
+    }
+    
 
     lua_getfield( lua, -1, "status" );
     response.setStatus( lua_tonumber( lua, -1 ) );

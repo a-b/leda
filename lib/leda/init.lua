@@ -1,5 +1,8 @@
+
+
 -- lua std lib
 require 'std'
+
 
 -- reference storage global table
 __leda = {}
@@ -37,3 +40,27 @@ __leda.formatTime = function(timestamp, format, tzoffset, tzname)
    
     return os.date(format, timestamp + tzoffset)
 end
+
+__leda.run = function(script)
+--    support for lapis
+    if script and type(script) == 'table' and type(script.__parent) == 'table' and script.__parent.__name == 'Application' then
+        if __init then
+            local app = script()
+            
+            __api.serverCreate({
+                type = 'http',
+                port = app.port,
+                host = app.host,
+                threads = __api.processorCount(),
+                pool = __api.processorCount()
+                })
+        else
+            __leda.onHttpRequest = function()
+                local lapis = require 'lapis'        
+                lapis.serve(script)  
+            end
+        end
+    end
+end    
+    
+
