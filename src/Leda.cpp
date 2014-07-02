@@ -243,6 +243,127 @@
 
      return 1;
  }
+ 
+
+int httpRequestGetUrl( lua_State* lua )
+{
+    propeller::http::Request* request = ( propeller::http::Request* ) lua_touserdata( lua, -1 );
+    lua_pop( lua, 1 );
+
+    lua_pushstring( lua, request->uri( ) );
+    return 1;
+}
+
+int httpRequestGetHeaders( lua_State* lua )
+{
+    propeller::http::Request* request = ( propeller::http::Request* ) lua_touserdata( lua, -1 );
+    lua_pop( lua, 1 );
+
+    lua_newtable( lua );
+
+    for ( propeller::http::Request::HeaderList::const_iterator i = request->headers( ).begin( ); i != request->headers( ).end( ); i++ )
+    {
+        const propeller::http::Request::Header& header = *i;
+
+        lua_pushstring( lua, header.value );
+        lua_setfield( lua, -2, header.name );
+    }
+
+    return 1;
+}
+
+int httpRequestGetBody( lua_State* lua )
+{
+    propeller::http::Request* request = ( propeller::http::Request* ) lua_touserdata( lua, -1 );
+    lua_pop( lua, 1 );
+
+    if ( request->body() )
+    {
+        lua_pushlstring( lua, request->body(), request->bodyLength() );
+    }
+    else
+    {
+        lua_pushnil( lua );
+    }
+        
+    return 1;
+}
+
+int httpResponseSetBody( lua_State* lua )
+{
+    TRACE_ENTERLEAVE();
+    
+    propeller::http::Response* response = ( propeller::http::Response* ) lua_touserdata( lua, -2 );
+    
+    
+    size_t length = 0;
+    
+    const char* body = lua_tolstring( lua, -1, &length );
+    
+    TRACE("length: %d", length );
+    
+    
+    response->setBody( body, length );
+    lua_pop( lua, 2 );
+    
+    return 0;
+}
+
+int httpResponseSetStatus( lua_State* lua )
+{
+    TRACE_ENTERLEAVE();
+    propeller::http::Response* response = ( propeller::http::Response* ) lua_touserdata( lua, -2 );
+    response->setStatus( lua_tointeger( lua, -1 ) );
+    lua_pop( lua, 2 );
+    
+    return 0;
+}
+
+int httpResponseSetHeaders( lua_State* lua )
+{
+    TRACE_ENTERLEAVE();
+    
+    propeller::http::Response* response = ( propeller::http::Response* ) lua_touserdata( lua, -2 );
+
+    //
+    //  iterate through headers table
+    //
+    if ( lua_istable( lua, -1 ) )
+    {
+        lua_pushnil( lua );
+    
+        while ( lua_next( lua, -2 ) != 0 )
+        {
+            const char* name = lua_tostring( lua, -2 );
+
+            if ( lua_isstring( lua, -1 ) )
+            {
+                const char* value = lua_tostring( lua, -1 );
+                response->addHeader( name, value );
+            }
+
+            lua_pop( lua, 1 );
+        }
+    }
+    
+    lua_pop( lua, 2 );
+    
+    return 0;
+}
+
+int httpResponseAddHeader( lua_State* lua )
+{
+    propeller::http::Response* response = ( propeller::http::Response* ) lua_touserdata( lua, -3 );
+
+    const char* name = lua_tostring( lua, -2 );
+    const char* value = lua_tostring( lua, -1 );
+    
+    response->addHeader( name, value );
+    lua_pop( lua, 3 );
+    
+    
+    return 0;
+}
 
 
 Leda* Leda::m_instance = NULL;

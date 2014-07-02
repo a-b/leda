@@ -39,7 +39,7 @@ void HttpServer::onThreadStopped( const propeller::Server::Thread& thread )
     lua->call( "onThreadStopped" );
 
     unsigned int value = sys::General::interlockedIncrement( &m_stoppedThreads );
-    if ( value == getPoolThreadCount() )
+    if ( value == getThreadCount() )
     {
         lua->call( "onServerStopped" );
         
@@ -73,46 +73,50 @@ void HttpServer::onRequest( const propeller::http::Request& request, propeller::
     
     LuaState& lua = LuaState::luaFromThread( thread, thread.id() );
     
+//    //
+//    //  export request to lua
+//    //
+//    lua_newtable( lua );
+//        
+//    if ( request.body() && request.bodyLength() > 0 )
+//    {
+//        lua_pushlstring( lua, request.body(), request.bodyLength() );
+//    }
+//    else
+//    {
+//        lua_pushnil( lua );
+//    }
+//   
+//    lua_setfield( lua, -2, "body" );
+//    
+//    lua_pushstring( lua, request.uri() );
+//    lua_setfield( lua, -2, "url" );
+//    
+//    lua_pushstring( lua, request.method() );
+//    lua_setfield( lua, -2, "method" );
+//    
+//    l
+//    
+//    lua_setfield( lua, -2, "headers" );
+//
+//    lua_setglobal( lua, "__httpRequest" );
+    
     //
-    //  export request to lua
+    //  export request and response pointers to lua
     //
-    lua_newtable( lua );
-        
-    if ( request.body() && request.bodyLength() > 0 )
-    {
-        lua_pushlstring( lua, request.body(), request.bodyLength() );
-    }
-    else
-    {
-        lua_pushnil( lua );
-    }
-   
-    lua_setfield( lua, -2, "body" );
+    lua_getglobal( lua, "__leda" );
+    lua_pushlightuserdata( lua, ( void* ) &request );
+    lua_setfield( lua, -2, "httpRequest" );
     
-    lua_pushstring( lua, request.uri() );
-    lua_setfield( lua, -2, "url" );
+    lua_pushlightuserdata( lua, ( void* ) &response );
+    lua_setfield( lua, -2, "httpResponse" );
     
-    lua_pushstring( lua, request.method() );
-    lua_setfield( lua, -2, "method" );
+    lua_pop( lua, 1 );
     
-    lua_newtable( lua );
-    
-    for ( propeller::http::Request::HeaderList::const_iterator i = request.headers().begin(); i != request.headers().end(); i++ )
-    {
-        propeller::http::Request::Header* header = *i;
-        
-        lua_pushstring( lua, header->value );
-        lua_setfield( lua, -2, header->name );
-    }
-    
-    lua_setfield( lua, -2, "headers" );
-
-    lua_setglobal( lua, "__httpRequest" );
     
     //
     //  call lua 
     //
-    
     try
     {
         lua.call( "onHttpRequest", -1, true );
@@ -134,41 +138,5 @@ void HttpServer::onRequest( const propeller::http::Request& request, propeller::
         return;
     }
 
-    //
-    //  load response from lua
-    //
-    lua_getglobal( lua, "__leda" );
-    lua_getfield( lua, -1, "httpResponse" );
-
-    lua_getfield( lua, -1, "status" );
-    response.setStatus( lua_tonumber( lua, -1 ) );
-    lua_pop( lua, 1 );
-    
-    lua_getfield( lua, -1, "headers" );
-
-    lua_pushnil( lua );
-    while ( lua_next( lua, -2 ) != 0 )
-    {
-        const char* name = lua_tostring( lua, -2 );
-        
-        if ( lua_isstring( lua, -1 ) )
-        {
-            const char* value = lua_tostring( lua, -1 );
-            response.addHeader( name, value );
-        }
-
-        lua_pop( lua, 1 );
-    }
-    
-    lua_pop( lua, 1 );
-    
-    lua_getfield( lua, -1, "body" );
-    size_t length = 0;
-    const char* body = lua_tolstring( lua, -1, &length );
-
-    response.setBody( body, length );
-    lua_pop( lua, 1 );
-    
-    lua_pop( lua, 2 );
 }
 

@@ -28,6 +28,15 @@ extern int serverCreate( lua_State* lua );
 extern int serverAddTimer( lua_State* lua );
 extern int getpid( lua_State* lua );
 extern int processorCount( lua_State* lua );
+extern int httpRequestGetUrl( lua_State* lua );
+extern int httpRequestGetHeaders( lua_State* lua );
+extern int httpRequestGetBody( lua_State* lua );
+extern int httpResponseSetBody( lua_State* lua );
+extern int httpResponseSetStatus( lua_State* lua );
+extern int httpResponseSetHeaders( lua_State* lua );
+extern int httpResponseAddHeader( lua_State* lua );
+
+
 
 
 

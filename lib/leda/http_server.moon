@@ -4,12 +4,12 @@ require 'leda.common'
 
         
 -- http request class
-class Request
-    new: =>
-        @body= __httpRequest.body
-        @url= __httpRequest.url
-        @method= __httpRequest.method
-        @headers= __httpRequest.headers
+class Request    
+    url: => __api.httpRequestGetUrl(__leda.httpRequest)
+    headers: => __api.httpRequestGetHeaders(__leda.httpRequest)
+    body: => __api.httpRequestGetBody(__leda.httpRequest)
+    
+        
         
         
 class Response
@@ -18,19 +18,15 @@ class Response
      status: 200
      
      new: =>
-         @response = __httpResponse
          @headers = {}
+         @body = ''
          
      send: =>
-         --@headers = {} if type(@headers) ~= 'table'
-             
-        __leda.httpResponse = {
-            body: @body, 
-            headers: @headers,
-            status: @status
-        }     
-     
-     
+        __api.httpResponseSetStatus(__leda.httpResponse, @status)
+        __api.httpResponseSetHeaders(__leda.httpResponse, @headers)
+        __api.httpResponseSetBody(__leda.httpResponse, @body)
+        
+                     
 -- HTTP server class
 class HTTPServer extends CommonServer
     --default type
@@ -38,8 +34,7 @@ class HTTPServer extends CommonServer
     -- default port
     port: 8080
     -- default  thread count
-    pool: math.floor(__api.processorCount() / 2)
-    threads: math.floor(__api.processorCount() / 2)
+    threads: __api.processorCount() 
     -- constructor
     new: =>
         __leda.onHttpRequest = ->
@@ -66,7 +61,6 @@ class HTTPServer extends CommonServer
                 port: @port,
                 host: @host,
                 threads: @threads
-                pool: @pool
         })
         
         
@@ -77,7 +71,7 @@ class HTTPServer extends CommonServer
     onRequest:  =>
         if @on_request
             @on_request(@request, @response)
-
+            
         -- set some headers and serialize tables to json
         if not @response.headers['Content-Type']
             local contentType

@@ -79,6 +79,13 @@ void LuaState::create()
         //             {"clientConnectionClose", clientConnectionClose },
         {"getpid", getpid },
         {"processorCount", processorCount},
+        {"httpRequestGetUrl", httpRequestGetUrl},
+        {"httpRequestGetHeaders", httpRequestGetHeaders},
+        {"httpRequestGetBody", httpRequestGetBody},
+        {"httpResponseSetBody", httpResponseSetBody},
+        {"httpResponseSetStatus", httpResponseSetStatus},
+        {"httpResponseSetHeaders", httpResponseSetHeaders},
+        {"httpResponseAddHeader", httpResponseAddHeader},
 
         {NULL, NULL }
     };
