@@ -41,7 +41,7 @@ endif
 ### Variables: ###
 
 CPPDEPS = -MT$@ -MF`echo $@ | sed -e 's,\.o$$,.d,'` -MD -MP
-LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -Ideps/cjson -g -D_DEBUG -D_THREAD_SAFE -pthread \
+LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -Ideps/cjson -O2 -D_THREAD_SAFE -pthread \
 	$(CPPFLAGS) $(CXXFLAGS) 
 		
 LEDA_OBJECTS =  \
