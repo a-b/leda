@@ -1,0 +1,130 @@
+# -------------------------------------------------------------------------
+# These are configurable options:
+# -------------------------------------------------------------------------
+
+# 'install' program location 
+INSTALL ?= install
+
+# Location where the package is installed by 'make install' 
+prefix ?= /usr/local
+
+# Destination root (/ is used if empty) 
+DESTDIR ?= 
+
+# Compiler flags to link shared library 
+LINK_DLL_FLAGS ?= -shared
+
+# C++ compiler 
+CXX = g++
+
+# Standard flags for C++ 
+CXXFLAGS ?= -m32
+
+# Standard preprocessor flags (common for CC and CXX) 
+CPPFLAGS ?= 
+
+# Standard linker flags 
+LDFLAGS ?= -m32
+
+UNAME := $(shell uname)
+
+PLATFORM_LDFLAGS ?= 
+
+ifeq ($(UNAME), Linux)
+PLATFORM_LDFLAGS = -lrt
+endif
+
+### Variables: ###
+
+CPPDEPS = -MT$@ -MF`echo $@ | sed -e 's,\.o$$,.d,'` -MD -MP
+PROPELLER_CXXFLAGS = -Iinclude/propeller -Ideps/libevent -Ideps/libevent/include -O2 -D_THREAD_SAFE -pthread -fPIC \
+	-DPIC $(CPPFLAGS) $(CXXFLAGS)
+PROPELLER_OBJECTS =  \
+	obj/propeller_HttpProtocol.o \
+	obj/propeller_HttpServer.o \
+	obj/propeller_Server.o \
+	obj/propeller_system.o \
+	obj/propeller_trace.o \
+	obj/propeller_event.o \
+	obj/propeller_Client.o \
+	obj/propeller_Connection.o 
+
+### Conditionally set variables: ###
+
+all: obj
+obj:
+	@mkdir -p obj
+
+### Targets: ###
+
+all: obj/libpropeller.so
+
+install: install_propeller install_propeller_headers
+
+clean: 
+	rm -f obj/*.o
+	rm -f obj/*.d
+	rm -f obj/libpropeller.so
+	rm -f obj/libpropeller.so
+	-(cd test && $(MAKE) clean)
+	-(cd deps/libevent && $(MAKE) clean)
+
+
+libevent: 
+	cd deps/libevent && make
+
+obj/libpropeller.so: libevent $(PROPELLER_OBJECTS) 
+	$(CXX) $(LINK_DLL_FLAGS) -fPIC -o $@ $(PROPELLER_OBJECTS)  -pthread -Ldeps/libevent/.libs $(LDFLAGS)  -levent -levent_pthreads $(PLATFORM_LDFLAGS)
+
+install_propeller: obj/libpropeller.so
+	$(INSTALL) -d $(DESTDIR)$(prefix)/lib
+	$(INSTALL) -m 644 obj/libpropeller.so $(DESTDIR)$(prefix)/lib
+	install -c obj/libpropeller.so $(DESTDIR)$(prefix)/lib
+	cd deps/libevent && make install && cd ../..
+
+uninstall_propeller: 
+	rm -f $(DESTDIR)$(prefix)/lib/libpropeller.so
+	rm -f $(DESTDIR)$(prefix)/lib/libpropeller.so
+
+install_propeller_headers: 
+	$(INSTALL) -d $(DESTDIR)$(prefix)/include/propeller
+	cp -rv include/propeller $(DESTDIR)$(prefix)/include/
+	chmod 644 $(DESTDIR)$(prefix)/include/propeller/*
+
+
+test: 
+	(cd test && $(MAKE) all)
+
+obj/propeller_propeller.o: src/propeller.cpp
+	$(CXX) -c -o $@ $(PROPELLER_CXXFLAGS) $(CPPDEPS) $<
+
+obj/propeller_HttpProtocol.o: src/HttpProtocol.cpp
+	$(CXX) -c -o $@ $(PROPELLER_CXXFLAGS) $(CPPDEPS) $<
+
+obj/propeller_Server.o: src/Server.cpp
+	$(CXX) -c -o $@ $(PROPELLER_CXXFLAGS) $(CPPDEPS) $<
+
+obj/propeller_system.o: src/system.cpp
+	$(CXX) -c -o $@ $(PROPELLER_CXXFLAGS) $(CPPDEPS) $<
+
+obj/propeller_trace.o: src/trace.cpp
+	$(CXX) -c -o $@ $(PROPELLER_CXXFLAGS) $(CPPDEPS) $<
+
+obj/propeller_event.o: src/event.cpp
+	$(CXX) -c -o $@ $(PROPELLER_CXXFLAGS) $(CPPDEPS) $<
+	
+obj/propeller_HttpServer.o: src/HttpServer.cpp
+	$(CXX) -c -o $@ $(PROPELLER_CXXFLAGS) $(CPPDEPS) $<	
+	
+obj/propeller_Client.o: src/Client.cpp
+	$(CXX) -c -o $@ $(PROPELLER_CXXFLAGS) $(CPPDEPS) $<		
+	
+obj/propeller_Connection.o: src/Connection.cpp
+	$(CXX) -c -o $@ $(PROPELLER_CXXFLAGS) $(CPPDEPS) $<	
+	
+.PHONY: all install uninstall clean install_propeller uninstall_propeller \
+	install_propeller_headers uninstall_propeller_headers test
+
+
+# Dependencies tracking:
+-include obj/*.d

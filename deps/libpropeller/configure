@@ -1,0 +1,5 @@
+#! /bin/bash
+
+cp Makefile.release Makefile
+cp Makefile.in.libevent deps/libevent/Makefile.in
+cd deps/libevent && ./configure --enable-shared=yes --enable-static=no --disable-libevent-regress  --disable-malloc-replacement --disable-openssl --disable-debug-mode --disable-dependency-tracking

@@ -1,0 +1,13 @@
+nbproject
+.DS_Store
+obj
+bin
+*.Plo
+*.Po
+*.o
+*.lo
+*.la
+*.status
+deps
+
+

@@ -1,0 +1,6 @@
+all:
+	g++ TestClient.cpp -m32 -I../include -I../deps/libevent/include -L../obj -lpropeller -g -o TestClient
+
+clean:
+	rm -rf TestClient
+
