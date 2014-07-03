@@ -1,12 +1,5 @@
-/* 
- * File:   FSWatcher.h
- * Author: sergey
- *
- * Created on June 29, 2014, 8:55 AM
- */
-
-#ifndef FSWATCHER_H
-#define	FSWATCHER_H
+#ifndef _FSWATCHER_H
+#define	_FSWATCHER_H
 
 #include "common.h"
 #include <propeller/system.h>
@@ -22,9 +15,8 @@ public:
     
 private:
     
-#ifdef __MACH__
-    void startOSX();
-#endif
+    void startInternal();
+
     
     class WorkerThread: public sys::Thread
     {
@@ -55,5 +47,4 @@ private:
     
 };
 
-#endif	/* FSWATCHER_H */
-
+#endif	/* _FSWATCHER_H */

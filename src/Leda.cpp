@@ -517,8 +517,11 @@ void Leda::execScript( )
 {
     TRACE_ENTERLEAVE( );
     
-    if ( m_debug )
+    if ( getenv( "LEDA_WATCH_TREE" ) )
     {
+        //
+        //  watch for file changes
+        //
         m_fwatcher = new FWatcher( "./" );
     }
 
