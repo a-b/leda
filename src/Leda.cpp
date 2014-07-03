@@ -300,7 +300,8 @@ int httpResponseSetStatus( lua_State* lua )
 {
     TRACE_ENTERLEAVE();
     propeller::http::Response* response = ( propeller::http::Response* ) lua_touserdata( lua, -2 );
-    response->setStatus( lua_tointeger( lua, -1 ) );
+    TRACE("response status %d", lua_tonumber( lua, -1 ));
+    response->setStatus( lua_tonumber( lua, -1 ) );
     lua_pop( lua, 2 );
     
     return 0;

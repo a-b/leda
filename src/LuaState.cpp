@@ -340,7 +340,7 @@ void LuaState::load( unsigned int threadId, bool exception )
             
             return;
         }
-        addPaths( "moonpath" );
+        
         sprintf( script, "local moonscript = require('moonscript'); "
         "moonscript.dofile('%s');", m_filename.c_str() ); 
     }
