@@ -23,10 +23,13 @@ public:
     LuaState( const LuaState& lua );
     virtual ~LuaState( );
     
-    bool load( const char* init = NULL, bool reload = false );
+    void load(  unsigned int threadId = 0, bool exception = false );
+    
     void call( const std::string& callbackName, int registryIndex = -1, bool exception = false ); 
     
     void execute( const std::string& script ) const;
+    
+    
     
     operator lua_State*() const
     {
@@ -47,8 +50,19 @@ public:
     void setGlobal( const std::string& name, void* value );
     void setGlobal( const std::string& name, const char* value, unsigned int length );
     void setGlobal( const std::string& name, const std::string& value );
+    void setGlobal( const std::string& name, bool value = true );
     
-    static LuaState& luaFromThread( const sys::Thread& thread, unsigned int threadId ); 
+    unsigned int getGlobal( const std::string& name );
+    
+   
+    
+    
+    static LuaState& luaFromThread( const sys::Thread& thread, unsigned int threadId );
+    void destroy();
+    void create();
+     
+     
+    
     
     
 protected:
@@ -58,12 +72,8 @@ protected:
 private:
     void reload( unsigned int threadId );
      void loadlibs() const;   
-     void addPaths( const char* name ) const;
-     void destroy();
-     void create();
-     
-     
-     
+     void addPaths( const char* name ) const; 
+     void getGlobalTable();
     
 private:
     lua_State* m_lua;

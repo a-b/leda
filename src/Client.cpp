@@ -18,7 +18,8 @@ void Client::onStart()
 {
     TRACE_ENTERLEAVE();
     m_lua = new LuaState( Leda::instance()->script() );
-    m_lua->load( "__client=true" );
+    m_lua->setGlobal( "client" );
+    m_lua->load();
     
     //
     //  add repeating timer  to prevent weird libevent bug 

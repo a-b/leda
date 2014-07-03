@@ -37,29 +37,6 @@
      return 0;
  }
  
- 
-// int generateRandomString( lua_State* lua )
-// {
-//     TRACE_ENTERLEAVE();
-//     
-//     uuid_t out;
-//     uuid_generate( out ); 
-//   
-//     char hex[32];
-//     char* current = hex;
-//     
-//     for ( unsigned int i = 0; i < sizeof(uuid_t); i++ )
-//     {
-//         sprintf( current, "%x2", out[ i ] );
-//         current +=2;
-//     }
-//     
-//     lua_pushlstring( lua, hex, 32 );
-//     
-//     return 1;
-// }
-// 
- 
  int serverConnectionSendMessage( lua_State* lua )
  {
      propeller::Server::Connection* connection = ( propeller::Server::Connection* ) lua_touserdata( lua, -2 );   
@@ -285,6 +262,16 @@ int httpRequestGetBody( lua_State* lua )
     {
         lua_pushnil( lua );
     }
+        
+    return 1;
+}
+
+int httpRequestGetAddress( lua_State* lua )
+{
+    propeller::http::Request* request = ( propeller::http::Request* ) lua_touserdata( lua, -1 );
+    lua_pop( lua, 1 );
+
+    lua_pushstring( lua, request->connection()->address().c_str() );
         
     return 1;
 }
@@ -538,10 +525,8 @@ void Leda::execScript( )
     //  create new lua environment
     //
     m_lua = new LuaState( m_script );
-    if ( !m_lua->load( "__init=true" ) )
-    {
-        throw std::runtime_error( "" );
-    }
+    m_lua->setGlobal( "init" );
+    m_lua->load( 0, true );
 
     if ( m_server )
     {

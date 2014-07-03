@@ -31,6 +31,7 @@ extern int processorCount( lua_State* lua );
 extern int httpRequestGetUrl( lua_State* lua );
 extern int httpRequestGetHeaders( lua_State* lua );
 extern int httpRequestGetBody( lua_State* lua );
+extern int httpRequestGetAddress( lua_State* lua );
 extern int httpResponseSetBody( lua_State* lua );
 extern int httpResponseSetStatus( lua_State* lua );
 extern int httpResponseSetHeaders( lua_State* lua );

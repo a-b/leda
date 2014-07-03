@@ -82,6 +82,7 @@ void LuaState::create()
         {"httpRequestGetUrl", httpRequestGetUrl},
         {"httpRequestGetHeaders", httpRequestGetHeaders},
         {"httpRequestGetBody", httpRequestGetBody},
+        {"httpRequestGetAddress", httpRequestGetAddress},
         {"httpResponseSetBody", httpResponseSetBody},
         {"httpResponseSetStatus", httpResponseSetStatus},
         {"httpResponseSetHeaders", httpResponseSetHeaders},
@@ -165,7 +166,31 @@ LuaState::~LuaState( )
 
 void LuaState::execute( const std::string& script ) const
 {
-    luaL_dostring( m_lua, script.c_str() );
+    TRACE_ENTERLEAVE();
+    TRACE( "%s", script.c_str() );
+    
+     //
+    //  debug.traceback function
+    //
+    lua_getglobal( m_lua, "debug");
+    lua_getfield( m_lua, -1, "traceback");
+
+    luaL_loadstring( m_lua, script.c_str() ); 
+    
+    int res = lua_pcall( m_lua, 0, LUA_MULTRET, -2 );
+
+    if ( res )
+    {
+        std::string error = lua_tostring( m_lua, -1 ); 
+        lua_pop( m_lua, 3 );
+        
+        throw std::runtime_error( error );
+    }
+    
+    //
+    //  pop result or error from the stack
+    //
+    lua_pop( m_lua, 3 );
 }
 
 
@@ -250,9 +275,6 @@ void LuaState::call( const std::string& callbackName, int registryIndex, bool ex
     //  pop all from stack
     //
     lua_pop( m_lua, -debugIndex );
-    
-    
-    
 }
 
 
@@ -272,107 +294,117 @@ void LuaState::reload( unsigned int threadId )
         create();
         loadlibs();
         load();
-        setGlobal( "__threadId", threadId );
+        setGlobal( "threadId", threadId );
         
         Leda::instance()->resetChanges();
     }
 }
 
 
-bool LuaState::load( const char* init, bool reload ) 
+void LuaState::load( unsigned int threadId, bool exception ) 
 {
     TRACE_ENTERLEAVE();
     
-    //
-    //  perform custom initilization if needed
-    //    
-    if ( init )
+    addPaths( "path" );
+    addPaths( "cpath" );
+    
+    
+    char script[ 1024 ];
+    
+    TRACE( "loading %s", m_filename.c_str() );
+    
+    
+    if ( m_filename.find( ".lua") != std::string::npos )
     {
-        TRACE( "%s", init );
-        luaL_dostring( m_lua, init );
-    }
-  
-    
-    
-    if ( !reload )
-    {
-        addPaths( "path" );
-        addPaths( "cpath" );
-    }
-    
-
-    luaL_dostring( m_lua, "require 'leda'");
-    luaL_dostring( m_lua, "require 'moonscript'");
-    
-    if ( !reload )
-    {
-        this->addPaths( "moonpath" );
-    }
-    
-    //
-    //  load moonscript environment
-    //
-    char script[ 256 ];
-    sprintf( script, "local moonscript = require('moonscript'); "
-            "moonscript.dofile('%s');", m_filename.c_str() ); 
-    
-    TRACE( "executing %s", script );
-    
-    //
-    //  debug.traceback function
-    //
-    lua_getglobal( m_lua, "debug");
-    lua_getfield( m_lua, -1, "traceback");
-
-    luaL_loadstring( m_lua, script ); 
-    bool success = false;
-    
-    int res = lua_pcall( m_lua, 0, LUA_MULTRET, -2 );
-
-    if ( res )
-    {
-        TRACE_ERROR( "%s", lua_tostring( m_lua, -1 ) );
-        success = false;
+        //
+        //  lua
+        //
+        sprintf( script,"dofile('%s');", m_filename.c_str() ); 
     }
     else
     {
         //
-        //  remove debug.traceback from stack
-        //  
-        success = lua_toboolean( m_lua, -1 );
+        //  moonscript
+        //
+        try
+        {
+            execute( "require 'moonscript'");
+        }
+        catch ( const std::runtime_error& e )
+        {
+            TRACE_ERROR( "%s", e.what() );
+            if ( exception )
+            {
+                throw e;
+            }
+            
+            return;
+        }
+        addPaths( "moonpath" );
+        sprintf( script, "local moonscript = require('moonscript'); "
+        "moonscript.dofile('%s');", m_filename.c_str() ); 
     }
-    //
-    //  pop result or error from the stack
-    //
-    lua_pop( m_lua, 3 );
+
+    try
+    {
+        execute( "require 'leda'" );
+        execute( script );
+    }
+    catch( const std::runtime_error& e )
+    {
+        TRACE_ERROR( "%s", e.what( ) );
+        if ( exception )
+        {
+            throw e;
+        }
+    }
     
-   return success;
+    setGlobal( "threadId", threadId );
+   
 }
 
 void LuaState::setGlobal( const std::string& name, unsigned int value )
 {
+    getGlobalTable();
     lua_pushinteger( m_lua, value );
-    lua_setglobal( m_lua, name.c_str() );
+    lua_setfield( m_lua, -2, name.c_str() );
+    lua_pop( m_lua, 1 );
 }
 
 
 void LuaState::setGlobal( const std::string& name, void* value )
 {
+    getGlobalTable();
     lua_pushlightuserdata( m_lua, value );
-    lua_setglobal( m_lua, name.c_str()  );
+    lua_setfield( m_lua, -2, name.c_str()  );
+    lua_pop( m_lua, 1 );
 }
 
 void LuaState::setGlobal( const std::string& name, const char* value, unsigned int length )
 {
+    getGlobalTable();
     lua_pushlstring( m_lua, value, length );
-    lua_setglobal( m_lua, name.c_str()  );
+    lua_setfield( m_lua, -2, name.c_str()  );
+    lua_pop( m_lua, 1 );
 }
 
 void LuaState::setGlobal( const std::string& name, const std::string& value )
 {
+    getGlobalTable();
     lua_pushstring( m_lua, value.c_str() );
-    lua_setglobal( m_lua, name.c_str()  );
+    lua_setfield( m_lua, -2, name.c_str()  );
+    lua_pop( m_lua, 1 );
 }
+
+
+void LuaState::setGlobal( const std::string& name, bool value )
+{
+    getGlobalTable();
+    lua_pushboolean( m_lua, ( int ) value );
+    lua_setfield( m_lua, -2, name.c_str()  );
+    lua_pop( m_lua, 1 );
+}
+
 
 LuaState& LuaState::luaFromThread( const sys::Thread& thread, unsigned int threadId )
 {
@@ -382,3 +414,37 @@ LuaState& LuaState::luaFromThread( const sys::Thread& thread, unsigned int threa
     lua.reload( threadId );
     return lua;
 }
+
+
+void LuaState::getGlobalTable()
+{
+    lua_getglobal( m_lua, "__leda" );
+    if ( lua_isnil( m_lua, -1 ) )
+    {
+        //
+        //  create new table if not set
+        //
+        lua_newtable( m_lua );
+        lua_setglobal( m_lua, "__leda" );
+        getGlobalTable();
+    }
+}
+
+unsigned int LuaState::getGlobal( const std::string& name )
+{
+    unsigned int result = 0;
+    
+    getGlobalTable();
+    
+    if ( lua_istable( m_lua, -1 ) )
+    {
+        lua_getfield( m_lua, -1, name.c_str() );
+        result = lua_tointeger( m_lua, -1 );
+        lua_pop( m_lua, 1 ); 
+    }
+    lua_pop( m_lua, 1 ); 
+
+    return result;
+}
+    
+    
