@@ -31,7 +31,7 @@ Edit `server.lua` looks like this:
     local server = http.Server(8080, 'localhost')
 
 
-    server:request(function(request, response)
+    server:request(function(server, request, response)
         response.body = 'hello world!'
     end)
     
