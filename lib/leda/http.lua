@@ -41,7 +41,7 @@ function Server:create(port, host)
     __leda.onHttpRequest = function()
         local response = Response()
         
-        if type(self._onRequest) == 'function' then self._onRequest(Request(), response) end
+        if type(self._onRequest) == 'function' then self:_onRequest(Request(), response) end
         
         -- set some headers and serialize tables to json
         if not response.headers['Content-Type'] then

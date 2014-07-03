@@ -17,11 +17,11 @@ Fields:
 
 Methods:
 
-**request(callback)**:  function provided in the `callback` gets invoked whenever http server processes an incoming request. This function is passed request and response objects. 
+**request(callback)**:  function provided in the `callback` gets invoked whenever http server processes an incoming request. The function aeguments are: server object, request and response objects. 
 
-**started(callback)**: function provided in the `callback` is invoked when server starts up 
+**started(callback)**: function provided in the `callback` is invoked when server starts up.  The function argument is server object
 
-**thread(callback)**: function provided in the `callback` is invoked when server starts up
+**thread(callback)**: function provided in the `callback` is invoked whenever new connection thread is started or stopped. This function arguments are server object, thread object and a boolean flag whether thread was started or stopped
 
  
 ## Request objects
@@ -54,7 +54,7 @@ Consider the following example that creates HTTP server listening on localhost, 
         local server = http.Server(9090, 'localhost')
 
 
-        server:request(function(request, response)
+        server:request(function(server, request, response)
             response.body = 'hello world!'
             end)
             

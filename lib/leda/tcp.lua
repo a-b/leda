@@ -38,7 +38,7 @@ function Server:create(port, host)
     __leda.onConnectionAccepted = function()
         local connection = Connection()
         if type(self._onConnection) == 'function' then
-            self._onConnection(connection, true)
+            self:_onConnection(connection, true)
         end
         self.connections[connection:id()] = connection
     end
@@ -46,14 +46,14 @@ function Server:create(port, host)
     __leda.onConnectionClosed = function()
         local connection = Connection()
         if type(self._onConnection) == 'function' then
-            self._onConnection(connection, false)
+            self:_onConnection(connection, false)
         end
         self.connections[connection:id()] = nil
     end
     
     __leda.onConnectionDataReceived = function()
         if type(self._onDataReceived) == 'function' then
-            self._onDataReceived(Connection(), __leda.data)
+            self:_onDataReceived(Connection(), __leda.data)
         end
     end
     

@@ -27,14 +27,14 @@ function Server:create()
         __leda.onThreadStarted = function()
             
             if __leda.threadId == 0 then
-                if type(self._onStarted) == 'function' then self._onStarted()  end
+                if type(self._onStarted) == 'function' then self:_onStarted()  end
             end
                             
-            if type(self._onThread) == 'function' then self._onThread(Thread(), true) end
+            if type(self._onThread) == 'function' then self:_onThread(Thread(), true) end
         end
         
         __leda.onThreadStopped = function()
-            if type(self._onThread) == 'function' then self._onThread(Thread(), false) end
+            if type(self._onThread) == 'function' then self:_onThread(Thread(), false) end
         end
     end
     

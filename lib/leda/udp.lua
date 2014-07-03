@@ -19,7 +19,7 @@ function Server:create(port, host)
     
     __leda.onUdpDataReceived = function()
         if type(self._onDataReceived) == 'function' then
-            self._onDataReceived(__leda.from, __leda.data)
+            self:_onDataReceived(__leda.from, __leda.data)
         end
     end
     
