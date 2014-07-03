@@ -41,7 +41,7 @@ endif
 ### Variables: ###
 
 CPPDEPS = -MT$@ -MF`echo $@ | sed -e 's,\.o$$,.d,'` -MD -MP
-LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -Ideps/cjson -O2 -D_THREAD_SAFE -pthread \
+LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -Ideps/cjson -g -D_DEBUG -D_THREAD_SAFE -pthread \
 	$(CPPFLAGS) $(CXXFLAGS) 
 		
 LEDA_OBJECTS =  \
@@ -75,11 +75,10 @@ clean:
 	rm -f obj/leda
 	-(cd deps/libpropeller && $(MAKE) clean)
 	-(cd deps/luajit && $(MAKE) clean)
-	-(cd deps/lpeg && $(MAKE) clean)
 	-(cd deps/cjson && $(MAKE) clean)
 	
 libs: 
-	cd deps/libpropeller && make && cd ../luajit  && make && rm src/libluajit.so && cd ../lpeg && make && cd ../cjson && make
+	cd deps/libpropeller && make && cd ../luajit  && make && rm src/libluajit.so  && cd ../cjson && make
 
 
 obj/leda: libs $(LEDA_OBJECTS) 
@@ -92,15 +91,12 @@ install_leda:
 	rm -rf $(DESTDIR)$(prefix)/lib/leda
 	mkdir -p $(DESTDIR)$(prefix)/lib/leda
 	rsync -a --exclude='test' --exclude 'test.lua' lib/* $(DESTDIR)$(prefix)/lib/leda/
-	rm $(DESTDIR)$(prefix)/lib/leda/moonscript
-	cp -r deps/moonscript/moonscript $(DESTDIR)$(prefix)/lib/leda/
 	cd deps/luajit && make install
-	cp deps/lpeg/lpeg.so $(DESTDIR)$(prefix)/lib/lua/5.1
 	chmod -R a+r $(DESTDIR)$(prefix)/lib/leda/
 	chmod -R a+r $(DESTDIR)$(prefix)/lib/lua/5.1/
 
 uninstall_leda: 
-	rm -f $(DESTDIR)$(prefix)/bin/breeze
+	rm -f $(DESTDIR)$(prefix)/bin/leda
 
 obj/LEDA_Leda.o: src/Leda.cpp
 	$(CXX) -c -o $@ $(LEDA_CXXFLAGS) $(CPPDEPS) $<
