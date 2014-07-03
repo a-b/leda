@@ -1,9 +1,0 @@
-[submodule "deps/libpropeller"]
-	path = deps/libpropeller
-	url = https://github.com/sergeyzavadski/libpropeller.git
-[submodule "deps/luajit"]
-	path = deps/luajit
-	url = http://luajit.org/git/luajit-2.0.git
-[submodule "deps/moonscript"]
-	path = deps/moonscript
-	url = https://github.com/leafo/moonscript.git
