@@ -25,7 +25,7 @@ Response.create = function(self)
 end
     
 Response.send = function(self)
-    __api.httpResponseSetStatus(__leda.httpResponse, self.tatus)
+    __api.httpResponseSetStatus(__leda.httpResponse, self.status)
     __api.httpResponseSetHeaders(__leda.httpResponse, self.headers)
     __api.httpResponseSetBody(__leda.httpResponse, self.body)
 end
