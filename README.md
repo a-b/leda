@@ -28,7 +28,7 @@ Edit `server.lua` looks like this:
 
     local http = require('leda.http')
 
-    local server = http.Server(8080)
+    local server = http.Server(8080, 'localhost')
 
 
     server:request(function(request, response)
