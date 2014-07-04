@@ -19,7 +19,7 @@ extern int clientConnect( lua_State* lua );
 extern int clientAddTimer( lua_State* lua );
 extern int clientConnectionSendMessage( lua_State* lua );
 extern int clientConnectionClose( lua_State* lua );
-extern int serverConnectionSendMessage( lua_State* lua );
+extern int clientConnectionSendData( lua_State* lua );
 extern int serverConnectionSendData( lua_State* lua );
 extern int serverConnectionGetAddress( lua_State* lua );
 extern int serverConnectionGetId( lua_State* lua );
@@ -65,7 +65,7 @@ public:
         return m_script;
     }
     
-    void clientCreate( );
+    propeller::Client* clientCreate( unsigned int threadCount = 1 );
     
     void onTerminate();
     void execScript( );
@@ -130,14 +130,7 @@ public:
 
 private:
     Leda();
-    
-    class ClientWorkerThread: public sys::Thread
-    {
-    private:
-        virtual void routine();
-    };
-    
-    
+        
 
 private:
     std::string m_script;

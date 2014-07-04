@@ -67,16 +67,16 @@ void LuaState::create()
         {"serverCreate", serverCreate },
 //        {"generateUniqueString", generateRandomString },
         {"serverConnectionSendData", serverConnectionSendData },
-        {"serverConnectionSendMessage", serverConnectionSendMessage },
+        
         
         {"serverConnectionGetAddress", serverConnectionGetAddress},
         {"serverConnectionGetId", serverConnectionGetId},
         {"serverSendTo", serverSendTo},
         {"clientCreate", clientCreate },
-        //             {"clientConnect", clientConnect },
+        {"clientConnect", clientConnect },
         {"clientAddTimer", clientAddTimer },
-        //             {"clientConnectionSendMessage", clientConnectionSendMessage },
-        //             {"clientConnectionClose", clientConnectionClose },
+        {"clientConnectionSendData", clientConnectionSendData },
+        {"clientConnectionClose", clientConnectionClose },
         {"getpid", getpid },
         {"processorCount", processorCount},
         {"httpRequestGetUrl", httpRequestGetUrl},
@@ -415,6 +415,18 @@ LuaState& LuaState::luaFromThread( const sys::Thread& thread, unsigned int threa
     return lua;
 }
 
+LuaState* LuaState::luaForThread( sys::Thread& thread, unsigned int id )
+{
+    //
+    //  create new lua state for new thread
+    //  
+    LuaState* lua = new LuaState( Leda::instance()->script() );
+    lua->load( id );
+    thread.setData( lua ); 
+    
+    return lua;
+}
+
 
 void LuaState::getGlobalTable()
 {
@@ -447,4 +459,19 @@ unsigned int LuaState::getGlobal( const std::string& name )
     return result;
 }
     
+unsigned int LuaState::getThreadId( lua_State* lua )
+{
+    lua_getglobal( lua, "__leda" );
+
+    if ( lua_istable( lua, -1 ) )
+    {
+        lua_getfield( lua, -1, "threadId" );
+        unsigned int threadId = lua_tonumber( lua, -1 );
+        lua_pop( lua, 2 );
+
+        return threadId;
+    }
+    
+    return 0;
+}
     

@@ -131,30 +131,40 @@
      
      if ( !Leda::instance()->client() )
      {
-         Leda::instance()->clientCreate();
+         propeller::Client* client = Leda::instance()->clientCreate( lua_tointeger( lua, -1 ) );
+         lua_pop( lua, 1 );
+         
+         lua_pushlightuserdata( lua, client );
+         
+         return 1;
      }
              
      return 0;
  }
 // 
-// int clientConnect( lua_State* lua )
-// {
-//     TRACE_ENTERLEAVE();
-//     
-//     unsigned int port = lua_tonumber( lua, -1 );
-//     const char* host = lua_tostring( lua, -2 );
-//     
-//     lua_pop( lua, 2 );
-//     
-//     Leda::instance()->client()->connect( host, port );
-//     
-//     return 0;
-// }
+ int clientConnect( lua_State* lua )
+ {
+     TRACE_ENTERLEAVE();
+     
+     unsigned int port = lua_tonumber( lua, -1 );
+     const char* host = lua_tostring( lua, -2 );
+     
+     Client::Connection* connection = Leda::instance()->client()->connect( host, port );
+     
+     lua_pop( lua, 2 );
+     
+     lua_pushlightuserdata( lua, connection );
+     return 1;
+ }
 // 
  int clientAddTimer (lua_State* lua )
  {
      TRACE_ENTERLEAVE();
-     
+     if ( !Leda::instance()->client() )
+     {
+         TRACE( "no client instance found", "" );
+         return 0;
+     }
      
      int callback = luaL_ref( lua, LUA_REGISTRYINDEX );
      
@@ -162,39 +172,50 @@
      bool once = lua_toboolean( lua, -1 );
      lua_pop( lua, 2 );
      
+     Client* client = ( Client* ) Leda::instance()->client();
      
-     Leda::instance()->client()->addTimer( interval, once, new Leda::TimerData( callback, once ) );
+     client->addTimer( lua, interval, once, new Leda::TimerData( callback, once ) );
+
+     return 0;
+ }
+ 
+ int clientConnectionSendData( lua_State* lua )
+ {
+     TRACE_ENTERLEAVE();
      
+     propeller::Client::Connection* connection = ( propeller::Client::Connection* ) lua_touserdata( lua, -2 );
+     
+     size_t size = 0;
+     const char* data = lua_tolstring( lua, -1, &size ); 
+     
+     if ( lua_isnil( lua, -1 ) )
+     {
+         return 0;
+     }
+     
+     TRACE("need to send data of size %d", size);
+     
+     connection->write( data, size );
+     
+     lua_pop( lua, 2 );
      return 0;
  }
 // 
-// int clientConnectionSendMessage( lua_State* lua )
-// {
-//     TRACE_ENTERLEAVE();
-//     
-//     propeller::Client::Connection* connection = ( propeller::Client::Connection* ) lua_touserdata( lua, -2 );
-//     
-//     size_t size = 0;
-//     const char* data = lua_tolstring( lua, -1, &size ); 
-//     
-//     
-//     connection->sendMessage( data, size );
-//     
-//     lua_pop( lua, 2 );
-//     return 0;
-// }
-// 
-// int clientConnectionClose( lua_State* lua )
-// {
-//     TRACE_ENTERLEAVE();
-//     
-//     propeller::Client::Connection* connection = ( propeller::Client::Connection* ) lua_touserdata( lua, -1 );
-//     
-//     lua_pop( lua, 1 );
-//     
-//     
-//     return 0;
-// }
+ int clientConnectionClose( lua_State* lua )
+ {
+     TRACE_ENTERLEAVE();
+     
+     if ( lua_isuserdata( lua, -1 ) )
+     {
+         
+        propeller::Client::Connection* connection = ( propeller::Client::Connection* ) lua_touserdata( lua, -1 );
+     
+        connection->deref();
+        lua_pop( lua, 1 );  
+     }
+                
+     return 0;
+ }
 // 
  
  int getpid( lua_State* lua )
@@ -503,20 +524,10 @@ Leda* Leda::instance()
      TRACE( "created %s server on %s:%d" , type.c_str(), m_server->host(), m_server->port() );
  }
 
-void Leda::ClientWorkerThread::routine()
-{
-    TRACE_ENTERLEAVE();
-    
-    if ( Leda::instance()->client() )
-    {
-        Leda::instance()->client()->start();
-    }
-}
-
 void Leda::execScript( )
 {
     TRACE_ENTERLEAVE( );
-    
+
     if ( getenv( "LEDA_WATCH_TREE" ) )
     {
         //
@@ -532,16 +543,14 @@ void Leda::execScript( )
     m_lua->setGlobal( "init" );
     m_lua->load( 0, true );
 
+    
+    if ( m_client )
+    {
+        m_client->start( );
+    }
+
     if ( m_server )
     {
-        if ( m_client )
-        {
-            //
-            //    start client in a new thread
-            //
-            ( new ClientWorkerThread( ) )->start( );
-        }
-
         try
         {
             m_server->start( );
@@ -555,10 +564,10 @@ void Leda::execScript( )
     {
         if ( m_client )
         {
-            m_client->start( );
+            m_client->join( );
         }
     }
-}
+    }
 
  void Leda::onTerminate()
  {
@@ -569,23 +578,23 @@ void Leda::execScript( )
          m_server->stop();
          delete m_server;
          m_server = NULL;
-         
-
      }
-
+  
      if ( m_client )
      {
          m_client->stop();
-         delete m_server;
+         delete m_client;
          m_client = NULL;
          
      }
  }
 
-void Leda::clientCreate( )
+propeller::Client* Leda::clientCreate( unsigned int threadCount )
 {
     TRACE_ENTERLEAVE( );
-    m_client = new Client( );
+    m_client = new Client( threadCount );
+    
+    return m_client;
 }
 
 void Leda::addFileChange()  

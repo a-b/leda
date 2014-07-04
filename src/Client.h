@@ -14,32 +14,23 @@
 class Client: public propeller::Client
     {
     public:
-        Client();
+        Client( unsigned int threadCount );
+        void addTimer( lua_State* lua, unsigned int timeout, bool once, void* data );
             
     protected:
         
         virtual ~Client();
-        virtual void onTimer( void* data );
+        virtual void onTimer( const propeller::Client::Thread& thread, void* data );
+        virtual void onThreadStarted( propeller::Client::Thread& thread );
+        virtual void onThreadStopped( const propeller::Client::Thread& thread );
         
         virtual void onConnectionOpened( const propeller::Client::Connection& connection );
         virtual void onConnectionClosed( const propeller::Client::Connection& connection );
         
-        virtual void onMessageReceived( const propeller::Client::Connection& connection, const propeller::Message& message );
+        virtual void onData( const propeller::Client::Connection& connection, const char* data, unsigned int length );
         
-        virtual void onStart();
-        virtual void onStop();
-        
-//        const LuaState& lua() const
-//        {
-//            return m_lua;
-//        }
         
     private:
-        void registerConnection( const propeller::Client::Connection& connection );
-        
-    private:
-        LuaState* m_lua;
-        sys::Event m_stop;
         
     };
 

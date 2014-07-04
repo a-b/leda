@@ -49,10 +49,7 @@ void HttpServer::onThreadStarted( propeller::Server::Thread& thread )
 {
     TRACE_ENTERLEAVE();
     
-    LuaState* lua = new LuaState( Leda::instance()->script() );
-    lua->load( thread.id() );
-    
-    thread.setData( lua );
+    LuaState* lua = LuaState::luaForThread( thread, thread.id() );    
     lua->call( "onThreadStarted" );
 }
 

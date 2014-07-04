@@ -29,13 +29,7 @@ void Server::onThreadStarted( propeller::Server::Thread& thread )
 {
     TRACE_ENTERLEAVE();
     
-    //
-    //  create new lua state for new thread
-    //  
-    LuaState* lua = new LuaState( Leda::instance()->script() );
-    lua->load( thread.id() );
-    thread.setData( lua ); 
-    
+    LuaState* lua = LuaState::luaForThread( thread, thread.id() );    
     lua->call( "onThreadStarted" );
 }
 
@@ -126,22 +120,10 @@ void Server::addTimer( lua_State* lua, unsigned int timeout, bool once, void* da
 {
     TRACE_ENTERLEAVE();
     
-    lua_getglobal( lua, "__leda" );
-    
-    if ( !lua_istable( lua, -1 ) )
-    {
-        lua_pop( lua, 1 );
-        return;
-    }
-    
-    lua_getfield( lua, -1, "threadId" );
-    
-    unsigned int threadId = lua_tonumber( lua, -1 );
+    unsigned int threadId = LuaState::getThreadId( lua );
     
     TRACE( "adding timer to thread id %d", threadId );
     propeller::Server::addTimer( timeout, threadId, once, data );
-    
-    lua_pop( lua, 2 );
 }
 
 Server::~Server( )

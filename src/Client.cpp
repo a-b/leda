@@ -8,107 +8,105 @@
 #include "Client.h"
 #include "Leda.h"
 
-Client::Client()
-: m_lua( NULL )
-{
-    
-}
-
-void Client::onStart()
+Client::Client( unsigned int threadCount )
+: propeller::Client( threadCount )
 {
     TRACE_ENTERLEAVE();
-    m_lua = new LuaState( Leda::instance()->script() );
-    m_lua->setGlobal( "client" );
-    m_lua->load();
-    
-    //
-    //  add repeating timer  to prevent weird libevent bug 
-    //
-    addTimer( 1, false, ( void*) 1 );
 }
+
+//void Client::onStart()
+//{
+//    TRACE_ENTERLEAVE();
+////    m_lua = new LuaState( Leda::instance()->script() );
+////    m_lua->setGlobal( "client" );
+////    m_lua->load();
+////    
+////    //
+////    //  add repeating timer  to prevent weird libevent bug 
+////    //
+////    addTimer( 1, false, ( void*) 1 );
+//}
 
 Client::~Client()
 {
+    TRACE_ENTERLEAVE();
+    
     //
     //  set close lua to false (this is  to handle termination)
     //
     //m_lua->setClose( false );
 }
 
+void Client::onThreadStarted( propeller::Client::Thread& thread )
+{
+    TRACE_ENTERLEAVE();
+    
+    LuaState* lua = LuaState::luaForThread( thread, thread.id() );
+    lua->call( "onClientThreadStarted" );
+}
 
-void Client::onTimer( void* data )
+void Client::onThreadStopped( const propeller::Client::Thread& thread )
+{
+    TRACE_ENTERLEAVE();
+    LuaState& lua = LuaState::luaFromThread( thread, thread.id() );
+    
+    lua.call( "onClientThreadStopped" );
+}
+
+void Client::onTimer( const propeller::Client::Thread& thread, void* data )
 {
     TRACE_ENTERLEAVE();
     
     if ( data )
     {
-        if ( ( intptr_t ) data == 1 )
-        {
-            //
-            //  not a real timer, it is here to prevent libevent from locking
-            //
-        }
-        else
-        {
-            Leda::instance()->callTimer( *m_lua, ( Leda::TimerData* ) data );
-        }
+        LuaState& lua = LuaState::luaFromThread( thread, thread.id() );
+        Leda::instance()->callTimer( lua, ( Leda::TimerData* ) data );
     } 
 }
 
-void Client::onStop(  )
-{
-    propeller::Client::onStop();
-    
-    TRACE_ENTERLEAVE();
-    //Breeze::instance()->callTerminate( m_lua );
-    
-}
-        
 void Client::onConnectionOpened( const propeller::Client::Connection& connection )
 {
     TRACE_ENTERLEAVE();
     
-    registerConnection( connection );
-    m_lua->call( "__onClientConnectionNew" );
+    LuaState& lua = LuaState::luaFromThread( connection.thread(), connection.thread().id() );
+    lua.setGlobal( "clientConnection", ( void* ) &connection );
+    
+    lua.call( "onClientConnectionOpened" );
 }
 
-void Client::onMessageReceived( const propeller::Client::Connection& connection, const propeller::Message& message )
+void Client::onData( const propeller::Client::Connection& connection, const char* data, unsigned int length )
 {
     TRACE_ENTERLEAVE();
+    LuaState& lua = LuaState::luaFromThread( connection.thread(), connection.thread().id() );
     
-//     lua_pushlstring( m_lua, message.data, message.length );
-//     lua_setglobal( m_lua, "__message" );
-//     
-//     registerConnection( connection );
-//     m_lua.call( "__onClientMessageReceived" );
+    std::string text;
+    text.append( data, length );
+    
+    lua.setGlobal( "clientConnection", ( void* ) &connection );
+    lua.setGlobal( "clientData", data, length );
+    
+    lua.call( "onClientData" );
 }
 
 void Client::onConnectionClosed( const propeller::Client::Connection& connection )
 {
     TRACE_ENTERLEAVE();
     
-    registerConnection( connection );
-//    m_lua.call( "__onClientConnectionClosed" );
+    LuaState& lua = LuaState::luaFromThread( connection.thread(), connection.thread().id() );
+    
+    lua.setGlobal( "clientConnection", ( void* ) &connection );
+    
+    lua.call( "onClientConnectionClosed" );
 }
 
-void Client::registerConnection( const propeller::Client::Connection& connection )
+
+void Client::addTimer( lua_State* lua, unsigned int timeout, bool once, void* data )
 {
     TRACE_ENTERLEAVE();
-    TRACE("%p", ( void* ) &connection );
     
-//    m_lua->setGlobal(, "")
-//    
-//    lua_pushlightuserdata( m_lua, ( void* ) &connection );
-//    lua_setglobal( m_lua, "__clientConnection" );
-//
-//    lua_pushnumber( m_lua, connection.fd() );
-//    lua_setglobal( m_lua, "__clientConnectionId" );
-//
-//    lua_pushnumber( m_lua, connection.port( ) );
-//    lua_setglobal( m_lua, "__clientConnectionPort" );
-//
-//    lua_pushstring( m_lua, connection.host( ).c_str( ) );
-//    lua_setglobal( m_lua, "__clientConnectionHost" );
+    unsigned int threadId = LuaState::getThreadId( lua );
+    
+    TRACE( "adding timer to thread id %d", threadId );
+    propeller::Client::addTimer( threadId, timeout, once, data );
 }
-
 

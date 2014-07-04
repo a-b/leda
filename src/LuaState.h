@@ -54,18 +54,17 @@ public:
     
     unsigned int getGlobal( const std::string& name );
     
-   
-    
-    
     static LuaState& luaFromThread( const sys::Thread& thread, unsigned int threadId );
+    static LuaState* luaForThread( sys::Thread& thread, unsigned int id );
+    static unsigned int getThreadId( lua_State* lua );
+     
+    
+    
+    
+private:
     void destroy();
     void create();
-     
-     
     
-    
-    
-protected:
     
     
     
