@@ -25,30 +25,21 @@ function Server:create()
             })
     else
         __leda.onThreadStarted = function()
-            
             if __leda.threadId == 0 then
-                if type(self._onStarted) == 'function' then self:_onStarted()  end
+                if type(self.started) == 'function' then self:started()  end
             end
                             
-            if type(self._onThread) == 'function' then self:_onThread(Thread(), true) end
+            if type(self.thread) == 'function' then self:thread(Thread(), true) end
         end
         
         __leda.onThreadStopped = function()
-            if type(self._onThread) == 'function' then self:_onThread(Thread(), false) end
+            if type(self.thread) == 'function' then self:thread(Thread(), false) end
         end
     end
     
     return self
 end
 
-
-function Server:started(callback)
-    self._onStarted = callback
-end
-
-function Server:thread(callback)
-    self._onThread = callback
-end
 
 function Server:timer(timeout, callback)
     if type(callback) == 'function' then

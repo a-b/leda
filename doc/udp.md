@@ -18,13 +18,13 @@ Fields:
 
 **threads**: number of connection threads. defaults to number of processors
 
+**data**: should be set to a function that is invoked whenever  server processes an incoming data on one of the connections. This function arguments are server object, a string with the address of sender and data received.
+
+**started**: can be set to a function that is invoked when server starts up.  The function argument is server object
+
+**thread**: can be set to a function that is invoked whenever new connection thread is started or stopped. This function arguments are server object, thread object and a boolean flag whether thread was started or stopped
+
 Methods:
-
-**data(callback)**: function provided in the `callback` is invoked whenever  server processes an incoming data on one of the connections. This function arguments are server object, a string with the address of sender and data received.
-
-**started(callback)**: function provided in the `callback` is invoked when server starts up.  The function argument is server object
-
-**thread(callback)**: function provided in the `callback` is invoked whenever new connection thread is started or stopped. This function arguments are server object, thread object and a boolean flag whether thread was started or stopped
 
 **timer(timeout, callback)**: calls the timer to call the function provided in the  `callback` parameter every number of seconds specified by `timeout` value
 
@@ -45,9 +45,9 @@ Consider the following example that creates UDP server listening on localhost, p
 
         local server = udp.Server(12000, 'localhost')
 
-        server:started(function() print('server started') end)
+        server.started = function() print('server started') end
 
-        server:data(function(server, from, data)
+        server.data = function(server, from, data)
             print(string.format("received %s from %s", data, from))
-            end)
+        end
         

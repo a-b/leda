@@ -20,15 +20,15 @@ Fields:
 
 **connections**: contains a table of active connections that maps connection id to connection objects
 
+**data**: should be set to a function that invoked whenever  server processes an incoming data on one of the connections. This function arguments are server object, connnection object and data received.
+
+**connection**: can be set to a function that is invoked  whenever new connection is accepted by server. This function arguments are server object, connnection object and a boolean flag whether connection was opened or closed
+
+**started**: can be set to a function that is invoked when server starts up.  The function argument is server object
+
+**thread**: can be set to a function that is invoked whenever new connection thread is started or stopped. This function arguments are server object, thread object and a boolean flag whether thread was started or stopped
+
 Methods:
-
-**data(callback)**: function provided in the `callback` is invoked whenever  server processes an incoming data on one of the connections. This function arguments are server object, connnection object and data received.
-
-**connection(callback)**: function provided in the `callback` is invoked whenever new connection is accepted by server. This function arguments are server object, connnection object and a boolean flag whether connection was opened or closed
-
-**started(callback)**: function provided in the `callback` is invoked when server starts up.  The function argument is server object
-
-**thread(callback)**: function provided in the `callback` is invoked whenever new connection thread is started or stopped. This function arguments are server object, thread object and a boolean flag whether thread was started or stopped
 
 **timer(timeout, callback)**: calls the timer to call the function provided in the  `callback` parameter every number of seconds specified by `timeout` value
 
@@ -60,18 +60,18 @@ Consider the following example that creates TCP server listening on localhost, p
 
         local server = tcp.Server(12000, 'localhost')
 
-        server:data(function(server, connection, data)
+        server.data = function(server, connection, data)
             -- send back data received 
             connection:send(data)
-            end)
+        end
 
-        server:thread(function(server, thread, started) 
+        server.thread = function(server, thread, started) 
             -- set the timer to send data to all opened connections
             server:timer(1, function() 
                 for id, connection in pairs(server.connections) do
                     connection:send('hello')
                 end
             end)
-        end)    
+        end    
         
         

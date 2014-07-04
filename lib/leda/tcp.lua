@@ -37,35 +37,28 @@ function Server:create(port, host)
 
     __leda.onConnectionAccepted = function()
         local connection = Connection()
-        if type(self._onConnection) == 'function' then
-            self:_onConnection(connection, true)
+        if type(self.connection) == 'function' then
+            self:connection(connection, true)
         end
         self.connections[connection:id()] = connection
     end
     
     __leda.onConnectionClosed = function()
         local connection = Connection()
-        if type(self._onConnection) == 'function' then
-            self:_onConnection(connection, false)
+        if type(self.connection) == 'function' then
+            self:connection(connection, false)
         end
         self.connections[connection:id()] = nil
     end
     
     __leda.onConnectionDataReceived = function()
-        if type(self._onDataReceived) == 'function' then
-            self:_onDataReceived(Connection(), __leda.data)
+        if type(self.data) == 'function' then
+            self:data(Connection(), __leda.data)
         end
     end
     
     common.Server.create(self)
 end
         
-function Server:connection(callback) 
-    self._onConnection = callback 
-end
-
-function Server:data(callback) 
-    self._onDataReceived = callback
-end
 
 return {Server = Server}

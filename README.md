@@ -5,7 +5,6 @@ high performance framework for creating powerful network applications with leigh
 
 Features:
 
-* Extremely fast
 * Synchronous scripting with lua 
 * Super fast VM with LuaJIT(http://luajit.org)
 * Multithreaded process architecture and asynchronous networking with libevent (via https://github.com/sergeyzavadski/libpropeller)
@@ -17,7 +16,7 @@ Installing on Unix:
     $ cd leda
     $ ./configure
     $ make
-    $ sudo make install
+    $ make install
     
 
 Running:
@@ -30,10 +29,9 @@ Edit `server.lua` looks like this:
 
     local server = http.Server(8080, 'localhost')
 
-
-    server:request(function(server, request, response)
+    server.request = function(server, request, response)
         response.body = 'hello world!'
-    end)
+    end
     
 Run
 

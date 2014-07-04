@@ -18,20 +18,12 @@ function Server:create(port, host)
 
     
     __leda.onUdpDataReceived = function()
-        if type(self._onDataReceived) == 'function' then
-            self:_onDataReceived(__leda.from, __leda.data)
+        if type(self.data) == 'function' then
+            self:data(__leda.from, __leda.data)
         end
     end
     
     common.Server.create(self)
 end
         
-function Server:connection(callback) 
-    self._onConnectionCallback = callback 
-end
-
-function Server:data(callback) 
-    self._onDataReceived = callback
-end
-
 return {Server = Server}

@@ -3,8 +3,8 @@ local udp = require('udp')
 
 local server = udp.Server(10000, 'localhost')
 
-server:started(function() print('server started') end)
+server.started = function() print('server started') end
 
-server:data(function(server, from, data)
+server.data(function(server, from, data)
     print(string.format("received %s from %s", data, from))
-    end)
+end
