@@ -21,3 +21,4 @@
 *.out
 *.app
 nbproject/
+config.mk

@@ -1,0 +1,3 @@
+[submodule "deps/libpropeller"]
+	path = deps/libpropeller
+	url = https://github.com/sergeyzavadski/libpropeller.git
