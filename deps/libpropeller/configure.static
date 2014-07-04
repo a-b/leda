@@ -1,5 +1,0 @@
-#! /bin/bash
-
-cp Makefile.in.libevent deps/libevent/Makefile.in
-cp Makefile.static Makefile
-cd deps/libevent && ./configure --enable-shared=no --enable-static=yes --disable-libevent-regress  --disable-malloc-replacement --disable-openssl --disable-debug-mode --disable-dependency-tracking
