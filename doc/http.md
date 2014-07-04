@@ -15,7 +15,7 @@ Fields:
 
 **host**: listening host
 
-**request**:should be set to a function that is invoked whenever http server processes an incoming request. The function aeguments are: server object, request and response objects. 
+**request**:should be set to a function that is invoked whenever http server processes an incoming request. The function arguments are: server object, request and response objects. 
 
 **started**: can be set to a function that is invoked when server starts up.  The function argument is server object
 
