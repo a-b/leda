@@ -1,9 +1,8 @@
 local common = require 'leda.common'
 
 -- utility functions
-local function getConnection()
-    local connection = __leda.clientConnectionsMap[__leda.clientConnection]
-    if connection then connection.__connection = __leda.clientConnection end
+local function getConnection(index)
+    local connection = __leda.clientConnectionsMap[index or __leda.clientConnection]
     return connection
 end
 
@@ -12,7 +11,6 @@ local function createClient(threads)
     if __leda.init then
         __leda.client =__leda.client or __api.clientCreate(threads or 1)
     end
-    
 end
 
 
@@ -67,7 +65,9 @@ function Connection:initialize(host, port)
 end
 
 function Connection:send(data)
-    __api.clientConnectionSendData(self.__connection, data)
+    if not getConnection(self.__connection) then return end
+    
+    if self.__connection then __api.clientConnectionSendData(self.__connection, data) end
 end
 
 function Connection:_connect(host, port) 
@@ -77,12 +77,18 @@ function Connection:_connect(host, port)
     __leda.clientConnectionsMap = __leda.clientConnectionsMap or {}
     __leda.clientConnectionsMap[connection] = self
     
+    assert(not self.__connection, "connection already set")
+    self.__connection = connection
+    
 end
 
 function Connection:_closed()
     self.__connection = nil
-    assert(self._open, string.format("connection to %s:%s failed", self.host, self.port))
+
     __leda.clientConnectionsMap[__leda.clientConnection] = nil
+        
+    assert(self._open, string.format("connection to %s:%s failed", self.host, self.port))
+    
     self._open = false
 end
 
