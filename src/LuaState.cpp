@@ -313,15 +313,10 @@ void LuaState::load( unsigned int threadId, bool exception )
     
     TRACE( "loading %s", m_filename.c_str() );
     
+    setGlobal( "threadId", threadId );
     
-    if ( m_filename.find( ".lua") != std::string::npos )
-    {
-        //
-        //  lua
-        //
-        sprintf( script,"dofile('%s');", m_filename.c_str() ); 
-    }
-    else
+    
+    if ( m_filename.find( ".moon") != std::string::npos )
     {
         //
         //  moonscript
@@ -344,6 +339,13 @@ void LuaState::load( unsigned int threadId, bool exception )
         sprintf( script, "local moonscript = require('moonscript'); "
         "moonscript.dofile('%s');", m_filename.c_str() ); 
     }
+    else
+    {
+        //
+        //  lua
+        //
+        sprintf( script,"dofile('%s');", m_filename.c_str() ); 
+    }
 
     try
     {
@@ -359,12 +361,13 @@ void LuaState::load( unsigned int threadId, bool exception )
         }
     }
     
-    setGlobal( "threadId", threadId );
+   
    
 }
 
 void LuaState::setGlobal( const std::string& name, unsigned int value )
 {
+    TRACE_ENTERLEAVE();
     getGlobalTable();
     lua_pushinteger( m_lua, value );
     lua_setfield( m_lua, -2, name.c_str() );

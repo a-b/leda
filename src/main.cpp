@@ -174,6 +174,8 @@ int main(int argc, char* argv[])
     signal( SIGABRT, sigKillHandler );
     signal( SIGURG, sigKillHandler );
     
+    signal( SIGPIPE, SIG_IGN );
+    
 #else
 	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) ctrlHandler, TRUE );
 #endif

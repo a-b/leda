@@ -150,10 +150,18 @@
      const char* host = lua_tostring( lua, -2 );
      
      Client::Connection* connection = Leda::instance()->client()->connect( host, port );
-     
+          
      lua_pop( lua, 2 );
      
-     lua_pushlightuserdata( lua, connection );
+     if ( connection )
+     {
+         lua_pushlightuserdata( lua, connection );
+     }
+     else
+     {
+         lua_pushnil( lua );
+     }
+     
      return 1;
  }
 // 
@@ -185,6 +193,12 @@
      
      propeller::Client::Connection* connection = ( propeller::Client::Connection* ) lua_touserdata( lua, -2 );
      
+     if ( !lua_isuserdata( lua, -1 ) )
+     {
+         return 0;
+     }
+     
+     
      size_t size = 0;
      const char* data = lua_tolstring( lua, -1, &size ); 
      
@@ -192,8 +206,6 @@
      {
          return 0;
      }
-     
-     TRACE("need to send data of size %d", size);
      
      connection->write( data, size );
      
@@ -207,7 +219,6 @@
      
      if ( lua_isuserdata( lua, -1 ) )
      {
-         
         propeller::Client::Connection* connection = ( propeller::Client::Connection* ) lua_touserdata( lua, -1 );
      
         connection->deref();
@@ -261,7 +272,7 @@ int httpRequestGetHeaders( lua_State* lua )
 
     for ( propeller::http::Request::HeaderList::const_iterator i = request->headers( ).begin( ); i != request->headers( ).end( ); i++ )
     {
-        const propeller::http::Request::Header& header = *i;
+        propeller::http::Request::Header header = *i;
 
         lua_pushstring( lua, header.value );
         lua_setfield( lua, -2, header.name );

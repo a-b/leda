@@ -1,43 +1,58 @@
+local common = require 'leda.common'
+
+-- utility functions
 local function getConnection()
     local connection = __leda.clientConnectionsMap[__leda.clientConnection]
     if connection then connection.__connection = __leda.clientConnection end
-        
     return connection
 end
 
 local function createClient(threads)
+
     if __leda.init then
         __leda.client =__leda.client or __api.clientCreate(threads or 1)
     end
+    
 end
+
+
+
 
 local function setThreads(count)
     createClient(count)    
+    
 end
 
-local Connection = {__index=Connection}
+local function currentThread()
+    return common.Thread()
+end
 
-setmetatable(Connection, {__call = function(cls, ...)
-     cls:create(...)
-     return cls 
-     end
-})
+local function threadCount()
+    return __leda.threadCount
+end
 
+-- connection class
+local Connection = class('Connection')
 
-
-function Connection:create(host, port)
+function Connection:initialize(host, port)
     createClient()
+    
+    self._open = false
     
     if __leda.init then return end
     
     __leda.onClientConnectionOpened = onClientConnectionOpened or function() 
         local connection = getConnection()
+        connection._open = true
         if connection and  type(connection.opened) == 'function' then connection:opened() end
     end
     
     __leda.onClientConnectionClosed = onClientConnectionClosed or function() 
         local connection = getConnection()
+        self:_closed()
+        
         if connection and  type(connection.closed) == 'function' then connection:closed() end
+        
     end
     
     __leda.onClientData = __leda.onClientData or function() 
@@ -45,22 +60,35 @@ function Connection:create(host, port)
         if connection and  type(connection.data) == 'function' then connection:data(__leda.clientData) end
     end
     
-    local connection = __api.clientConnect(host, port)
-    __leda.clientConnectionsMap = __leda.clientConnectionsMap or {}
+    self.host = host
+    self.port = port
     
-    __leda.clientConnectionsMap[connection] = self
+    self:_connect(host, port)
 end
-
 
 function Connection:send(data)
     __api.clientConnectionSendData(self.__connection, data)
 end
 
+function Connection:_connect(host, port) 
+    local connection = __api.clientConnect(host, port)
+    assert(connection, "error connecting to %s:%s", host, port)
+    
+    __leda.clientConnectionsMap = __leda.clientConnectionsMap or {}
+    __leda.clientConnectionsMap[connection] = self
+    
+end
+
+function Connection:_closed()
+    self.__connection = nil
+    assert(self._open, string.format("connection to %s:%s failed", self.host, self.port))
+    __leda.clientConnectionsMap[__leda.clientConnection] = nil
+    self._open = false
+end
+
 function Connection:close()
     __api.clientConnectionClose(self.__connection)
-    __leda.clientConnectionsMap[__leda.clientConnection] = nil
-    self.__connection = nil
-    __leda.clientConnection = nil
+    self:_closed()
 end
 
 local addTimer = function(timeout, once, callback) 
@@ -76,13 +104,4 @@ local timeout = function(timeout, callback)
     addTimer(timeout, true, callback)
 end
 
-return {Connection = Connection, timer = timer, timeout = timeout}
-
---
--- Connection()
--- connection.open = function()
--- end
---
--- connection.data = function()
--- end
---
+return {Connection = Connection, timer = timer, timeout = timeout, currentThread = currentThread, threadCount = threadCount, setThreads = setThreads}
