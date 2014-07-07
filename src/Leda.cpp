@@ -149,9 +149,13 @@
      unsigned int port = lua_tonumber( lua, -1 );
      const char* host = lua_tostring( lua, -2 );
      
-     Client::Connection* connection = Leda::instance()->client()->connect( host, port );
-          
-     lua_pop( lua, 2 );
+     lua_getglobal( lua, "__leda" );
+     lua_getfield( lua, -1, "threadId" );
+     
+     
+     Client::Connection* connection = Leda::instance()->client()->connect( host, port, lua_tonumber( lua, -1 ) );
+     
+     lua_pop( lua, 4 );
      
      if ( connection )
      {
@@ -191,21 +195,29 @@
  {
      TRACE_ENTERLEAVE();
      
-     propeller::Client::Connection* connection = ( propeller::Client::Connection* ) lua_touserdata( lua, -2 );
-     
-     if ( !lua_isuserdata( lua, -1 ) )
+     if ( lua_isnil( lua, -2 ) )
      {
          return 0;
      }
      
+     propeller::Client::Connection* connection = ( propeller::Client::Connection* ) lua_touserdata( lua, -2 );
      
-     size_t size = 0;
-     const char* data = lua_tolstring( lua, -1, &size ); 
+//     if ( !Leda::instance()->client()->connectionExists( connection ))
+//     {
+//         TRACE_VERBOSE("attempt to send on non existing connection", "");   
+//         return 0;
+//     }
+     
      
      if ( lua_isnil( lua, -1 ) )
      {
          return 0;
      }
+     
+ 
+     
+     size_t size = 0;
+     const char* data = lua_tolstring( lua, -1, &size ); 
      
      connection->write( data, size );
      
@@ -550,7 +562,8 @@ void Leda::execScript( )
     //
     //  create new lua environment
     //
-    m_lua = new LuaState( m_script );
+    m_lua = newLua();
+    
     m_lua->setGlobal( "init" );
     m_lua->load( 0, true );
 
@@ -598,8 +611,14 @@ void Leda::execScript( )
          m_client = NULL;
          
      }
+ 
  }
-
+ 
+LuaState* Leda::newLua()
+{
+    return new LuaState( m_script, &m_scriptArguments );
+}
+ 
 propeller::Client* Leda::clientCreate( unsigned int threadCount )
 {
     TRACE_ENTERLEAVE( );

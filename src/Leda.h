@@ -60,6 +60,13 @@ public:
         m_script = script;
     }
     
+    void setScriptArguments( const LuaState::ScriptArguments& arguments ) 
+    {
+        m_scriptArguments = arguments;
+    }
+    
+    LuaState* newLua();
+    
     const std::string& script()
     {
         return m_script;
@@ -114,10 +121,7 @@ public:
     void callTimer( LuaState& lua, TimerData* data );
     void callTerminate( const LuaState& lua );
     
-    const LuaState& lua() const
-    {
-        return *m_lua;
-    }
+   
     
     void addFileChange();
     unsigned int changes() const
@@ -134,6 +138,8 @@ private:
 
 private:
     std::string m_script;
+    LuaState::ScriptArguments m_scriptArguments;
+    
     static Leda* m_instance;
     PathList m_paths;
     LuaState* m_lua;
@@ -143,6 +149,7 @@ private:
     bool m_debug;
     FWatcher* m_fwatcher;
     unsigned int m_changes;
+    
     
 };
 

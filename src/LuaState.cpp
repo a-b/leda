@@ -11,10 +11,15 @@
 #include <lua_cjson.h>
 
 
-LuaState::LuaState( const std::string& filename )
+LuaState::LuaState( const std::string& filename, const ScriptArguments* arguments  )
 : m_lua( NULL ), m_close( true ), m_filename( filename )
 {
     TRACE_ENTERLEAVE();
+    
+    if ( arguments )
+    {
+        m_arguments = *arguments;
+    }
     
     create();
     
@@ -314,7 +319,7 @@ void LuaState::load( unsigned int threadId, bool exception )
     TRACE( "loading %s", m_filename.c_str() );
     
     setGlobal( "threadId", threadId );
-    
+    setArguments( );
     
     if ( m_filename.find( ".moon") != std::string::npos )
     {
@@ -408,6 +413,21 @@ void LuaState::setGlobal( const std::string& name, bool value )
     lua_pop( m_lua, 1 );
 }
 
+void LuaState::setArguments(  )
+{
+    unsigned int index = 1;
+    lua_newtable( m_lua );
+    for ( ScriptArguments::const_iterator i = m_arguments.begin(); i != m_arguments.end(); i++ )
+    {
+        lua_pushnumber( m_lua, index );
+        lua_pushstring( m_lua, i->c_str() );
+        lua_settable( m_lua, -3 );
+        index ++;
+    }
+    
+    lua_setglobal( m_lua, "arg" );
+}
+
 
 LuaState& LuaState::luaFromThread( const sys::Thread& thread, unsigned int threadId )
 {
@@ -423,7 +443,7 @@ LuaState* LuaState::luaForThread( sys::Thread& thread, unsigned int id )
     //
     //  create new lua state for new thread
     //  
-    LuaState* lua = new LuaState( Leda::instance()->script() );
+    LuaState* lua = Leda::instance()->newLua();
     lua->load( id );
     thread.setData( lua ); 
     

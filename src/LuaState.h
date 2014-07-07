@@ -19,7 +19,9 @@
 class LuaState
 {
 public:
-    LuaState( const std::string& filename );
+    typedef std::list< std::string > ScriptArguments;
+    
+    LuaState( const std::string& filename, const ScriptArguments* arguments = NULL );
     LuaState( const LuaState& lua );
     virtual ~LuaState( );
     
@@ -51,6 +53,7 @@ public:
     void setGlobal( const std::string& name, const char* value, unsigned int length );
     void setGlobal( const std::string& name, const std::string& value );
     void setGlobal( const std::string& name, bool value = true );
+    void setArguments( );
     
     unsigned int getGlobal( const std::string& name );
     
@@ -58,8 +61,6 @@ public:
     static LuaState* luaForThread( sys::Thread& thread, unsigned int id );
     static unsigned int getThreadId( lua_State* lua );
      
-    
-    
     
 private:
     void destroy();
@@ -79,6 +80,7 @@ private:
     bool m_close;    
     sys::Lock m_lock;
     std::string m_filename;
+    ScriptArguments m_arguments;
 };
 
 #endif	/* LUASTATE_H */

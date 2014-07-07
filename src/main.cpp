@@ -136,7 +136,7 @@ std::vector< CmdOption > options;
 
 void usage( bool help = false )
 {
-    printf( "Usage: %s [options] [script] \n\n", LEDA_NAME );
+    printf( "Usage: %s [options] [script] [script arguments]\n\n", LEDA_NAME );
     printf("Options: \n");
 
     for ( int  i = 0; i < options.size(); i++ )
@@ -188,11 +188,13 @@ int main(int argc, char* argv[])
     //  parse command line
         //
     std::string script;
+    LuaState::ScriptArguments arguments;
+    
     try
     {
         for ( int i = 1; i < argc; i++ )
         {
-            if ( CmdOption::isOption( argv[i] ) )
+            if ( CmdOption::isOption( argv[i] ) && script.empty() )
             {
 
                 const CmdOption* option = findOption( argv[i] );
@@ -213,7 +215,15 @@ int main(int argc, char* argv[])
             }
             else
             {
-                script = argv[i];
+                if ( script.empty() )
+                {
+                    script = argv[i];
+                }
+                else
+                {
+                    arguments.push_back( argv[i] );
+                }
+                
             }
         }
     }
@@ -227,6 +237,7 @@ int main(int argc, char* argv[])
         usage( true );
     }
 
+    TRACE("command line arguments length %d", arguments.size());
     //
     //  create moon instance
     //
@@ -254,6 +265,7 @@ int main(int argc, char* argv[])
         leda->addPath( frameworkPath );
     }       
             
+    leda->setScriptArguments( arguments );
     //      
     //  add paths to locate lua files
     //
