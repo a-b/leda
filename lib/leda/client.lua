@@ -77,7 +77,6 @@ function Connection:_connect(host, port)
     __leda.clientConnectionsMap = __leda.clientConnectionsMap or {}
     __leda.clientConnectionsMap[connection] = self
     
-    assert(not self.__connection, "connection already set")
     self.__connection = connection
     
 end
@@ -87,9 +86,12 @@ function Connection:_closed()
 
     __leda.clientConnectionsMap[__leda.clientConnection] = nil
         
-    assert(self._open, string.format("connection to %s:%s failed", self.host, self.port))
+    if not self._opened then    
+        assert(self._open, string.format("connection to %s:%s failed" , self.host, self.port))
+    end
     
     self._open = false
+    self._opened = true
 end
 
 function Connection:close()
