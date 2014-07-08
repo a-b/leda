@@ -54,6 +54,12 @@ OBJECTS = $(SOURCES:.cpp=.o)
 
 TARGET = leda
 
+OPENSSL_LIB ?=
+
+ifeq ($(OPENSSL),yes)
+	OPENSSL_LIB=-lssl -lcrypto -levent_openssl
+endif
+
 ### Targets: ###
 
 all: $(TARGET)
@@ -78,7 +84,7 @@ libs:
 
 $(TARGET): libs $(OBJECTS) 
 	$(CXX) -o $@ $(OBJECTS)  -Ldeps/libpropeller -Ldeps/libpropeller/deps/libevent/.libs -Ldeps/luajit/src -Ldeps/cjson  $(LDFLAGS) \
-	     -lpropeller -lluajit   -levent -levent_pthreads  -lcjson   $(PLATFORM_LDFLAGS)
+	     -lpropeller -lluajit   -levent -levent_pthreads  -lcjson   $(PLATFORM_LDFLAGS) $(OPENSSL_LIB)
 
 install_leda: 
 	$(INSTALL) -d $(DESTDIR)$(prefix)/bin

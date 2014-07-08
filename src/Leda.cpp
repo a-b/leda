@@ -146,16 +146,22 @@
  {
      TRACE_ENTERLEAVE();
      
-     unsigned int port = lua_tonumber( lua, -1 );
-     const char* host = lua_tostring( lua, -2 );
+     bool secure = lua_toboolean( lua, -1 );
+     unsigned int port = lua_tonumber( lua, -2 );
+     const char* host = lua_tostring( lua, -3 );
      
-     lua_getglobal( lua, "__leda" );
-     lua_getfield( lua, -1, "threadId" );
+     TRACE( "secure: %d, host: %s, port: %d", secure, host, port );
      
+     if ( lua_isnil( lua, -1 ) || lua_isnil( lua, -2 ) || lua_isnil( lua, -3 ) )
+     {
+         TRACE( "some of the passed arguments were invalid", "" );
+         lua_pop( lua, 3 );
+         return 0;
+     }
+             
+     Client::Connection* connection = Leda::instance()->client()->connect( host, port, LuaState::getThreadId( lua ), secure );
      
-     Client::Connection* connection = Leda::instance()->client()->connect( host, port, lua_tonumber( lua, -1 ) );
-     
-     lua_pop( lua, 4 );
+     lua_pop( lua, 3 );
      
      if ( connection )
      {

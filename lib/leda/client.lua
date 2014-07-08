@@ -1,7 +1,6 @@
 local utility = require 'leda.utility'
 local common = require 'leda.common'
 
-
 -- utility functions
 local function getConnection(index)
     local connection = __leda.clientConnectionsMap[index or __leda.clientConnection]
@@ -29,8 +28,9 @@ end
 -- connection class
 local Connection = class('Connection')
 
-function Connection:initialize(host, port)
+function Connection:initialize(host, port, ssl)
     createClient()
+    ssl = ssl or false
     
     self._open = false
     
@@ -58,7 +58,7 @@ function Connection:initialize(host, port)
     self.host = host
     self.port = port
     
-    self:_connect(host, port)
+    self:_connect(host, port, ssl)
 end
 
 function Connection:send(data)
@@ -67,9 +67,10 @@ function Connection:send(data)
     if self.__connection then __api.clientConnectionSendData(self.__connection, data) end
 end
 
-function Connection:_connect(host, port) 
-    local connection = __api.clientConnect(host, port)
-    assert(connection, "error connecting to %s:%s", host, port)
+function Connection:_connect(host, port, ssl) 
+    ssl = ssl or false
+    local connection = __api.clientConnect(host, port, ssl)
+    assert(connection, string.format("error creating connection to %s:%s", host, port))
     
     __leda.clientConnectionsMap = __leda.clientConnectionsMap or {}
     __leda.clientConnectionsMap[connection] = self
@@ -82,18 +83,17 @@ function Connection:_closed()
     self.__connection = nil
 
     __leda.clientConnectionsMap[__leda.clientConnection] = nil
-        
-    if not self._opened then    
-        assert(self._open, string.format("connection to %s:%s failed" , self.host, self.port))
-    end
+    
     
     self._open = false
-    self._opened = true
+    
+    if not self._open then 
+        if type(self.error) == 'function' then self:error(string.format("connection to %s:%s failed", self.host, self.port)) end 
+    end
 end
 
 function Connection:close()
     __api.clientConnectionClose(self.__connection)
-    self:_closed()
 end
 
 local addTimer = function(timeout, once, callback) 
@@ -109,20 +109,30 @@ local timeout = function(timeout, callback)
     addTimer(timeout, true, callback)
 end
 
--- http Client class
+-- http connection class
 local HttpConnection = class('HttpConnection', Connection)
 
 function HttpConnection:initialize(url)
     self.url = utility.parseUrl(url)    
     
+    if self.url.scheme and not self.url.host then 
+        self.url.host = self.url.scheme 
+        self.url.scheme = nil
+    end
     
     local ports = {https=443, http=80}
+    
     if self.url.scheme then
         self.type = self.url.scheme
     else
         self.type = 'http'
     end
     
+    if tonumber(self.url.path) then
+         self.url.port = self.url.path 
+         self.url.path = nil
+     end
+     
     self.url.port = self.url.port or ports[self.type]
     self.url.path = self.url.path or '/'
     
@@ -134,7 +144,7 @@ function HttpConnection:initialize(url)
     
     self.reconnects = 0
     
-    Connection.initialize(self, self.url.host, self.url.port)
+    Connection.initialize(self, self.url.host, self.url.port, self.type == 'https')
 end
 
 function HttpConnection:opened()
@@ -149,11 +159,12 @@ function HttpConnection:_send()
 end
 
 function HttpConnection:_newResponse()
-    self._response = {headers = {}, data = ""}
+    self._response = {headers = {}, data = "", body = ""}
 end
 
 -- connection data 
 function HttpConnection:data(data)
+    
     if not self._response then self:_newResponse() end
     
     if data then
@@ -176,42 +187,74 @@ function HttpConnection:data(data)
                 else
                     -- header line
                     local parts = line:split(': ')
-                    self._response.headers[parts[1]:lower()] = parts[2]
+                    self._response.headers[parts[1]:lower()] = parts[2]:trim()
                 end
             end
         end
     end
     
     if self._response.header then
-        if not self._response.headers['content-length'] then error("content-length header not found") end
+        if self._response.headers['content-length'] then
+            self._response.length = tonumber(self._response.headers['content-length'])
+            
+        elseif self._response.headers['transfer-encoding'] == 'chunked'  then
+            self._response.chunked = true
+            
+            if not self._response.length then
+                local n = self._response.data:find("\n")
+                if n then 
+                    local boundary = self._response.data:sub(1, n) 
+                    self._response.length = tonumber(boundary:trim("\n"), 16)
+                    print(string.format("chunk length %s", self._response.length))
+                    self._response.data = self._response.data:sub(n + 3)
+                else
+                    error("unable to parse http response")
+                end
+            end
+        else
+            error("unable to parse http response")
+        end
     else
         return
     end
     
-    local contentLength = tonumber(self._response.headers['content-length'])
-    
-    if #self._response.data >= contentLength then
-        local body = self._response.data:sub(1, contentLength)
         
+    local next
+    if self._response.length == 0 then
+        -- remove last line from response
+        self._response.data = self._response.data:sub(2)
+        self._response.full = true
+        next = true
+    else
+        if #self._response.data >= self._response.length then
+            self._response.body = self._response.body .. self._response.data:sub(1, self._response.length)
+            self._response.data = self._response.data:sub(self._response.length + 1)
+            self._response.full = not self._response.chunked
+            self._response.length = nil
+            next = true
+        end
+    end
+    
+    
+    if self._response.full then
+        local data = self._response.data or ''
+        self._response.data = nil
         -- response callback
-        if type(self.responseCallback) == 'function' then self.responseCallback{headers = self._response.headers, body = body, status =  self._response.status} end
-
-        local data = self._response.data:sub(contentLength + 1) or ""
+        if type(self.responseCallback) == 'function' then self.responseCallback(self._response) end    
         self:_newResponse()
         self._response.data = data
-        
-        -- if more responses left call self
-        if #self._response.data > 0 then self:data() end
     end
+            
+    -- if more responses left call self
+    if #self._response.data > 0 and next then self:data() end
 end
 
-function HttpConnection:closed()
+function HttpConnection:connect()
     -- reconnect
-   self:_connect(self.url.host, self.url.port)
+   self:_connect(self.url.host, self.url.port, self.type == 'https')
    self.reconnects = self.reconnects + 1
 end
     
-
 function HttpConnection:_prepareRequest(method, path, headers, body, callback)
     if type(path) == 'function' then 
         self.responseCallback = path 
@@ -248,7 +291,6 @@ function HttpConnection:_prepareRequest(method, path, headers, body, callback)
     
     if body then request = request .. body end
     self._request = request
-    
     
     self:_send()
 end
