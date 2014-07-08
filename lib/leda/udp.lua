@@ -1,20 +1,12 @@
 local common = require ('leda.common')
 
 
-local Server = {__index=Server}
-setmetatable(Server,
-     {
-         __index = common.Server,
-         __call = function(cls, ...)
-             cls:create(...)
-             return cls
-        end
-     })
-    
-function Server:create(port, host)
+local Server = class('Server', common.Server)
+
+function Server:initialize(port, host)
     self.type = 'udp'
     self.port = port or 12000
-    self.host = host or ''
+    self.host = host or 'localhost'
 
     
     __leda.onUdpDataReceived = function()
@@ -23,7 +15,11 @@ function Server:create(port, host)
         end
     end
     
-    common.Server.create(self)
+    common.Server.initialize(self)
+end
+
+local function send(host, port, data)
+    -- todo: implement
 end
         
 return {Server = Server}

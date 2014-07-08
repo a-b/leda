@@ -1,38 +1,23 @@
 local common = require ('leda.common')
 
-local Connection = {__index=Connection}
+-- connection class
+local Connection = class('Connection')
 
-setmetatable(Connection, {__call = function(cls, ...)
-     cls:create(...)
-     return cls 
-     end
-     })
-
-function Connection:create()
+function Connection:initialize()
     self.connection = __leda.connection
 end
      
-     
-
 Connection.address = function(self) return __api.serverConnectionGetAddress(self.connection) end
 Connection.id = function(self) return __api.serverConnectionGetId(self.connection) end
 Connection.send = function(self, data) return __api.serverConnectionSendData(self.connection, data) end
 
+-- server class
+local Server = class('Server', common.Server)
 
-local Server = {__index=Server}
-setmetatable(Server,
-     {
-         __index = common.Server,
-         __call = function(cls, ...)
-             cls:create(...)
-             return cls
-        end
-     })
-    
-function Server:create(port, host)
+function Server:initialize(port, host)
     self.type = 'tcp'
     self.port = port or 12000
-    self.host = host or ''
+    self.host = host or 'localhost'
     self.connections = {}
 
     __leda.onConnectionAccepted = function()
@@ -57,8 +42,7 @@ function Server:create(port, host)
         end
     end
     
-    common.Server.create(self)
+    common.Server.initialize(self)
 end
         
-
 return {Server = Server}
