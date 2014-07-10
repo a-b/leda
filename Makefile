@@ -100,12 +100,18 @@ install_leda:
 
 uninstall_leda: 
 	rm -f $(DESTDIR)$(prefix)/bin/leda
+	
+doc:
+	ldoc -p leda -d doc lib/leda	
+	
+test:
+	test/run.sh	
 
 %.o: %.cpp
 	$(CXX) -c -o $@ $(LEDA_CXXFLAGS) $(CPPDEPS) $<
 
 
-.PHONY: all install uninstall clean install_leda uninstall_leda
+.PHONY: all install uninstall clean install_leda uninstall_leda doc test
 
 
 # Dependencies tracking:

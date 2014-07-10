@@ -157,6 +157,7 @@
      }
      else
      {
+         
          lua_pushnil( lua );
      }
      
@@ -548,7 +549,7 @@ void Leda::execScript( )
     
     if ( m_client )
     {
-        m_client->start( );
+        m_client->start( false );
     }
 
     if ( m_server )
@@ -569,7 +570,7 @@ void Leda::execScript( )
             m_client->join( );
         }
     }
-    }
+ }
 
  void Leda::onTerminate()
  {

@@ -189,6 +189,8 @@ void LuaState::execute( const std::string& script ) const
         std::string error = lua_tostring( m_lua, -1 ); 
         lua_pop( m_lua, 3 );
         
+        TRACE_ERROR( "%s", error.c_str() );
+        
         throw std::runtime_error( error );
     }
     
@@ -306,7 +308,7 @@ void LuaState::reload( unsigned int threadId )
 }
 
 
-void LuaState::load( unsigned int threadId, bool exception ) 
+void LuaState::load( unsigned int threadId, bool exception, const char* init ) 
 {
     TRACE_ENTERLEAVE();
     
@@ -317,8 +319,23 @@ void LuaState::load( unsigned int threadId, bool exception )
     char script[ 1024 ];
     
     TRACE( "loading %s", m_filename.c_str() );
-    
     setGlobal( "threadId", threadId );
+    
+    try
+    {
+        execute( "require 'leda'" );
+        if ( init )
+        {
+            execute( init );
+        }    
+    }
+    catch ( const  std::runtime_error& e )
+    {
+        if ( exception )
+        {
+            throw e;
+        }
+    }
     setArguments( );
     
     if ( m_filename.find( ".moon") != std::string::npos )
@@ -332,7 +349,6 @@ void LuaState::load( unsigned int threadId, bool exception )
         }
         catch ( const std::runtime_error& e )
         {
-            TRACE_ERROR( "%s", e.what() );
             if ( exception )
             {
                 throw e;
@@ -354,12 +370,10 @@ void LuaState::load( unsigned int threadId, bool exception )
 
     try
     {
-        execute( "require 'leda'" );
         execute( script );
     }
     catch( const std::runtime_error& e )
     {
-        TRACE_ERROR( "%s", e.what( ) );
         if ( exception )
         {
             throw e;
@@ -438,13 +452,13 @@ LuaState& LuaState::luaFromThread( const sys::Thread& thread, unsigned int threa
     return lua;
 }
 
-LuaState* LuaState::luaForThread( sys::Thread& thread, unsigned int id )
+LuaState* LuaState::luaForThread( sys::Thread& thread, unsigned int id, const char* init )
 {
     //
     //  create new lua state for new thread
     //  
     LuaState* lua = Leda::instance()->newLua();
-    lua->load( id );
+    lua->load( id, false, init );
     thread.setData( lua ); 
     
     return lua;

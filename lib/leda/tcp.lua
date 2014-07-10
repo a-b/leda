@@ -116,7 +116,7 @@ end
 --- set timer. calls the function every time the seconds value elapses
 -- @param seconds number of seconds 
 -- @param callback function
-function Server:timeout(...)
+function Server:timer(...)
     common.Server.timer(self, ...)
 end    
 

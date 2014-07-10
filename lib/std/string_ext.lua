@@ -322,3 +322,30 @@ end
 function firstWord(s)
     return s:match("%u?%l+")
 end
+
+local function realrandom(maxlen)
+    local tbl = {}
+    local num = tonumber(string.sub(_tostring(tbl), 8))
+    if maxlen ~= nil then
+        num = num % maxlen
+    end
+    return num
+end
+
+function random(length,pattern)
+    local length = length or 11
+    local pattern = pattern or '%a%d'
+    local rand = ""
+    local allchars = ""
+    for loop=0, 255 do
+        allchars = allchars .. string.char(loop)
+    end
+    local str=string.gsub(allchars, '[^'..pattern..']','')
+    while string.len(rand) ~= length do
+        local randidx = realrandom(string.len(str))
+        local randbyte = string.byte(str, randidx) or 0
+        rand = rand .. string.char(randbyte)
+    end
+
+    return rand
+end

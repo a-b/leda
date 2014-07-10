@@ -1,10 +1,3 @@
-/* 
- * File:   Client.cpp
-     * Author: sergey
- * 
- * Created on January 3, 2014, 8:27 AM
- */
-
 #include "Client.h"
 #include "Leda.h"
 
@@ -40,8 +33,9 @@ Client::~Client()
 void Client::onThreadStarted( propeller::Client::Thread& thread )
 {
     TRACE_ENTERLEAVE();
+   
+    LuaState* lua = LuaState::luaForThread( thread, thread.id(), "__leda.client = true" );
     
-    LuaState* lua = LuaState::luaForThread( thread, thread.id() );
     lua->call( "onClientThreadStarted" );
 }
 

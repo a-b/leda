@@ -4,20 +4,6 @@
 local utility = require 'leda.utility'
 local common = require 'leda.common'
 
-local client = {}
-
--- utility functions
-
-local addTimer = function(timeout, once, callback) 
-    createClient()
-    if not __leda.init then __api.clientAddTimer(timeout, once, callback) end
-end
-
-local function getConnection(index)
-    local connection = __leda.clientConnectionsMap[index or __leda.clientConnection]
-    return connection
-end
-
 local function createClient(threads)
     if __leda.init then
         __leda.client =__leda.client or __api.clientCreate(threads or 1)
@@ -28,6 +14,23 @@ end
 local function threadCount()
     return __leda.threadCount
 end
+
+
+local client = {}
+
+-- utility functions
+
+local addTimer = function(timeout, once, callback) 
+    createClient()
+    
+    if not __leda.init and __leda.client then __api.clientAddTimer(timeout, once, callback) end
+end
+
+local function getConnection(index)
+    local connection = __leda.clientConnectionsMap[index or __leda.clientConnection]
+    return connection
+end
+
 
 
 --- set client threads
@@ -70,19 +73,20 @@ local Connection = class('Connection')
 -- @name Connection()
 function Connection:initialize(host, port, ssl)
     createClient()
-    ssl = ssl or false
     
+    if not __leda.client then return end
+    
+    ssl = ssl or false
     self._open = false
     
-    if __leda.init then return end
     
-    __leda.onClientConnectionOpened = onClientConnectionOpened or function() 
+    __leda.onClientConnectionOpened = __leda.onClientConnectionOpened or function() 
         local connection = getConnection()
         connection._open = true
         if connection and  type(connection.opened) == 'function' then connection:opened() end
     end
     
-    __leda.onClientConnectionClosed = onClientConnectionClosed or function() 
+    __leda.onClientConnectionClosed = __leda.onClientConnectionClosed or function() 
         local connection = getConnection()
         self:_closed()
         
@@ -109,7 +113,9 @@ function Connection:send(data)
     if self.__connection then __api.clientConnectionSendData(self.__connection, data) end
 end
 
-function Connection:_connect(host, port, ssl) 
+function Connection:_connect(host, port, ssl)  
+    if __leda.init or not __leda.client then return end
+    
     ssl = ssl or false
     local connection = __api.clientConnect(host, port, ssl)
     assert(connection, string.format("error creating connection to %s:%s", host, port))
@@ -173,7 +179,6 @@ local HttpConnection = class('HttpConnection', Connection)
 -- @usage local connection = client.HttpConnection('www.google.com')
 -- @name HttpConnection()
 function HttpConnection:initialize(url)
-    print(url)
     self.url = utility.parseUrl(url)    
     
     if self.url.scheme and not self.url.host then 

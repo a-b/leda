@@ -25,7 +25,7 @@ public:
     LuaState( const LuaState& lua );
     virtual ~LuaState( );
     
-    void load(  unsigned int threadId = 0, bool exception = false );
+    void load(  unsigned int threadId = 0, bool exception = false, const char* init = NULL );
     
     void call( const std::string& callbackName, int registryIndex = -1, bool exception = false ); 
     
@@ -58,7 +58,7 @@ public:
     unsigned int getGlobal( const std::string& name );
     
     static LuaState& luaFromThread( const sys::Thread& thread, unsigned int threadId );
-    static LuaState* luaForThread( sys::Thread& thread, unsigned int id );
+    static LuaState* luaForThread( sys::Thread& thread, unsigned int id, const char* init = NULL );
     static unsigned int getThreadId( lua_State* lua );
      
     
