@@ -7,7 +7,7 @@ TestHttp = {}
 local host = 'localhost'
 
 math.randomseed(os.time())
-local port = 10000 + math.random(1000)
+local port = 10000 + math.random(2000) + math.random(1000)
 
 local TestHttpLoad = class('TestHttpLoad')
 
@@ -53,21 +53,80 @@ function TestHttpLoad:_sendRequests()
         end)
 end
 
+
 local server = http.Server(port, host)
+local testHeaderName = 'x-leda-test'
+local testHeaderValue = 'test'
+local testBody = "test"
+local path1 = "/path1"
+local path2 = "/path2"
+
+
 
 server.request = function(server, request, response)
-    response.body = 'test'
+    local url = request:url()
+
+    if url  == '/' then
+        response.body = 'test'
+    end
+        
+    if #url > 2 then
+        local header = request:headers()[testHeaderName]
+        response.body = {url = request:url(), method=request:method(), body=request:body(), header = header}
+        response.headers[testHeaderName] = testHeaderValue
+    end
 end
 
+local url = string.format("%s:%s", host, port)
 -- send 10000 requests to server
-local load = TestHttpLoad(string.format("%s:%s", host, port), 10000)
 
-client.timeout(3, function()
+local load = TestHttpLoad(url, 10000)
+
+client.timeout(1, function()
+    local connection = client.HttpConnection(url)
+    local headers = {}
+    headers[testHeaderName] = testHeaderValue
+    connection:get(path1, headers, function(response) 
+        TestHttp.responseGet = response
+    end)
+end)
+
+client.timeout(1, function()
+    local connection = client.HttpConnection(url)
+    local headers = {}
+    headers[testHeaderName] = testHeaderValue
+    connection:post(path2, headers, testBody, function(response) 
+        TestHttp.responsePost = response
+    end)
+end)
+    
+    
+
+client.timeout(4, function()
         os.exit(luaunit:run())
         end)
     
 function  TestHttp:testRun()
     assert(load.requests == load.responses)
+
+
+    assert(TestHttp.responseGet.headers['content-type'] == 'application/json')
+    assert(TestHttp.responseGet.headers[testHeaderName] == testHeaderValue)
+    local body = json.decode(TestHttp.responseGet.body) 
+    assert(body.url == path1)
+    assert(body.header == testHeaderValue)
+    assert(body.method == 'GET')
+    
+    assert(TestHttp.responsePost.headers['content-type'] == 'application/json')
+    assert(TestHttp.responsePost.headers[testHeaderName] == testHeaderValue)
+    body = json.decode(TestHttp.responsePost.body) 
+    assert(body.url == path2)
+    assert(body.header == testHeaderValue)
+    assert(body.method == 'POST')
+    assert(body.body == testBody)
+    
+    
+    
 end
 --
 

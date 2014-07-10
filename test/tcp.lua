@@ -9,7 +9,7 @@ local helloString = 'hello'
 local host = 'localhost'
 
 math.randomseed(os.time())
-local port = 10000 + math.random(1000)
+local port = 10000 + math.random(2000) + math.random(1000)
 
 local connection = client.Connection(host, port)
 

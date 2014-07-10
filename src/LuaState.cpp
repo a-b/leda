@@ -87,6 +87,7 @@ void LuaState::create()
         {"httpRequestGetUrl", httpRequestGetUrl},
         {"httpRequestGetHeaders", httpRequestGetHeaders},
         {"httpRequestGetBody", httpRequestGetBody},
+        {"httpRequestGetMethod", httpRequestGetMethod},
         {"httpRequestGetAddress", httpRequestGetAddress},
         {"httpResponseSetBody", httpResponseSetBody},
         {"httpResponseSetStatus", httpResponseSetStatus},

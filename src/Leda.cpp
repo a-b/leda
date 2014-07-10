@@ -270,6 +270,15 @@ int httpRequestGetUrl( lua_State* lua )
     return 1;
 }
 
+int httpRequestGetMethod( lua_State* lua )
+{
+    propeller::http::Request* request = ( propeller::http::Request* ) lua_touserdata( lua, -1 );
+    lua_pop( lua, 1 );
+
+    lua_pushstring( lua, request->method( ) );
+    return 1;
+}
+
 int httpRequestGetHeaders( lua_State* lua )
 {
     propeller::http::Request* request = ( propeller::http::Request* ) lua_touserdata( lua, -1 );
