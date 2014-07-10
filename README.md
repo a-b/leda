@@ -5,6 +5,7 @@ high performance framework for creating powerful network applications with leigh
 
 Features:
 
+* Easy to build high pefomance HTTP, UDP or TCP servers and asynchronous TCP and HTTP clients
 * Synchronous scripting with lua 
 * Super fast VM with LuaJIT(http://luajit.org)
 * Multithreaded process architecture and asynchronous networking with libevent (via https://github.com/sergeyzavadski/libpropeller)
@@ -40,5 +41,5 @@ Run
 
 For more usage examples see [examples](https://github.com/sergeyzavadski/leda/tree/master/examples)
 
-More information can be found in [API Reference](https://github.com/sergeyzavadski/leda/tree/master/doc) and [wiki](https://github.com/sergeyzavadski/leda/wiki)		
+More information can be found in [API Reference](http://sergeyzavadski.github.io/leda/) and [wiki](https://github.com/sergeyzavadski/leda/wiki)		
 
