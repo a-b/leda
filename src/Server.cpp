@@ -56,19 +56,6 @@ void Server::onConnectionAccepted( const propeller::Server::Connection& connecti
 
 }
 
-void Server::onMessageReceived( const propeller::Server::Connection& connection, const propeller::Message& message )
-{
-    TRACE_ENTERLEAVE();
-    
-//    lua_pushnumber( m_lua, ( unsigned int ) connection.fd() );
-//    lua_setglobal( m_lua, "__connectionId" );
-//    
-//    lua_pushlstring( m_lua, message.data, message.length );
-//    lua_setglobal( m_lua, "__message" );
-//
-//    m_lua.call( "__onConnectionMessageReceived" ); 
-}
-
 void Server::onDataReceived( const propeller::Server::Connection& connection, const char* data, unsigned int length )
 {
     TRACE_ENTERLEAVE();

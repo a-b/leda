@@ -20,7 +20,6 @@ public:
     //  propeller::Server overloads
     //  
     virtual void onConnectionAccepted( const propeller::Server::Connection& connection );
-    virtual void onMessageReceived( const propeller::Server::Connection& connection, const propeller::Message& message );
     virtual void onDataReceived( const propeller::Server::Connection& connection, const char* data, unsigned int length );
     virtual void onDataReceived( const propeller::Server::Thread& thread, const std::string& from, const char* data, unsigned int length );
     

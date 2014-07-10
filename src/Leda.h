@@ -17,7 +17,7 @@ extern int generateRandomString( lua_State* lua );
 extern int clientCreate( lua_State* lua );
 extern int clientConnect( lua_State* lua );
 extern int clientAddTimer( lua_State* lua );
-extern int clientConnectionSendMessage( lua_State* lua );
+
 extern int clientConnectionClose( lua_State* lua );
 extern int clientConnectionSendData( lua_State* lua );
 extern int serverConnectionSendData( lua_State* lua );

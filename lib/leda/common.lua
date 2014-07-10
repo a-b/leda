@@ -5,7 +5,7 @@ function Thread:initialize()
     self.id = __leda.threadId
 end
 
--- common server class
+
 local Server = class('Server')
 
 function Server:initialize()

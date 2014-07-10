@@ -37,18 +37,6 @@
      return 0;
  }
  
- int serverConnectionSendMessage( lua_State* lua )
- {
-     propeller::Server::Connection* connection = ( propeller::Server::Connection* ) lua_touserdata( lua, -2 );   
-     size_t size = 0;
-     
-     const char* data = lua_tolstring( lua, -1, &size );
-     
-     connection->sendMessage( data, size );
-     lua_pop( lua, 2 );
-     
-     return 0;
- }
  
  int serverConnectionSendData( lua_State* lua )
  {
@@ -473,10 +461,7 @@ Leda* Leda::instance()
          {
              serverType = propeller::Server::Udp;
          }
-         else if (type == "simple")
-         {
-             serverType = propeller::Server::Simple;
-         }
+         
                  
          m_server = new Server( serverType );
          m_serverType = ServerMessage;
@@ -511,16 +496,7 @@ Leda* Leda::instance()
              m_server->setConnectionWriteTimeout( lua_tonumber( lua, -1 ) );
          }
  
-         if ( !strcmp( name, "pool" ) )
-         {
-             if ( m_serverType == ServerHttp )
-             {
-                 if ( !m_debug )
-                 {
-                     ( ( propeller::http::Server* ) m_server )->setPoolThreadCount( lua_tonumber( lua, -1 ) );
-                 }
-             }
-         }
+ 
  
         if ( !strcmp( name, "threads" ) )
         {
@@ -537,10 +513,6 @@ Leda* Leda::instance()
     if ( m_debug )
     {
         TRACE( "enabling debug mode", "" );
-        if ( m_serverType == ServerHttp )
-        {
-            ( ( propeller::http::Server* ) m_server )->setPoolThreadCount( 1 );
-        }
 
         m_server->setThreadCount( 1 );
     }

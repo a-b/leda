@@ -1,7 +1,18 @@
+--- High perfomance asynchronous HTTP and TCP client functionality
+-- @module leda.client
+
 local utility = require 'leda.utility'
 local common = require 'leda.common'
 
+local client = {}
+
 -- utility functions
+
+local addTimer = function(timeout, once, callback) 
+    createClient()
+    if not __leda.init then __api.clientAddTimer(timeout, once, callback) end
+end
+
 local function getConnection(index)
     local connection = __leda.clientConnectionsMap[index or __leda.clientConnection]
     return connection
@@ -13,21 +24,50 @@ local function createClient(threads)
     end
 end
 
-local function setThreads(count)
-    createClient(count)    
-end
-
-local function currentThread()
-    return common.Thread()
-end
 
 local function threadCount()
     return __leda.threadCount
 end
 
--- connection class
+
+--- set client threads
+-- @param count client thread count (defaults to 1)
+function client.setThreads(count)
+    createClient(count)
+end
+
+--- get current thread
+-- @return current thread
+function client.currentThread()
+    return common.Thread()
+end
+
+--- set timer. calls the function every time the seconds value elapses
+-- @param seconds number of seconds 
+-- @param callback function
+client.timer = function(timeout, callback)    
+    addTimer(timeout, false, callback)
+end
+
+--- set timeout. calls the function once after the seconds value elapses
+-- @param seconds number of seconds 
+-- @param callback function
+client.timeout = function(timeout, callback) 
+    addTimer(timeout, true, callback)
+end
+
+
+--- connection class
+-- @type Connection
 local Connection = class('Connection')
 
+---  Create a TCP connection instance, Asynchronously tries to connect to address specified. Opened or error callbacks are invoked in case of success or failure
+-- @param host address host
+-- @param port address port
+-- @param ssl ssl indicates whether to use ssl over the connection (leda has to  built with OpenSSL support), defaults to false
+-- @return a new Connection
+-- @usage local connection = client.Connection('some.domain', 8080)
+-- @name Connection()
 function Connection:initialize(host, port, ssl)
     createClient()
     ssl = ssl or false
@@ -61,6 +101,8 @@ function Connection:initialize(host, port, ssl)
     self:_connect(host, port, ssl)
 end
 
+--- send data over the connection
+-- @param data data to send
 function Connection:send(data)
     if not getConnection(self.__connection) then return end
     
@@ -92,27 +134,46 @@ function Connection:_closed()
     end
 end
 
+--- close the connection
 function Connection:close()
     __api.clientConnectionClose(self.__connection)
 end
 
-local addTimer = function(timeout, once, callback) 
-    createClient()
-    if not __leda.init then __api.clientAddTimer(timeout, once, callback) end
-end
+--- opened callback. runs when the connection has been opened
+-- @param callback function
+-- @usage connection.opened = function(connection)
+--    -- handle connection open
+-- end
+Connection.opened = nil
 
-local timer = function(timeout, callback)    
-    addTimer(timeout, false, callback)
-end
-    
-local timeout = function(timeout, callback) 
-    addTimer(timeout, true, callback)
-end
+--- closed callback. runs when the connection has been closed
+-- @param callback function
+-- @usage connection.closed = function(connection)
+--    -- handle connection close
+-- end
+Connection.closed = nil
 
--- http connection class
+
+--- error callback. runs when connection error occurs
+-- @param callback function
+-- @usage connection.error = function(connection, error)
+--    print(error)
+-- end
+Connection.error = nil
+
+client.Connection = Connection
+
+--- http connection class
+--- @type HttpConnection
 local HttpConnection = class('HttpConnection', Connection)
 
+---  Create a HTTP connection. Asynchronously tries to connect to url specified. Opened or error callbacks are invoked in case of success or failure
+-- @param url url to connect to 
+-- @return a new HttpConnection
+-- @usage local connection = client.HttpConnection('www.google.com')
+-- @name HttpConnection()
 function HttpConnection:initialize(url)
+    print(url)
     self.url = utility.parseUrl(url)    
     
     if self.url.scheme and not self.url.host then 
@@ -146,6 +207,53 @@ function HttpConnection:initialize(url)
     
     Connection.initialize(self, self.url.host, self.url.port, self.type == 'https')
 end
+
+--- perform a GET request asynchronously. Function can receive callback function as any argument
+-- @param path request path or callback
+-- @param[opt] headers additional headers to send with request
+-- @param[opt] callback callback function that is run when the response has been received. It receives a table with fields: headers, status, body
+-- @usage connection:get(function(response)
+--  print(response.body)
+--      end)
+function HttpConnection:get(path, headers, callback)    
+end
+
+--- perform a POST request asynchronously. Function can receive callback function as any argument
+-- @param path request path 
+-- @param headers additional headers to send with request
+-- @param body additional headers to send with request
+-- @param callback callback function that is run when the response has been received. It receives a table with fields: headers, status, body
+-- @usage local headers = {}
+--      headers['content-type'] = 'application/x-www-form-urlencoded'
+--      connection:post('/form', headers, "name=value", function(response)
+--      print(response.body)
+--    end)
+function HttpConnection:post(path, headers, body, callback)    
+end
+
+--- perform a PUT request asynchronously. Function can receive callback function as any argument
+-- @param path request path or callback
+-- @param[opt] headers additional headers to send with request
+-- @param[opt] body request body
+-- @param[opt] callback callback function that is run when the response has been received. It receives a table with fields: headers, status, body
+-- @usage connection:put('/path', function(response)
+--  print(response.body)
+--      end)
+function HttpConnection:put(path, headers, body, callback)    
+end
+
+--- perform a DELETE request asynchronously. Function can receive callback function as any argument
+-- @param path request path or callback
+-- @param[opt] headers additional headers to send with request
+-- @param[opt] callback callback function that is run when the response has been received. It receives a table with fields: headers, status, body
+-- @usage connection:delete('/path', function(response)
+--  print(response.body)
+--      end)
+function HttpConnection:delete(path, headers, callback)    
+end
+
+
+
 
 function HttpConnection:opened()
     if self._request then  self:_send()  end
@@ -295,4 +403,19 @@ function HttpConnection:_prepareRequest(method, path, headers, body, callback)
     self:_send()
 end
 
-return {Connection = Connection, timer = timer, timeout = timeout, currentThread = currentThread, threadCount = threadCount, setThreads = setThreads, HttpConnection = HttpConnection}
+
+--- close the connection
+function HttpConnection:close()
+    Connection.close(self)
+end
+
+--- error callback. runs when connection error occurs
+-- @param callback function
+-- @usage connection.error = function(connection, error)
+--    print(error)
+-- end
+HttpConnection.error = nil
+
+client.HttpConnection = HttpConnection
+
+return client
