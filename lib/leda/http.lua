@@ -47,7 +47,11 @@ end
 --- request class
 -- @type Response
 local Response = class('Respose')
-    
+
+function Response:initialize()
+    self.headers = {}
+end    
+
 function Response:send()
     __api.httpResponseSetStatus(__leda.httpResponse, self.status)
     __api.httpResponseSetHeaders(__leda.httpResponse, self.headers)
