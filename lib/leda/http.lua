@@ -1,4 +1,4 @@
---- HTTP functionality
+--- HTTP server functionality
 -- @usage local http = require('leda.http')
 -- local server = http.Server(8080, 'localhost')
 -- server.request = function(server, response, request)

@@ -1,4 +1,4 @@
---- TCP functionality
+--- TCP server functionality
 -- @usage local tcp = require('leda.tcp')
 -- local server = tcp.Server(10000, 'localhost')
 -- server.data = function(server, connection, data)

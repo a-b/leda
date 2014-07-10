@@ -1,4 +1,4 @@
---- UDP functionality
+--- UDP server functionality
 -- @usage local udp = require('leda.udp')
 -- local server = tcp.Server(10000, 'localhost')
 -- server.data = function(server, from, data)
