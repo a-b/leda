@@ -103,6 +103,8 @@ function Connection:initialize(host, port, ssl)
     
     -- connect
     self:_connect(host, port, ssl)
+    
+    
 end
 
 --- send data over the connection
@@ -223,6 +225,8 @@ function HttpConnection:initialize(url, errorCallback)
             self:_prepareRequest(method, path, headers, body, callback)
         end
     end
+    
+    self.version = string.format('leda.client.HttpConnection/%s', __api.getVersion())
 
     Connection.initialize(self, self.url.host, self.url.port, self.type == 'https')
 end
@@ -303,6 +307,8 @@ function HttpConnection.Parser:add(data)
     if data then
         self.data = self.data .. data
     end
+    
+
     
     -- parse header
     if not self.header then 
@@ -413,7 +419,8 @@ function HttpConnection:_prepareRequest(method, path, headers, body, callback)
     
     local request = string.format("%s %s HTTP/1.1\r\n", method, path)
     headers = headers or {}
-    headers['User-Agent'] = 'leda.client.HttpConnection/0.2'
+
+    headers['User-Agent'] = self.version 
     headers['Host'] = string.format("%s:%d", self.url.host, self.url.port)
     headers['Accept'] = "*/*"
     
