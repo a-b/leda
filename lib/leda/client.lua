@@ -199,6 +199,11 @@ local HttpConnection = class('HttpConnection', Connection)
 function HttpConnection:initialize(url, errorCallback)
     self.url = utility.parseUrl(url)    
     
+    if tonumber(self.url.path) then
+         self.url.port = self.url.path 
+         self.url.path = nil
+    end
+     
     if not self.url.host then 
         if self.url.path then
             self.url.host = self.url.path
@@ -219,10 +224,6 @@ function HttpConnection:initialize(url, errorCallback)
         self.type = 'http'
     end
     
-    if tonumber(self.url.path) then
-         self.url.port = self.url.path 
-         self.url.path = nil
-     end
      
     self.url.port = self.url.port or ports[self.type]
     self.url.path = self.url.path or '/'
@@ -363,6 +364,8 @@ function HttpConnection.Parser:add(data)
     else
         return
     end
+    
+    
     
     if not self.length then 
         self:_error("error parsing response")

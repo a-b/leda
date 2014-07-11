@@ -16,33 +16,45 @@ function TestHttpLoad:initialize(url, requestsCount)
     self.requests = 0
     self.responses = 0
     self.requestsCount = requestsCount
+    self.errors = 0
+    self.url = url
 
     -- create needed mumber of connections
     for i = 1, 10 do
-        local connection = client.HttpConnection(url)
-        
-        connection.error = function()
-            self.errors = self.errors + 1
-            connection:connect()
-        end
-        
-        table.insert(self.connections, connection) 
+        self:_newConnection(i)
      end
      
-    self.start = os.time()
+
     
     self:_sendRequests()
 end
 
+function TestHttpLoad._connectionError(connection, error)
+    connection.load.errors = connection.load.errors + 1
+    -- establish new connection
+    connection.load:_newConnection(connection.id)
+end
 
-function TestHttpLoad:_sendRequests()
-    if self.requests > self.requestsCount then return end
-        
+
+function TestHttpLoad:_newConnection(id)
+    
+    local connection = client.HttpConnection(self.url, {error = TestHttpLoad._connectionError})
+    connection.id = id
+    connection.load = self
+    
+    self.connections[id] = connection    
+    
+    return connection
+end
+
+
+function TestHttpLoad:_sendRequests()   
+    if self.requests >= self.requestsCount then return end
+    
     for i, connection in ipairs(self.connections) do
         connection:get(function(response)
             self.responses = self.responses + 1
         end)
-        
         
         self.requests = self.requests + 1
     end
@@ -107,6 +119,7 @@ client.timeout(4, function()
         end)
     
 function  TestHttp:testRun()
+    print(load.requests, load.responses)
     assert(load.requests == load.responses)
 
 
