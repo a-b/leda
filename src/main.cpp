@@ -190,6 +190,11 @@ int main(int argc, char* argv[])
     std::string script;
     LuaState::ScriptArguments arguments;
     
+    //
+    //  create instance
+    //
+    Leda* leda = Leda::instance();
+    
     try
     {
         for ( int i = 1; i < argc; i++ )
@@ -209,7 +214,7 @@ int main(int argc, char* argv[])
                 }
                 if ( option->name( ) == "version" )
                 {
-                    printf( "%s  version %s \n",  LEDA_NAME, LEDA_VERSION );
+                    printf( "%s  version %s \n",  LEDA_NAME, leda->version().c_str() );
                     exit(1);
                 }
             }
@@ -223,7 +228,6 @@ int main(int argc, char* argv[])
                 {
                     arguments.push_back( argv[i] );
                 }
-                
             }
         }
     }
@@ -238,10 +242,7 @@ int main(int argc, char* argv[])
     }
 
     TRACE("command line arguments length %d", arguments.size());
-    //
-    //  create moon instance
-    //
-    Leda* leda = Leda::instance();
+    
     
     char* frameworkPath = getenv( "LEDA_PATH" );
     

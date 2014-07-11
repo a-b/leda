@@ -93,6 +93,7 @@ void LuaState::create()
         {"httpResponseSetStatus", httpResponseSetStatus},
         {"httpResponseSetHeaders", httpResponseSetHeaders},
         {"httpResponseAddHeader", httpResponseAddHeader},
+        {"getVersion", getVersion},
 
         {NULL, NULL }
     };

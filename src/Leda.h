@@ -37,6 +37,7 @@ extern int httpResponseSetBody( lua_State* lua );
 extern int httpResponseSetStatus( lua_State* lua );
 extern int httpResponseSetHeaders( lua_State* lua );
 extern int httpResponseAddHeader( lua_State* lua );
+extern int getVersion( lua_State* lua );
 
 
 
@@ -131,6 +132,8 @@ public:
     }
     
     void resetChanges();
+    
+    std::string version() const;
     
 
 private:

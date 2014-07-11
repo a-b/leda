@@ -401,6 +401,12 @@ int httpResponseAddHeader( lua_State* lua )
     return 0;
 }
 
+int getVersion( lua_State* lua )
+{
+    lua_pushstring( lua, Leda::instance()->version().c_str() );
+    return 1;
+}
+
 
 Leda* Leda::m_instance = NULL;
 
@@ -631,4 +637,11 @@ void Leda::resetChanges()
         sys::General::interlockedDecrement( &m_changes );
     }
     
+}
+
+std::string Leda::version() const
+{
+    char buffer[ 256 ];
+    sprintf( buffer, "%d.%d.%d", LEDA_VERSION_MAJOR,  LEDA_VERSION_MINOR, LEDA_VERSION_REVISION );
+    return buffer;
 }
