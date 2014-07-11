@@ -199,9 +199,16 @@ local HttpConnection = class('HttpConnection', Connection)
 function HttpConnection:initialize(url, errorCallback)
     self.url = utility.parseUrl(url)    
     
-    if self.url.scheme and not self.url.host then 
-        self.url.host = self.url.scheme 
-        self.url.scheme = nil
+    if not self.url.host then 
+        if self.url.path then
+            self.url.host = self.url.path
+            self.url.path = nil
+        end
+        
+        if self.url.scheme then
+            self.url.host = self.url.scheme
+            self.url.scheme = nil
+        end
     end
     
     local ports = {https=443, http=80}
@@ -308,8 +315,6 @@ function HttpConnection.Parser:add(data)
         self.data = self.data .. data
     end
     
-
-    
     -- parse header
     if not self.header then 
         -- parse headers
@@ -338,7 +343,7 @@ function HttpConnection.Parser:add(data)
             end
         end
     end
-    
+        
     if self.header then
         if self.response.headers['content-length'] then
             self.length = tonumber(self.response.headers['content-length'])
@@ -387,6 +392,8 @@ function HttpConnection.Parser:add(data)
         self.response = self:_newResponse()
         self.full = nil
         self.header  = nil
+        self.chunked = false
+        self.length = nil
     end
             
     -- if more responses left call self

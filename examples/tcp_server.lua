@@ -9,7 +9,9 @@ server.data = function(server, connection, data)
 end
 
 server.connection = function(server, connection, opened)
-    if opened then print(string.format("opened connection from %s", connection:address())) end
+    local verb
+    if opened then verb = "opened" else verb = "closed" end
+    print(string.format("connection %s from %s was %s", connection:id(), connection:address(), verb))
 end
     
 server.thread = function(server, thread, started) 
