@@ -14,44 +14,29 @@ CPPFLAGS =
 # Standard linker flags 
 LDFLAGS = 
 
+SOURCE_PATH = src
+OBJ_PATH = obj
+
 
 ### Variables: ###
 
 LEDA_CXXFLAGS = /MT /DWIN32 /Ideps\libpropeller\deps\libevent\WIN32-Code /Ideps\LIBpropeller\include \
-	/Ideps\libpropeller\deps\libevent\include /Ideps\luajit\src /GR /EHsc $(CPPFLAGS) $(CXXFLAGS)
+	/Ideps\libpropeller\deps\libevent\include /Ideps\luajit\src /Ideps\cjson /GR /EHsc $(CPPFLAGS) $(CXXFLAGS)
 
-LEDA_OBJECTS =  \
-	obj\LEDA_HttpServer.obj \
-	obj\LEDA_main.obj \
-	obj\LEDA_Server.obj \
-	obj\LEDA_LuaState.obj \
-	obj\LEDA_Client.obj \
-	obj\LEDA_trace.obj \
-	obj\LEDA_Leda.obj
-
-### Conditionally set variables: ###
-
- 
-
-
-
-all: obj
-obj:
-	-if not exist obj mkdir obj
+LEDA_OBJECTS =  src/HttpServer.obj src/main.obj  src/Server.obj src/LuaState.obj src/Client.obj src/trace.obj src/Leda.obj src/FWatcher.obj 
+	
 
 ### Targets: ###
 
-all: obj\leda.exe
+all: leda.exe
 
 clean: 
-	-if exist obj\*.obj del obj\*.obj
-	-if exist obj\*.res del obj\*.res
-	-if exist obj\*.pch del obj\*.pch
-	-if exist obj\*.exe del obj\*.exe
+	-if exist src\*.obj del src\*.obj
+	-if exist src\*.res del src\*.res
+	-if exist src\*.pch del src\*.pch
+	-if exist *.exe del *.exe
 	
 	cd deps/libpropeller  && nmake /f Makefile.nmake clean
-	cd deps/lpeg  && nmake /f Makefile.nmake clean
-	cd deps/lfs  && nmake /f Makefile.nmake clean
 	
 	 
 
@@ -63,12 +48,6 @@ luajit:
 	 cd deps/luajit/src/ && call msvcbuild.bat
 
 
-lpeg:
-	cd deps/lpeg && nmake -f makefile.nmake
-
-lfs:
-        cd deps/lfs && nmake -f makefile.nmake 
-	
 
 dist:
 	-if not exist dist mkdir dist
@@ -77,33 +56,9 @@ dist:
 
 	
 	
-obj\leda.exe:  libpropeller luajit lpeg lfs $(LEDA_OBJECTS)
-	link /SUBSYSTEM:CONSOLE /NOLOGO /OUT:$@  /LIBPATH:deps\libpropeller\obj /LIBPATH:deps\luajit\src $(LDFLAGS) $(LEDA_OBJECTS) libpropeller.lib lua51.lib
+leda.exe: libpropeller luajit   $(LEDA_OBJECTS)
+	link /SUBSYSTEM:CONSOLE /NOLOGO /OUT:$@  /LIBPATH:deps\libpropeller /LIBPATH:deps\luajit\src $(LDFLAGS) $(LEDA_OBJECTS) libpropeller.lib lua51.lib
 	
 
-
-obj\LEDA_HttpServer.obj: src\HttpServer.cpp
-	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\HttpServer.cpp
-
-obj\LEDA_Leda.obj: src\Leda.cpp
-	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\Leda.cpp
-
-
-obj\LEDA_Client.obj: src\Client.cpp
-	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\Client.cpp
-
-
-
-obj\LEDA_Server.obj: src\Server.cpp
-	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\Server.cpp
-
-obj\LEDA_main.obj: src\main.cpp
-	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\main.cpp
-
-
-obj\LEDA_trace.obj: src\trace.cpp
-	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\trace.cpp
-
-obj\LEDA_LuaState.obj: src\LuaState.cpp
-	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) src\LuaState.cpp
-
+{$(SOURCE_PATH)}.cpp{$(SOURCE_PATH)}.obj:
+	$(CXX) /c /nologo /TP /Fo$@ $(LEDA_CXXFLAGS) $<
