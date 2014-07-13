@@ -50,7 +50,7 @@ local Response = class('Respose')
 
 function Response:initialize()
     self.headers = {}
-end    
+end
 
 function Response:send()
     __api.httpResponseSetStatus(__leda.httpResponse, self.status)
@@ -90,12 +90,12 @@ function Server:initialize(port, host)
         
         -- set some headers and serialize tables to json
         if not response.headers['Content-Type'] then
-            local contentType
-            if type(response.body) == 'table' then
-                contentType = 'application/json'
-                response.body = json.encode(response.body) 
-            else
-                contentType = 'text/plain'
+            local contentType = 'text/plain'
+            if json then
+                if type(response.body) == 'table' then
+                    contentType = 'application/json'
+                    response.body = json.encode(response.body) 
+                end
             end
 
             response.headers['Content-Type'] = contentType

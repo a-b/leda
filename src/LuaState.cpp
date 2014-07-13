@@ -8,7 +8,10 @@
 #include "LuaState.h"
 #include "Leda.h"
 
+#ifdef USE_CJSON
 #include <lua_cjson.h>
+#endif
+
 
 
 LuaState::LuaState( const std::string& filename, const ScriptArguments* arguments  )
@@ -100,9 +103,14 @@ void LuaState::create()
 
     luaL_register( m_lua, "__api", functions );
     
-    luaopen_cjson( m_lua );
+    
     
     loadlibs();
+    
+#ifdef USE_CJSON
+    luaopen_cjson( m_lua );
+#endif
+    
     
 }
 

@@ -18,7 +18,7 @@ CXX = g++
 CXXFLAGS ?= 
 
 # Standard preprocessor flags (common for CC and CXX) 
-CPPFLAGS ?= 
+CPPFLAGS ?= -DUSE_CJSON -O2
 
 # Standard linker flags 
 LDFLAGS ?= 
@@ -45,7 +45,7 @@ prefix ?= $(DEST)
 ### Variables: ###
 
 CPPDEPS = -MT$@ -MF`echo $@ | sed -e 's,\.o$$,.d,'` -MD -MP
-LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -Ideps/cjson -DLEDA_PATH=\"$(prefix)/lib/leda\" -O2 -D_THREAD_SAFE -pthread \
+LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -Ideps/cjson -DLEDA_PATH=\"$(prefix)/lib/leda\" -D_THREAD_SAFE -pthread \
 	$(CPPFLAGS) $(CXXFLAGS) 
 		
 SOURCES = $(wildcard src/*.cpp)
