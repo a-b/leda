@@ -189,6 +189,41 @@ client.Connection = Connection
 --- @type HttpConnection
 local HttpConnection = class('HttpConnection', Connection)
 
+local function parseUrl(url)
+    local result = {}
+
+    local slashes = url:find("//")
+    local scheme
+    if slashes then
+         scheme = url:sub(1, slashes - 2) 
+         url = url:sub(slashes + 2)
+     else
+         scheme = 'http'
+    end        
+    
+    local slash = url:find("/")
+    local path
+    if slash then 
+        path = url:sub(slash)
+        url = url:sub(1, slash - 1)
+    end
+    
+    local ports = {https = 443, http = 80}
+    
+    local host, port = url:match("(.*):(%d+)")
+        
+    if not host then host = url end
+    if not port then port = ports[scheme] end
+
+    result.host = host
+    result.port = tonumber(port)
+    result.path = path
+    result.scheme = scheme
+    
+    return result    
+end
+
+
 ---  Create a HTTP connection. Asynchronously tries to connect to url specified. Opened or error callbacks are invoked in case of success or failure
 -- @param url url to connect to 
 -- @param[opt] errorCallback error callback function
@@ -197,35 +232,8 @@ local HttpConnection = class('HttpConnection', Connection)
 -- connection.get(function(response) print(response.body) end)
 -- @name HttpConnection()
 function HttpConnection:initialize(url, errorCallback)
-    self.url = utility.parseUrl(url)    
-    
-    if tonumber(self.url.path) then
-         self.url.port = self.url.path 
-         self.url.path = nil
-    end
-     
-    if not self.url.host then 
-        if self.url.path then
-            self.url.host = self.url.path
-            self.url.path = nil
-        end
-        
-        if self.url.scheme then
-            self.url.host = self.url.scheme
-            self.url.scheme = nil
-        end
-    end
-    
-    local ports = {https=443, http=80}
-    
-    if self.url.scheme then
-        self.type = self.url.scheme
-    else
-        self.type = 'http'
-    end
-    
-     
-    self.url.port = self.url.port or ports[self.type]
+    self.url = parseUrl(url)   
+    self.type = self.url.scheme 
     self.url.path = self.url.path or '/'
     
     for _, method in ipairs{'POST', 'GET', 'PUT', 'DELETE'} do
@@ -238,6 +246,7 @@ function HttpConnection:initialize(url, errorCallback)
 
     Connection.initialize(self, self.url.host, self.url.port, self.type == 'https')
 end
+
 
 --- perform a GET request asynchronously. Function can receive callback function as any argument
 -- @param path request path or callback
