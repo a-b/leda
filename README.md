@@ -41,5 +41,5 @@ Run
 
 For more usage examples see [examples](https://github.com/sergeyzavadski/leda/tree/master/examples)
 
-More information can be found in [API Reference](http://sergeyzavadski.github.io/leda/) and [wiki](https://github.com/sergeyzavadski/leda/wiki)		
+More information can be found in [API Reference](http://sergeyzavadski.github.io/leda/doc) and [wiki](https://github.com/sergeyzavadski/leda/wiki)		
 

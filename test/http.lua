@@ -119,7 +119,6 @@ client.timeout(4, function()
         end)
     
 function  TestHttp:testRun()
-    print(load.requests, load.responses)
     assert(load.requests == load.responses)
 
 
