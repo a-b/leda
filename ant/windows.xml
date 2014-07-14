@@ -17,7 +17,12 @@
 
    
 
-	<target name="clean">
+   <target name="init">
+   	<shell_exec command="git submodule init" dir=".."/> 
+		<shell_exec command="git submodule update" dir=".."/>
+   </target>
+   
+	<target name="clean" depends="init">
 		<shell_exec command="nmake -f Makefile.nmake clean" dir=".."/>
 		<delete dir="../dist"/>
 	</target>
@@ -25,9 +30,7 @@
 	<target name="build" depends="clean">
 
 			
-		<shell_exec command="git submodule init" dir=".."/> 
-		<shell_exec command="git submodule update" dir=".."/>
- 
+		
 		<shell_exec command="nmake -f Makefile.nmake" dir=".."/> 
 		<shell_exec command="nmake -f Makefile.nmake dist" dir=".."/> 
 
