@@ -1,0 +1,42 @@
+<project name="leda" default="test">
+	<macrodef name="shell_exec">
+       <attribute name="command" />
+       <attribute name="dir" default="." />
+       <attribute name="failonerror" default="true" />
+       <attribute name="timeout" default="100000000" />
+       
+       <sequential>
+           <echo message="executing '@{command}'"/>
+        
+           <exec executable="cmd"  dir="@{dir}" failonerror="@{failonerror}" timeout="@{timeout}">
+                       <arg value="/c"/>
+                       <arg value="@{command}"/>
+           </exec>            
+       </sequential>
+   </macrodef>
+
+   
+
+	<target name="clean">
+		<shell_exec command="nmake -f Makefile.nmake clean" dir=".."/>
+		<delete dir="../dist"/>
+	</target>
+
+	<target name="build" depends="clean">
+
+			
+		<shell_exec command="git submodule init" dir=".."/> 
+		<shell_exec command="git submodule update" dir=".."/>
+ 
+		<shell_exec command="nmake -f Makefile.nmake" dir=".."/> 
+		<shell_exec command="nmake -f Makefile.nmake dist" dir=".."/> 
+
+
+	</target>
+
+	<target name="test" depends="build">
+		<shell_exec command="dist\leda.exe test\http.lua" dir=".."/>
+		<shell_exec command="dist\leda.exe test\tcp.lua" dir=".."/>
+			
+	</target>
+</project>
