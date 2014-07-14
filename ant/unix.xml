@@ -1,0 +1,105 @@
+<project name="leda" default="doc">
+    <macrodef name="shell_exec">
+       <attribute name="command" />
+       <attribute name="dir" default="." />
+       <attribute name="failonerror" default="true" />
+       <attribute name="timeout" default="100000000" />
+       
+       <sequential>
+           <echo message="executing '@{command}'"/>
+        
+           <exec executable="bash"  dir="@{dir}" failonerror="@{failonerror}" timeout="@{timeout}">
+                       <arg value="-c"/>
+                       <arg value="@{command}"/>
+           </exec>            
+       </sequential>
+   </macrodef>
+   
+   <macrodef name="shell_read">
+      <attribute name="command" />
+      <attribute name="dir" default="." />
+      <attribute name="outputproperty" />
+      
+      <sequential>
+          <exec executable="bash"  dir="@{dir}" failonerror="false" outputproperty="@{outputproperty}">
+                      <arg value="-c"/>
+                      <arg value="@{command}"/>
+          </exec>            
+      </sequential>
+  </macrodef>
+    
+    
+    <property name="web.dir" value="${user.home}/source/sergeyzavadski.github.io/leda"/>
+    <property name="repository" value="git@github.com:sergeyzavadski/leda.git"/>
+    
+    <target name="build">
+        <shell_exec command="make clean" dir=".."/>
+        <shell_exec command="./configure" dir=".."/>
+        <shell_exec command="make" dir=".."/>
+        
+    </target>
+    
+    <target name="test" depends="build">
+        <shell_exec command="make test" dir=".."/>
+    </target>
+    
+    <target name="doc" depends="test">
+        <shell_exec command="make doc" dir=".."/>
+        <property name="doc.dir" value="${web.dir}/doc"/>
+        <mkdir dir="${doc.dir}"/>
+        <shell_exec command="cp -rv doc/* ${web.dir}/doc" dir=".."/>
+        <shell_exec command="git add -A ./" dir="${doc.dir}"/>
+        <shell_exec command="git commit -m 'automated doc build'" dir="${doc.dir}" failonerror="false"/>
+        <shell_exec command="git push" dir="${doc.dir}" failonerror="false"/>
+    </target>
+    
+    <target name="release">
+        <mkdir dir="${web.dir}/releases"/>
+        
+        <shell_read command="cat src/version.h | grep LEDA_VERSION_MAJOR | awk '{print $3}'" dir=".." outputproperty="version.major"/> 
+        <shell_read command="cat src/version.h | grep LEDA_VERSION_MINOR | awk '{print $3}'" dir=".." outputproperty="version.minor"/>
+        <shell_read command="cat src/version.h | grep LEDA_VERSION_REVISION | awk '{print $3}'" dir=".." outputproperty="version.revision"/>
+        <shell_read command="cat src/version.h | grep LEDA_NAME | awk '{print $3}' |  tr -d \&quot;" dir=".." outputproperty="version.name"/>
+        <property name="release.name" value="${version.name}-${version.major}.${version.minor}.${version.revision}"/>
+    
+        <property name="release.dir" value="${release.name}"/>
+        <delete dir="${release.dir}"/>
+        <mkdir dir="${release.dir}"/>
+        
+        
+        <shell_exec command="git clone --recurse ${repository} ${release.name}" dir="${release.dir}"/>
+        <shell_exec command="find . | grep .git | xargs rm -rf" dir="${release.dir}/${release.name}"/>
+
+        <shell_exec command="zip -r ${release.name}.zip ${release.name}" dir="${release.dir}"/>
+        <shell_exec command="tar cvf ${release.name}.tar.gz ${release.name}" dir="${release.dir}"/>
+
+        <shell_exec command="rm -rf ${release.name}" dir="${release.dir}"/>
+        
+        <shell_exec command="cp -rf ${release.dir} ${web.dir}/releases"/> 
+        
+        <shell_exec command="rm -rf ${release.dir}"/>       
+        
+        <propertyfile file="${web.dir}/releases/release.properties">
+            <entry key="version.name" value="${release.name}"/>
+            <entry key="version.major" value="${version.major}"/>
+            <entry key="version.minor" value="${version.minor}"/>
+            <entry key="version.revision" value="${version.revision}"/>
+            <entry key="source.zip" value="${release.name}.zip"/>
+            <entry key="source.tar.gz" value="${release.name}.tar.gz"/>
+        </propertyfile>
+        
+        <shell_exec command="git add -A ./" dir="${web.dir}/releases"/>
+        <shell_exec command="git commit -m '${release.name} release'" dir="${web.dir}/releases" failonerror="false"/>
+        <shell_exec command="git push" dir="${web.dir}/releases" failonerror="false"/>
+        
+        
+        
+        
+        
+    </target>
+    
+    
+    
+    
+    
+</project>

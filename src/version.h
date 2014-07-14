@@ -6,7 +6,7 @@
 //
 #define LEDA_VERSION_MAJOR 0
 #define LEDA_VERSION_MINOR 4
-#define LEDA_VERSION_REVISION 1
+#define LEDA_VERSION_REVISION 2
 
 
 #define LEDA_NAME "leda"

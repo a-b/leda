@@ -114,7 +114,7 @@ end)
     
     
 
-client.timeout(6, function()
+client.timeout(8, function()
         os.exit(luaunit:run())
         end)
     
