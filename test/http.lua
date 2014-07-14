@@ -114,28 +114,36 @@ end)
     
     
 
-client.timeout(4, function()
+client.timeout(6, function()
         os.exit(luaunit:run())
         end)
     
 function  TestHttp:testRun()
+            print(load.requests, load.responses)
+
     assert(load.requests == load.responses)
 
 
-    assert(TestHttp.responseGet.headers['content-type'] == 'application/json')
-    assert(TestHttp.responseGet.headers[testHeaderName] == testHeaderValue)
-    local body = json.decode(TestHttp.responseGet.body) 
+if json then
+      local body = json.decode(TestHttp.responseGet.body) 
     assert(body.url == path1)
     assert(body.header == testHeaderValue)
     assert(body.method == 'GET')
-    
-    assert(TestHttp.responsePost.headers['content-type'] == 'application/json')
-    assert(TestHttp.responsePost.headers[testHeaderName] == testHeaderValue)
+          assert(TestHttp.responseGet.headers['content-type'] == 'application/json')
+  
+   assert(TestHttp.responsePost.headers['content-type'] == 'application/json')
+   
     body = json.decode(TestHttp.responsePost.body) 
     assert(body.url == path2)
     assert(body.header == testHeaderValue)
     assert(body.method == 'POST')
     assert(body.body == testBody)
+   
+  end
+
+    assert(TestHttp.responseGet.headers[testHeaderName] == testHeaderValue)
+    
+    assert(TestHttp.responsePost.headers[testHeaderName] == testHeaderValue)
     
     
     

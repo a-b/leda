@@ -67,12 +67,12 @@ server.thread = function(server, thread)
     end)
 end
 
-client.timeout(3, function()
+client.timeout(5, function()
         os.exit(luaunit:run())
         end)
     
 function TestTcp:testConnect()
-    assert(TestTcp.openedConnection)
+    assert(TestTcp.openedConnection, "connection not open")
     assert(TestTcp.helloString)
     assert(TestTcp.testString)
     
