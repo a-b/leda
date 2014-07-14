@@ -75,7 +75,9 @@
 
         <shell_exec command="rm -rf ${release.name}" dir="${release.dir}"/>
         
-        <shell_exec command="cp -rf ${release.name} ${web.dir}/releases"/>        
+        <shell_exec command="cp -rf ${release.dir} ${web.dir}/releases"/> 
+        
+        <shell_exec command="rm -rf ${release.dir}"/>       
         
         <propertyfile file="${web.dir}/releases/release.properties">
             <entry key="version.name" value="${release.name}"/>
