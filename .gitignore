@@ -21,6 +21,7 @@
 *.exe
 *.out
 *.app
+*.obj
 nbproject/
 config.mk
 doc
