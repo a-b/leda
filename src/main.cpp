@@ -244,26 +244,45 @@ int main(int argc, char* argv[])
     TRACE("command line arguments length %d", arguments.size());
     
     
-    char* frameworkPath = getenv( "LEDA_PATH" );
-    
-    if ( !frameworkPath )
-    {
+    std::string paths;
+
 #ifdef WIN32
+    {   
         char path[ MAX_PATH ];
         GetModuleFileNameA( NULL, path, MAX_PATH );
         TRACE( "module filename %s", path );
         
         *strrchr( path, '\\' ) = 0;
-        std::string dllPath = path;
-        dllPath.append("\\lib");
-        leda->addPath( dllPath );
-#else
-        leda->addPath( LEDA_PATH );
+        std::string temp = path;
+        temp.append("\\lib");
+        leda->addPath( temp );
+    
+    }   
 #endif
+
+    char* frameworkPath = getenv( "LEDA_PATH" );
+    
+    if ( !frameworkPath )
+    {
+
+        leda->addPath( LEDA_PATH );
     }
     else
     {
-        leda->addPath( frameworkPath );
+
+        //
+        //  split paths by ;
+        //
+        char sep[] = ";";
+        char* token = strtok( frameworkPath, sep );
+        while ( token )
+        {
+            TRACE("adding path %s", token);
+            leda->addPath( token );
+            token = strtok( NULL, sep );
+  
+
+        }        
     }       
             
     leda->setScriptArguments( arguments );
