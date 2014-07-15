@@ -121,9 +121,6 @@ public:
     }
 
     void callTimer( LuaState& lua, TimerData* data );
-    void callTerminate( const LuaState& lua );
-    
-   
     
     void addFileChange();
     unsigned int changes() const
