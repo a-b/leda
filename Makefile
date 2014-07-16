@@ -18,7 +18,7 @@ CXX = g++
 CXXFLAGS ?= 
 
 # Standard preprocessor flags (common for CC and CXX) 
-CPPFLAGS ?= -DUSE_CJSON -O2
+CPPFLAGS ?= -O2
 
 # Standard linker flags 
 LDFLAGS ?= 
@@ -45,7 +45,7 @@ prefix ?= $(DEST)
 ### Variables: ###
 
 CPPDEPS = -MT$@ -MF`echo $@ | sed -e 's,\.o$$,.d,'` -MD -MP
-LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -Ideps/cjson -DLEDA_PATH=\"$(prefix)/lib/leda\" -D_THREAD_SAFE -pthread \
+LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -DLEDA_PATH=\"$(prefix)/lib/leda\" -D_THREAD_SAFE -pthread \
 	$(CPPFLAGS) $(CXXFLAGS) 
 		
 SOURCES = $(wildcard src/*.cpp)
@@ -79,12 +79,12 @@ clean: 	clean_leda
 	-(cd deps/cjson && $(MAKE) clean)
 	
 libs: 
-	cd deps/libpropeller && make && cd ../luajit  && make && rm src/libluajit.so  && cd ../cjson && make
+	cd deps/libpropeller && make && cd ../luajit  && make && rm src/libluajit.so
 
 
 $(TARGET): libs $(OBJECTS) 
-	$(CXX) -o $@ $(OBJECTS)  -Ldeps/libpropeller -Ldeps/libpropeller/deps/libevent/.libs -Ldeps/luajit/src -Ldeps/cjson  $(LDFLAGS) \
-	     -lpropeller -lluajit   -levent -levent_pthreads  -lcjson   $(PLATFORM_LDFLAGS) $(OPENSSL_LIB)
+	$(CXX) -o $@ $(OBJECTS)  -Ldeps/libpropeller -Ldeps/libpropeller/deps/libevent/.libs -Ldeps/luajit/src   $(LDFLAGS) \
+	     -lpropeller -lluajit   -levent -levent_pthreads $(PLATFORM_LDFLAGS) $(OPENSSL_LIB)
 
 install_leda: 
 	$(INSTALL) -d $(DESTDIR)$(prefix)/bin
