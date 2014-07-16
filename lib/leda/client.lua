@@ -71,7 +71,7 @@ local Connection = class('Connection')
 -- @return a new Connection
 -- @usage local connection = client.Connection('some.domain', 8080)
 -- @name Connection()
-function Connection:initialize(host, port, ssl)
+function Connection:initialize(host, port, ssl, callbacks)
     createClient()
     
     if not __leda.client then return end
@@ -100,6 +100,8 @@ function Connection:initialize(host, port, ssl)
     
     self.host = host
     self.port = port
+    
+    self.callbacks = callbacks or {}
     
     -- connect
     self:_connect(host, port, ssl)
@@ -144,6 +146,9 @@ end
 
 --- close the connection
 function Connection:_error(message)
+    
+    if not self.error then self.error = self.callbacks.error end
+    
     if type(self.error) == 'function' then self:error(message) end 
 end
 
@@ -294,7 +299,8 @@ function HttpConnection:initialize(url, errorCallback)
     
     self.version = string.format('leda.client.HttpConnection/%s', __api.getVersion())
 
-    Connection.initialize(self, self.url.host, self.url.port, self.type == 'https')
+
+    Connection.initialize(self, self.url.host, self.url.port, self.type == 'https', {error = errorCallback})
 end
 
 
@@ -514,6 +520,7 @@ end
 function HttpConnection:close()
     Connection.close(self)
 end
+
 
 --- error callback. runs when connection error occurs
 -- @param callback function
