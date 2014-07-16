@@ -298,7 +298,7 @@ void LuaState::reload( unsigned int threadId )
 {
     TRACE_ENTERLEAVE();
     
-    if ( Leda::instance()->debug()  )
+    if ( Leda::instance()->debug() && Leda::instance()->changes() > 0 )
     {
         if ( !m_lua )
         {
