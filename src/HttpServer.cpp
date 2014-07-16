@@ -36,7 +36,10 @@ void HttpServer::onThreadStopped( const propeller::Server::Thread& thread )
     TRACE_ENTERLEAVE();
     
     LuaState& lua = LuaState::luaFromThread( thread, thread.id() );
+    
     lua.call( "onThreadStopped" );
+    
+    delete &lua;
 
     unsigned int value = sys::General::interlockedIncrement( &m_stoppedThreads );
     if ( value == getThreadCount() )
@@ -48,6 +51,8 @@ void HttpServer::onThreadStopped( const propeller::Server::Thread& thread )
 void HttpServer::onThreadStarted( propeller::Server::Thread& thread )
 {
     TRACE_ENTERLEAVE();
+    
+    sys::LockEnterLeave lock( m_lock );
     
     LuaState* lua = LuaState::luaForThread( thread, thread.id() );    
     lua->call( "onThreadStarted" );

@@ -150,7 +150,7 @@ private:
     bool m_debug;
     FWatcher* m_fwatcher;
     unsigned int m_changes;
-    
+
     
 };
 

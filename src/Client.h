@@ -31,7 +31,7 @@ class Client: public propeller::Client
         
         
     private:
-        
+            sys::Lock m_lock;
     };
 
 #endif	/* CLIENT_H */

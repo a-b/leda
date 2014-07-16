@@ -207,7 +207,7 @@ void LuaState::execute( const std::string& script ) const
     //
     //  pop result or error from the stack
     //
-    lua_pop( m_lua, 3 );
+    lua_pop( m_lua, 2 );
 }
 
 
@@ -252,7 +252,7 @@ void LuaState::call( const std::string& callbackName, int registryIndex, bool ex
     {
         TRACE( "no lua function found on top of stack", "" );
         
-        lua_pop( m_lua, -debugIndex + 1 );
+        lua_pop( m_lua, -debugIndex );
         return;
     }
     //
@@ -268,7 +268,6 @@ void LuaState::call( const std::string& callbackName, int registryIndex, bool ex
         //  error executing lua
         //
         const char* error = lua_tostring( m_lua, -1 );
-        
         
         TRACE_ERROR( "%s", error );
         
@@ -480,6 +479,7 @@ void LuaState::getGlobalTable()
     lua_getglobal( m_lua, "__leda" );
     if ( lua_isnil( m_lua, -1 ) )
     {
+        lua_pop( m_lua, 1 );
         //
         //  create new table if not set
         //
@@ -518,6 +518,8 @@ unsigned int LuaState::getThreadId( lua_State* lua )
 
         return threadId;
     }
+    
+    lua_pop( lua, 1 );
     
     return 0;
 }

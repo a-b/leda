@@ -28,6 +28,7 @@ void Server::stop( )
 void Server::onThreadStarted( propeller::Server::Thread& thread )
 {
     TRACE_ENTERLEAVE();
+    sys::LockEnterLeave lock( m_lock );
     
     LuaState* lua = LuaState::luaForThread( thread, thread.id() );    
     lua->call( "onThreadStarted" );

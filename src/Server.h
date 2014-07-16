@@ -36,6 +36,7 @@ private:
     
 private:
     sys::Semaphore m_stop;
+    sys::Lock m_lock;
 };
 
 #endif	/* _SERVER_H */

@@ -33,6 +33,8 @@ Client::~Client()
 void Client::onThreadStarted( propeller::Client::Thread& thread )
 {
     TRACE_ENTERLEAVE();
+    
+    sys::LockEnterLeave lock( m_lock );
    
     LuaState* lua = LuaState::luaForThread( thread, thread.id(), "__leda.client = true" );
     
@@ -45,6 +47,7 @@ void Client::onThreadStopped( const propeller::Client::Thread& thread )
     LuaState& lua = LuaState::luaFromThread( thread, thread.id() );
     
     lua.call( "onClientThreadStopped" );
+    delete &lua;
 }
 
 void Client::onTimer( const propeller::Client::Thread& thread, void* data )

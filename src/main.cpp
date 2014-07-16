@@ -349,16 +349,16 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-//#ifndef WIN32
-//	catch( ... )
-//    {          
-//       // 
-//       //   crash
-//       // 
-//       raise( SIGSEGV ); 
-//       return 1;
-//    }
-//#endif       
+#ifndef WIN32
+	catch( ... )
+    {          
+       // 
+       //   crash
+       // 
+       raise( SIGSEGV ); 
+       return 1;
+    }
+#endif       
 
     
     return 0;

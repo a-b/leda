@@ -263,15 +263,19 @@
 
 int httpRequestGetUrl( lua_State* lua )
 {
+    TRACE_ENTERLEAVE();
+    
     propeller::http::Request* request = ( propeller::http::Request* ) lua_touserdata( lua, -1 );
     lua_pop( lua, 1 );
-
+        
     lua_pushstring( lua, request->uri( ) );
     return 1;
 }
 
 int httpRequestGetMethod( lua_State* lua )
 {
+    TRACE_ENTERLEAVE();
+    
     propeller::http::Request* request = ( propeller::http::Request* ) lua_touserdata( lua, -1 );
     lua_pop( lua, 1 );
 
@@ -281,6 +285,8 @@ int httpRequestGetMethod( lua_State* lua )
 
 int httpRequestGetHeaders( lua_State* lua )
 {
+    TRACE_ENTERLEAVE();
+    
     propeller::http::Request* request = ( propeller::http::Request* ) lua_touserdata( lua, -1 );
     lua_pop( lua, 1 );
 
@@ -299,6 +305,8 @@ int httpRequestGetHeaders( lua_State* lua )
 
 int httpRequestGetBody( lua_State* lua )
 {
+    TRACE_ENTERLEAVE();
+    
     propeller::http::Request* request = ( propeller::http::Request* ) lua_touserdata( lua, -1 );
     lua_pop( lua, 1 );
 
@@ -316,6 +324,8 @@ int httpRequestGetBody( lua_State* lua )
 
 int httpRequestGetAddress( lua_State* lua )
 {
+    TRACE_ENTERLEAVE();
+    
     propeller::http::Request* request = ( propeller::http::Request* ) lua_touserdata( lua, -1 );
     lua_pop( lua, 1 );
 
@@ -348,7 +358,7 @@ int httpResponseSetStatus( lua_State* lua )
 {
     TRACE_ENTERLEAVE();
     propeller::http::Response* response = ( propeller::http::Response* ) lua_touserdata( lua, -2 );
-    TRACE("response status %d", lua_tonumber( lua, -1 ));
+    
     response->setStatus( lua_tonumber( lua, -1 ) );
     lua_pop( lua, 2 );
     
@@ -559,7 +569,7 @@ void Leda::execScript( )
     m_lua = newLua();
     
     m_lua->setGlobal( "init" );
-    m_lua->load( 0, true );
+    m_lua->load( -1, true );
 
     
     if ( m_client )
@@ -610,6 +620,7 @@ void Leda::execScript( )
  
 LuaState* Leda::newLua()
 {
+    
     return new LuaState( m_script, &m_scriptArguments );
 }
  
@@ -624,8 +635,8 @@ propeller::Client* Leda::clientCreate( unsigned int threadCount )
 void Leda::addFileChange()  
 {
     TRACE_ENTERLEAVE();
-    sys::General::interlockedIncrement( &m_changes );
-    
+    sys::General::interlockedIncrement( &m_changes ); 
+   
 }
 
 void Leda::resetChanges()  
