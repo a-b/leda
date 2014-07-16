@@ -9,10 +9,9 @@
 #include "Leda.h"
 
 HttpServer::HttpServer()
-: m_stoppedThreads( 0 ), m_threadId( 0 )
+: m_threadId( 0 )
 {
-    TRACE_ENTERLEAVE();
-    
+    TRACE_ENTERLEAVE();  
 }
 
 void HttpServer::start(  )
@@ -27,8 +26,6 @@ void HttpServer::stop(  )
 {
     TRACE_ENTERLEAVE();
     propeller::http::Server::stop();
-    
-    m_stop.wait();
 }
 
 void HttpServer::onThreadStopped( const propeller::Server::Thread& thread )
@@ -40,12 +37,6 @@ void HttpServer::onThreadStopped( const propeller::Server::Thread& thread )
     lua.call( "onThreadStopped" );
     
     delete &lua;
-
-    unsigned int value = sys::General::interlockedIncrement( &m_stoppedThreads );
-    if ( value == getThreadCount() )
-    {
-        m_stop.post();
-    }
 }
 
 void HttpServer::onThreadStarted( propeller::Server::Thread& thread )

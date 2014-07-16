@@ -30,8 +30,7 @@ protected:
     
     
 private:
-    sys::Semaphore m_stop;
-    unsigned int m_stoppedThreads;
+    
     unsigned int m_threadId;
     sys::Lock m_lock;
 };

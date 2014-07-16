@@ -298,13 +298,13 @@ void LuaState::reload( unsigned int threadId )
 {
     TRACE_ENTERLEAVE();
     
-    if ( !m_lua )
+    if ( Leda::instance()->debug()  )
     {
-        throw std::runtime_error("cannot reload without a loaded script first");
-    }
-    
-    if ( Leda::instance()->debug() && Leda::instance()->changes() > 0 )
-    {
+        if ( !m_lua )
+        {
+            throw std::runtime_error( "cannot reload without a loaded script first" );
+        }
+        
         TRACE("have %d filesystem changes, need to reload lua", Leda::instance()->changes() );
         destroy();
         create();

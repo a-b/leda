@@ -530,7 +530,6 @@ Leda* Leda::instance()
             {
                 m_server->setThreadCount( lua_tonumber( lua, -1 ) );
             }
-            
          }
  
          lua_pop( lua, 1 );
@@ -538,14 +537,9 @@ Leda* Leda::instance()
 
     if ( m_debug )
     {
-        TRACE( "enabling debug mode", "" );
-
         m_server->setThreadCount( 1 );
     }
     
-             
-
-     
      lua_pop( lua, 1 );
      
      TRACE( "created %s server on %s:%d" , type.c_str(), m_server->host(), m_server->port() );
@@ -555,7 +549,7 @@ void Leda::execScript( )
 {
     TRACE_ENTERLEAVE( );
 
-    if ( getenv( "LEDA_WATCH_TREE" ) )
+    if ( debug() )
     {
         //
         //  watch for file changes

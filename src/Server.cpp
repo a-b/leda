@@ -14,12 +14,6 @@ void Server::stop( )
 {
     TRACE_ENTERLEAVE();
     propeller::Server::stop();
- 
-    
-    //
-    //  wait on the stop semaphore
-    //
-    m_stop.wait();
 }
 
 //
@@ -42,8 +36,6 @@ void Server::onThreadStopped( const propeller::Server::Thread& thread )
     LuaState& lua = LuaState::luaFromThread( thread, thread.id() );
     
     lua.call( "onThreadStopped" );
-    
-    m_stop.post();
 }
 
 void Server::onConnectionAccepted( const propeller::Server::Connection& connection )
