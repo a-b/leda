@@ -8,11 +8,6 @@
 #include "LuaState.h"
 #include "Leda.h"
 
-#ifdef USE_CJSON
-#include <lua_cjson.h>
-#endif
-
-
 
 LuaState::LuaState( const std::string& filename, const ScriptArguments* arguments  )
 : m_lua( NULL ), m_close( true ), m_filename( filename )
@@ -106,12 +101,7 @@ void LuaState::create()
     
     
     loadlibs();
-    
-#ifdef USE_CJSON
-    luaopen_cjson( m_lua );
-#endif
-    
-    
+        
 }
 
 void LuaState::addPaths( const char* name ) const
