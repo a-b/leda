@@ -7,27 +7,10 @@ Client::Client( unsigned int threadCount )
     TRACE_ENTERLEAVE();
 }
 
-//void Client::onStart()
-//{
-//    TRACE_ENTERLEAVE();
-////    m_lua = new LuaState( Leda::instance()->script() );
-////    m_lua->setGlobal( "client" );
-////    m_lua->load();
-////    
-////    //
-////    //  add repeating timer  to prevent weird libevent bug 
-////    //
-////    addTimer( 1, false, ( void*) 1 );
-//}
 
 Client::~Client()
 {
-    TRACE_ENTERLEAVE();
-    
-    //
-    //  set close lua to false (this is  to handle termination)
-    //
-    //m_lua->setClose( false );
+    TRACE_ENTERLEAVE();    
 }
 
 void Client::onThreadStarted( propeller::Client::Thread& thread )
