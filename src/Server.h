@@ -34,8 +34,7 @@ public:
 
 private:
     
-private:
-    sys::Lock m_lock;
+
 };
 
 #endif	/* _SERVER_H */

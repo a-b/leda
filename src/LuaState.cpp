@@ -8,6 +8,8 @@
 #include "LuaState.h"
 #include "Leda.h"
 
+sys::Lock LuaState::s_lock;
+
 
 LuaState::LuaState( const std::string& filename, const ScriptArguments* arguments  )
 : m_lua( NULL ), m_close( true ), m_filename( filename )
@@ -453,6 +455,8 @@ LuaState& LuaState::luaFromThread( const sys::Thread& thread, unsigned int threa
 
 LuaState* LuaState::luaForThread( sys::Thread& thread, unsigned int id, const char* init )
 {
+    sys::LockEnterLeave lock( s_lock );
+    
     //
     //  create new lua state for new thread
     //  

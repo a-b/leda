@@ -32,7 +32,6 @@ protected:
 private:
     
     unsigned int m_threadId;
-    sys::Lock m_lock;
 };
 
 #endif	/* HTTPSERVER_H */

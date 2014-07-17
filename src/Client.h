@@ -30,8 +30,6 @@ class Client: public propeller::Client
         virtual void onData( const propeller::Client::Connection& connection, const char* data, unsigned int length );
         
         
-    private:
-            sys::Lock m_lock;
     };
 
 #endif	/* CLIENT_H */

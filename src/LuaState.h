@@ -81,7 +81,7 @@ private:
     sys::Lock m_lock;
     std::string m_filename;
     ScriptArguments m_arguments;
-    
+    static sys::Lock s_lock;
 };
 
 #endif	/* LUASTATE_H */
