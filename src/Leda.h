@@ -42,6 +42,11 @@ extern int getVersion( lua_State* lua );
 extern int dictionarySet( lua_State* lua );
 extern int dictionaryGet( lua_State* lua );
 extern int dictionaryGetKeys( lua_State* lua );
+extern int dictionaryRemove( lua_State* lua );
+
+
+
+
 
 
 

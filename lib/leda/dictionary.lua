@@ -1,17 +1,16 @@
 local export = {}
 
+local separator = ":"
 local addValue
 addValue = function(key, value)
     if type(value) == 'table' then
         for name, field in pairs(value) do
-            addValue(key .. "_" .. name, field)
+            addValue(key .. separator .. name, field)
         end
     else
         __leda.dictionarySet(key, value)        
     end
-    
 end
-
 
 export.set = function(key, value)
     if __leda.init then return end
@@ -20,7 +19,6 @@ export.set = function(key, value)
     
     addValue(key, value)
 end
-
 
 export.getkeys = function(key)
     if __leda.init then return end
@@ -33,7 +31,7 @@ end
 
 local TableParser = class('TableParser')
 function TableParser:initialize(key, keys)
-    self.prefix = key .. "_"
+    self.prefix = key .. separator
     self.key = key
     self.keys = keys
     self.table = {}
@@ -53,7 +51,7 @@ function TableParser:_next()
     local s,e = key:find(self.prefix)
     key = key:sub(e + 1)
     
-    local parts = key:split("_")
+    local parts = key:split(separator)
     
     local table = self.table
     local parent
@@ -91,5 +89,14 @@ export.get = function(key)
     end
 end
 
+export.delete = function(key)
+    local keys = export.getkeys(key)
+    
+    for _, subkey in ipairs(keys) do
+        __leda.dictionaryRemove(subkey)
+    end
+    
+    __leda.dictionaryRemove(key)
+end
 
 return export

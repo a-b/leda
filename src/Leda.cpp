@@ -468,6 +468,16 @@ int dictionaryGetKeys( lua_State* lua )
     return 1;    
 }
 
+int dictionaryRemove( lua_State* lua )
+{
+    TRACE_ENTERLEAVE();
+    
+    Leda::instance()->dictionary().set( lua_tostring( lua, -1 ), NULL );
+    lua_pop( lua, 1 );
+    
+    
+    return 0;    
+}
 
 
 

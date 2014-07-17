@@ -10,6 +10,11 @@
 
 sys::Lock LuaState::s_lock;
 
+extern "C"
+{
+#include <lfs.h>
+}
+
 
 LuaState::LuaState( const std::string& filename, const ScriptArguments* arguments  )
 : m_lua( NULL ), m_close( true ), m_filename( filename )
@@ -97,12 +102,13 @@ void LuaState::create()
         {"dictionaryGet", dictionaryGet},
         {"dictionarySet", dictionarySet},
         {"dictionaryGetKeys", dictionaryGetKeys},
+        {"dictionaryRemove", dictionaryRemove},
         {NULL, NULL }
     };
 
     luaL_register( m_lua, "__api", functions );
     
-    
+    luaopen_lfs( m_lua );
     
     loadlibs();
         

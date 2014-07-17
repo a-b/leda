@@ -45,7 +45,7 @@ Dictionary::~Dictionary( )
     TRACE_ENTERLEAVE();
     
     tchdbclose( m_hdb );
-    remove( m_filename.c_str() );
+    ::remove( m_filename.c_str() );
     
 }
 
@@ -63,7 +63,10 @@ void Dictionary::set( const char* key, const char* value )
 {
     TRACE_ENTERLEAVE();
     intptr_t id = sys::Thread::currentId();
-    
+
+    //
+    //  lock read locks
+    //
     for ( LockMap::const_iterator i = m_readLocks.begin(); i != m_readLocks.end(); i++ )
     {
         i->second->lock();
@@ -72,9 +75,19 @@ void Dictionary::set( const char* key, const char* value )
     sys::LockEnterLeave lock( m_lock );
     
     TRACE( "writing %s: %s thread id %ld", key, value, sys::Thread::currentId() );
-
-    tchdbput2( m_hdb, key, value );
-
+    
+    if ( value )
+    {
+        tchdbput2( m_hdb, key, value );
+    } 
+    else
+    {
+        tchdbout2( m_hdb, key );
+    }
+    
+    //
+    //  unlock read locks
+    //
     for ( LockMap::const_iterator i = m_readLocks.begin(); i != m_readLocks.end(); i++ )
     {
         i->second->unlock();
@@ -105,6 +118,8 @@ char* Dictionary::get( const char* key )
     return value;
 }
 
+
+
 TCLIST* Dictionary::getkeys( const char* prefix )
 {
     intptr_t id = sys::Thread::currentId();
@@ -114,8 +129,8 @@ TCLIST* Dictionary::getkeys( const char* prefix )
         TRACE( "no read lock found for thread %ld", id );
         return NULL;
     }
-    
-    TRACE( "read lock for thread id %ld 0x%x", sys::Thread::currentId(), found->second );
+     
+   TRACE( "read lock for thread id %ld 0x%x", sys::Thread::currentId(), found->second );
     
     sys::LockEnterLeave lock( *( found->second ) );
     
