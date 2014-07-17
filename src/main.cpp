@@ -214,7 +214,7 @@ int main(int argc, char* argv[])
                 }
                 if ( option->name( ) == "version" )
                 {
-                    printf( "%s  version %s \n",  LEDA_NAME, leda->version().c_str() );
+                    printf( "%s version %s %s \n",  LEDA_NAME, leda->version().c_str(), LEDA_COPYRIGHT );
                     exit(1);
                 }
             }
