@@ -90,15 +90,7 @@ function Server:initialize(port, host)
         
         -- set some headers and serialize tables to json
         if not response.headers['Content-Type'] then
-            local contentType = 'text/plain'
-            if json then
-                if type(response.body) == 'table' then
-                    contentType = 'application/json'
-                    response.body = json.encode(response.body) 
-                end
-            end
-
-            response.headers['Content-Type'] = contentType
+            response.headers['Content-Type'] = 'text/plain'
         end
 
         response.headers['Date'] = utility.formatTime(os.time())
