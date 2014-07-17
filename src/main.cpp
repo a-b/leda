@@ -241,10 +241,7 @@ int main(int argc, char* argv[])
         usage( true );
     }
 
-    TRACE("command line arguments length %d", arguments.size());
     
-    
-    std::string paths;
 
 #ifdef WIN32
     {   
