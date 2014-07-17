@@ -94,7 +94,9 @@ void LuaState::create()
         {"httpResponseSetHeaders", httpResponseSetHeaders},
         {"httpResponseAddHeader", httpResponseAddHeader},
         {"getVersion", getVersion},
-
+        {"dictionaryGet", dictionaryGet},
+        {"dictionarySet", dictionarySet},
+        {"dictionaryGetKeys", dictionaryGetKeys},
         {NULL, NULL }
     };
 

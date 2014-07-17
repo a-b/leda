@@ -16,6 +16,8 @@ Client::~Client()
 void Client::onThreadStarted( propeller::Client::Thread& thread )
 {
     TRACE_ENTERLEAVE();
+    
+    Leda::instance()->addThread( thread );
    
     LuaState* lua = LuaState::luaForThread( thread, thread.id(), "__leda.client = true" );
     

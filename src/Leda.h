@@ -8,6 +8,7 @@
 
 #include "LuaState.h"
 #include "FWatcher.h"
+#include "Dictionary.h"
 
 
 //
@@ -38,6 +39,12 @@ extern int httpResponseSetStatus( lua_State* lua );
 extern int httpResponseSetHeaders( lua_State* lua );
 extern int httpResponseAddHeader( lua_State* lua );
 extern int getVersion( lua_State* lua );
+extern int dictionarySet( lua_State* lua );
+extern int dictionaryGet( lua_State* lua );
+extern int dictionaryGetKeys( lua_State* lua );
+
+
+
 
 
 
@@ -132,6 +139,12 @@ public:
     
     std::string version() const;
     
+    Dictionary& dictionary() 
+    {
+        return m_dictionary;
+    }
+    
+    void addThread( const sys::Thread& thread );
 
 private:
     Leda();
@@ -150,6 +163,7 @@ private:
     bool m_debug;
     FWatcher* m_fwatcher;
     unsigned int m_changes;
+    Dictionary m_dictionary;
 
     
 };

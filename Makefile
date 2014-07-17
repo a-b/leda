@@ -1,27 +1,24 @@
-# -------------------------------------------------------------------------
-    # These are configurable options:
-# -------------------------------------------------------------------------
+include config.mk
 
-# 'install' program location 
 INSTALL ?= install
-
-
-# Destination root (/ is used if empty) 
-DESTDIR ?= 
 
 CC = gcc
 
 # C++ compiler 
 CXX = g++
 
-# Standard flags for C++ 
-CXXFLAGS ?= 
+OPENSSL_LIB ?=
 
-# Standard preprocessor flags (common for CC and CXX) 
+ifeq ($(OPENSSL),yes)
+	OPENSSL_LIB=-lssl -lcrypto -levent_openssl
+endif
+
 CPPFLAGS ?= -O2
 
+INCLUDES ?= -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -Ideps/tokyocabinet
+
 # Standard linker flags 
-LDFLAGS ?= 
+LDFLAGS ?= -Ldeps/libpropeller -Ldeps/libpropeller/deps/libevent/.libs -Ldeps/luajit/src -Ldeps/tokyocabinet -lpropeller -lluajit -levent -levent_pthreads -ltokyocabinet $(OPENSSL_LIB)
 
 PLATFORM_LDFLAGS ?= 
 
@@ -35,18 +32,11 @@ ifeq ($(UNAME), Darwin)
 PLATFORM_LDFLAGS = -pagezero_size 10000 -image_base 100000000 -framework CoreServices
 endif
 
-include config.mk
-
 # Location where the package is installed by 'make install' 
 prefix ?= $(DEST)
 
-
-
-### Variables: ###
-
 CPPDEPS = -MT$@ -MF`echo $@ | sed -e 's,\.o$$,.d,'` -MD -MP
-LEDA_CXXFLAGS = -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -DLEDA_PATH=\"$(prefix)/lib/leda\" -D_THREAD_SAFE -pthread \
-	$(CPPFLAGS) $(CXXFLAGS) 
+LEDA_CXXFLAGS = $(INCLUDES)  -DLEDA_PATH=\"$(prefix)/lib/leda\" -D_THREAD_SAFE -pthread  $(CPPFLAGS)
 		
 SOURCES = $(wildcard src/*.cpp)
 
@@ -54,13 +44,6 @@ OBJECTS = $(SOURCES:.cpp=.o)
 
 TARGET = leda
 
-OPENSSL_LIB ?=
-
-ifeq ($(OPENSSL),yes)
-	OPENSSL_LIB=-lssl -lcrypto -levent_openssl
-endif
-
-### Targets: ###
 
 all: $(TARGET)
 
@@ -76,30 +59,30 @@ clean_leda:
 clean: 	clean_leda
 	-(cd deps/libpropeller && $(MAKE) clean)
 	-(cd deps/luajit && $(MAKE) clean)
-	-(cd deps/cjson && $(MAKE) clean)
+	-(cd deps/tokyocabinet && $(MAKE) clean)
 	
 libs: 
-	cd deps/libpropeller && make && cd ../luajit  && make && rm src/libluajit.so
-
+	-(cd deps/libpropeller && $(MAKE))
+	-(cd deps/luajit && $(MAKE) && rm src/libluajit.so)
+	-(cd deps/tokyocabinet && $(MAKE))
 
 $(TARGET): libs $(OBJECTS) 
-	$(CXX) -o $@ $(OBJECTS)  -Ldeps/libpropeller -Ldeps/libpropeller/deps/libevent/.libs -Ldeps/luajit/src   $(LDFLAGS) \
-	     -lpropeller -lluajit   -levent -levent_pthreads $(PLATFORM_LDFLAGS) $(OPENSSL_LIB)
+	$(CXX) -o $@ $(OBJECTS) $(LDFLAGS) $(PLATFORM_LDFLAGS) 
 
 install_leda: 
-	$(INSTALL) -d $(DESTDIR)$(prefix)/bin
-	install -c $(TARGET) $(DESTDIR)$(prefix)/bin
-	rm -rf $(DESTDIR)$(prefix)/lib/leda
-	mkdir -p $(DESTDIR)$(prefix)/lib/leda
-	rsync -a --exclude='test' --exclude 'test.lua' lib/* $(DESTDIR)$(prefix)/lib/leda/
+	$(INSTALL) -d $(prefix)/bin
+	install -c $(TARGET) $(prefix)/bin
+	rm -rf $(prefix)/lib/leda
+	mkdir -p $(prefix)/lib/leda
+	rsync -a --exclude='test' --exclude 'test.lua' lib/* $(prefix)/lib/leda/
 	cd deps/luajit && make install
-	chmod -R a+r $(DESTDIR)$(prefix)/lib/leda/
-	chmod -R a+r $(DESTDIR)$(prefix)/lib/lua/5.1/
+	chmod -R a+r $(prefix)/lib/leda/
+	chmod -R a+r $(prefix)/lib/lua/5.1/
 	
 	@echo $(TARGET) has been installed to $(prefix)
 
 uninstall_leda: 
-	rm -f $(DESTDIR)$(prefix)/bin/leda
+	rm -f $(prefix)/bin/leda
 	
 doc:
 	ldoc -p leda -d doc lib/leda	

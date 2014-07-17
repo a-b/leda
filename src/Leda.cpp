@@ -417,6 +417,59 @@ int getVersion( lua_State* lua )
     return 1;
 }
 
+int dictionarySet( lua_State* lua )
+{
+    TRACE_ENTERLEAVE();
+    
+    const char* key = lua_tostring( lua, -2 );
+    const char* value = lua_tostring( lua, -1 );
+    
+    Leda::instance()->dictionary().set( key, value );
+
+    lua_pop( lua, 2 );
+
+    return 0;    
+}
+
+int dictionaryGet( lua_State* lua )
+{
+    TRACE_ENTERLEAVE();
+    
+    const char* key = lua_tostring( lua, -1 );
+    
+    char* value = Leda::instance()->dictionary().get( key );
+    lua_pop( lua, 1 );
+    
+    lua_pushstring( lua, value );
+    free( value );
+
+    return 1;    
+}
+
+int dictionaryGetKeys( lua_State* lua )
+{
+    TRACE_ENTERLEAVE();
+    
+    TCLIST* list = Leda::instance()->dictionary().getkeys( lua_tostring( lua, -1 ) );
+    lua_pop( lua, 1 );
+    
+    int length = tclistnum( list );
+    lua_createtable( lua, length, 0 );
+    for( int i = 0; i < length; i++)
+    {
+        int size;
+        const void *buf = tclistval(list, i, &size);
+        lua_pushlstring(lua, ( const char* ) buf, size);
+        lua_rawseti(lua, -2, i + 1 );
+    }
+    
+    tclistdel( list );
+    
+    return 1;    
+}
+
+
+
 
 Leda* Leda::m_instance = NULL;
 
@@ -609,7 +662,8 @@ void Leda::execScript( )
          m_client = NULL;
          
      }
- 
+     
+     delete this;
  }
  
 LuaState* Leda::newLua()
@@ -649,4 +703,10 @@ std::string Leda::version() const
     char buffer[ 256 ];
     sprintf( buffer, "%d.%d.%d", LEDA_VERSION_MAJOR,  LEDA_VERSION_MINOR, LEDA_VERSION_REVISION );
     return buffer;
+}
+
+void Leda::addThread( const sys::Thread& thread )
+{
+    TRACE_ENTERLEAVE();
+    m_dictionary.addThread();
 }

@@ -23,6 +23,8 @@ void Server::onThreadStarted( propeller::Server::Thread& thread )
 {
     TRACE_ENTERLEAVE();
     
+    Leda::instance()->addThread( thread );
+    
     LuaState* lua = LuaState::luaForThread( thread, thread.id() );    
     lua->call( "onThreadStarted" );
 }
