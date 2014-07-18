@@ -4,14 +4,14 @@
 -- local value = dict.get('key') 
 -- @module leda.dict
 
-local export = {}
+local dict = {}
 
 local separator = ":"
 
 --- set key to value
 -- @param key key string
 -- @param value value string
-export.set = function(key, value)
+dict.set = function(key, value)
     if __leda.init then return end
     
     assert(key, "no key provided")
@@ -22,7 +22,7 @@ end
 
 --- get value 
 -- @param key key string
-export.get = function(key)
+dict.get = function(key)
     if __leda.init then return end
     
     assert(key, "no key provided")
@@ -32,7 +32,7 @@ end
 
 --- delete key 
 -- @param key key string
-export.delete = function(key)
+dict.delete = function(key)
     if __leda.init then return end
     
     assert(key, "no key provided")
@@ -40,4 +40,4 @@ export.delete = function(key)
     __api.dictionaryRemove(key)
 end
 
-return export
+return dict
