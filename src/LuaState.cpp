@@ -92,6 +92,7 @@ void LuaState::create()
         {"dictionaryGet", dictionaryGet},
         {"dictionarySet", dictionarySet},
         {"dictionaryRemove", dictionaryRemove},
+        {"dictionaryGetKeys", dictionaryGetKeys},
         {NULL, NULL }
     };
 

@@ -421,7 +421,9 @@ int dictionarySet( lua_State* lua )
     std::string key = lua_tostring( lua, -2 );
     std::string value = lua_tostring( lua, -1 );
     
-    Leda::instance()->dictionary().set( key, value );
+    TRACE( "%s: %s", key.c_str(), value.c_str() );
+    
+    Leda::instance()->dictionary()->Put( leveldb::WriteOptions(), key, value );
 
     lua_pop( lua, 2 );
 
@@ -435,8 +437,10 @@ int dictionaryGet( lua_State* lua )
     std::string key = lua_tostring( lua, -1 );
     std::string value;
     
-    Leda::instance()->dictionary().get( key, &value );
+    leveldb::Status status = Leda::instance()->dictionary()->Get( leveldb::ReadOptions(), key, &value );
     lua_pop( lua, 1 );
+    
+    TRACE( "%s", value.c_str() );
     
     if ( !value.empty() )
     {
@@ -450,15 +454,35 @@ int dictionaryGet( lua_State* lua )
     return 1;    
 }
 
-   int dictionaryRemove( lua_State* lua )
+int dictionaryRemove( lua_State* lua )
 {
     TRACE_ENTERLEAVE();
     
     std::string key = lua_tostring( lua, -1 );
-    Leda::instance()->dictionary().remove( key );
+    TRACE( "%s", key.c_str() );
+    
+    Leda::instance()->dictionary()->Delete( leveldb::WriteOptions(), key ); 
     lua_pop( lua, 1 );
     
     return 0;    
 }
 
-
+int dictionaryGetKeys( lua_State* lua )
+{
+    TRACE_ENTERLEAVE();
+    sys::LockEnterLeave lock( Leda::instance()->lock() );
+    
+    lua_newtable( lua );
+    leveldb::Iterator* it = Leda::instance()->dictionary()->NewIterator( leveldb::ReadOptions() );
+    unsigned int index = 1;
+    for ( it->SeekToFirst(); it->Valid(); it->Next() ) 
+    {
+        std::string key = it->key().ToString();
+        lua_pushinteger( lua, index );
+        lua_pushstring( lua, key.c_str() );
+        lua_settable( lua, -3 );
+        index ++;
+    }
+    
+    return 1;    
+}

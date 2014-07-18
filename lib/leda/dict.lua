@@ -22,6 +22,7 @@ end
 
 --- get value 
 -- @param key key string
+-- @return value or nil if not found
 dict.get = function(key)
     if __leda.init then return end
     
@@ -38,6 +39,14 @@ dict.delete = function(key)
     assert(key, "no key provided")
 
     __api.dictionaryRemove(key)
+end
+
+--- get all keys stored in the dictionary
+-- @return table with keys 
+dict.all = function()
+    if __leda.init then return end
+
+    return __api.dictionaryGetKeys()
 end
 
 return dict

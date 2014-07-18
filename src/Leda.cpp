@@ -11,7 +11,7 @@
 Leda* Leda::m_instance = NULL;
 
 Leda::Leda( )
-:  m_client( NULL ), m_server( NULL ), m_debug( false ), m_fwatcher( NULL ), m_changes( 0 )
+:  m_client( NULL ), m_server( NULL ), m_debug( false ), m_fwatcher( NULL ), m_changes( 0 ), m_dictionary( NULL )
 {
     TRACE_ENTERLEAVE();
     
@@ -23,7 +23,15 @@ Leda::Leda( )
 
 Leda::~Leda( )
 {
+    TRACE_ENTERLEAVE();
+    
     m_instance = NULL;
+    if ( m_dictionary )
+    {
+        delete m_dictionary;
+    }
+    
+    ::remove( m_dictionaryFilename.c_str() );
 }
 
 Leda* Leda::instance()
@@ -82,7 +90,6 @@ Leda* Leda::instance()
          m_server = new Server( serverType );
      }
  
-     
      //
      //  get server options
      //
@@ -149,7 +156,21 @@ void Leda::execScript( )
     //
     //  create dictionary
     //
-    m_dictionary.create();
+    char filename[ 128 ];
+    sprintf( filename, "/tmp/leda-dictionary-%d", sys::General::getProcessId() );
+    
+    leveldb::Options options;
+    options.create_if_missing = true;
+    
+    leveldb::Status status = leveldb::DB::Open( options, filename, &m_dictionary );
+    
+    if ( !status.ok() )
+    {
+        TRACE_ERROR( "failed to create dictionary: %s", status.ToString().c_str() );
+        throw std::runtime_error(" ");
+    }
+    
+    m_dictionaryFilename  = filename;
 
     //
     //  create new lua environment
@@ -244,10 +265,4 @@ std::string Leda::version() const
     char buffer[ 256 ];
     sprintf( buffer, "%d.%d.%d", LEDA_VERSION_MAJOR,  LEDA_VERSION_MINOR, LEDA_VERSION_REVISION );
     return buffer;
-}
-
-void Leda::addThread( const sys::Thread& thread )
-{
-    TRACE_ENTERLEAVE();
-    m_dictionary.addThread();
 }

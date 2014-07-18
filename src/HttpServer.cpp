@@ -42,7 +42,6 @@ void HttpServer::onThreadStopped( const propeller::Server::Thread& thread )
 void HttpServer::onThreadStarted( propeller::Server::Thread& thread )
 {
     TRACE_ENTERLEAVE();
-    Leda::instance()->addThread( thread );
     
     LuaState* lua = LuaState::luaForThread( thread, thread.id() );    
     lua->call( "onThreadStarted" );

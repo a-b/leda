@@ -8,7 +8,7 @@
 
 #include "LuaState.h"
 #include "FWatcher.h"
-#include "Dictionary.h"
+#include "leveldb/db.h"
 
     
 class Leda 
@@ -95,13 +95,16 @@ public:
     
     std::string version() const;
     
-    Dictionary& dictionary() 
+    sys::Lock& lock()
+    {
+        return m_lock;
+    }
+    
+    leveldb::DB* dictionary()
     {
         return m_dictionary;
     }
     
-    void addThread( const sys::Thread& thread );
-
 private:
     Leda();
         
@@ -118,7 +121,9 @@ private:
     bool m_debug;
     FWatcher* m_fwatcher;
     unsigned int m_changes;
-    Dictionary m_dictionary;
+    leveldb::DB* m_dictionary;
+    std::string m_dictionaryFilename;
+    sys::Lock m_lock;
 
     
 };
