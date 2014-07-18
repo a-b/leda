@@ -10,51 +10,6 @@
 #include "FWatcher.h"
 #include "Dictionary.h"
 
-
-//
-//  C API to lua
-//
-extern int generateRandomString( lua_State* lua );
-extern int clientCreate( lua_State* lua );
-extern int clientConnect( lua_State* lua );
-extern int clientAddTimer( lua_State* lua );
-
-extern int clientConnectionClose( lua_State* lua );
-extern int clientConnectionSendData( lua_State* lua );
-extern int serverConnectionSendData( lua_State* lua );
-extern int serverConnectionGetAddress( lua_State* lua );
-extern int serverConnectionGetId( lua_State* lua );
-extern int serverSendTo( lua_State* lua );
-extern int serverCreate( lua_State* lua );
-extern int serverAddTimer( lua_State* lua );
-extern int getpid( lua_State* lua );
-extern int processorCount( lua_State* lua );
-extern int httpRequestGetUrl( lua_State* lua );
-extern int httpRequestGetHeaders( lua_State* lua );
-extern int httpRequestGetBody( lua_State* lua );
-extern int httpRequestGetAddress( lua_State* lua );
-extern int httpRequestGetMethod( lua_State* lua );
-extern int httpResponseSetBody( lua_State* lua );
-extern int httpResponseSetStatus( lua_State* lua );
-extern int httpResponseSetHeaders( lua_State* lua );
-extern int httpResponseAddHeader( lua_State* lua );
-extern int getVersion( lua_State* lua );
-extern int dictionarySet( lua_State* lua );
-extern int dictionaryGet( lua_State* lua );
-extern int dictionaryGetKeys( lua_State* lua );
-extern int dictionaryRemove( lua_State* lua );
-
-
-
-
-
-
-
-
-
-
-
-
     
 class Leda 
 {
@@ -102,11 +57,7 @@ public:
         return m_server;
     }
     
-    enum ServerType
-    {
-        ServerHttp,
-        ServerMessage
-    };
+    
     
     struct TimerData
     {
@@ -164,7 +115,6 @@ private:
     LuaState* m_lua;
     propeller::Client* m_client;
     propeller::Server* m_server;
-    ServerType m_serverType;
     bool m_debug;
     FWatcher* m_fwatcher;
     unsigned int m_changes;

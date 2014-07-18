@@ -7,6 +7,7 @@
 
 #include "LuaState.h"
 #include "Leda.h"
+#include "api.h"
 
 sys::Lock LuaState::s_lock;
 
@@ -66,13 +67,8 @@ void LuaState::create()
     // //
     static const luaL_Reg functions[] = {
         {"serverAddTimer", serverAddTimer },
-        
-        
         {"serverCreate", serverCreate },
-//        {"generateUniqueString", generateRandomString },
         {"serverConnectionSendData", serverConnectionSendData },
-        
-        
         {"serverConnectionGetAddress", serverConnectionGetAddress},
         {"serverConnectionGetId", serverConnectionGetId},
         {"serverSendTo", serverSendTo},
@@ -95,7 +91,6 @@ void LuaState::create()
         {"getVersion", getVersion},
         {"dictionaryGet", dictionaryGet},
         {"dictionarySet", dictionarySet},
-        {"dictionaryGetKeys", dictionaryGetKeys},
         {"dictionaryRemove", dictionaryRemove},
         {NULL, NULL }
     };

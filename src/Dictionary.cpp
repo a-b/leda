@@ -8,14 +8,13 @@
 #include "Dictionary.h"
 
 Dictionary::Dictionary( ) 
+: m_db( NULL )
 {
     TRACE_ENTERLEAVE();
-    m_hdb = tchdbnew();
     
-    tchdbsetcache( m_hdb, 10000 );
-    
-    TRACE( "created hdb 0x%x", m_hdb );
-    
+    //
+    //  get temp filename
+    //
     char filename[ 256 ] = "/tmp/leda-dictionary-XXXXXXXX";
     int file = mkstemp( filename );
     if ( !file )
@@ -24,29 +23,40 @@ Dictionary::Dictionary( )
         throw std::runtime_error( "" );
     }
     
-    
-    
     close( file );
+    ::remove( filename );
     
-    if ( !tchdbopen( m_hdb, filename, HDBOWRITER | HDBOCREAT ) )
-    {
-        TRACE_ERROR( "tchdbopen open failed with error %d", tchdbecode( m_hdb ) );
-    }
-    
-    TRACE( "opened %s", filename );
     m_filename = filename;
-           
+    
 }
 
-
+void Dictionary::create()
+{
+    TRACE_ENTERLEAVE();
+    
+    TRACE( "opening %s", m_filename.c_str() );
+    
+    leveldb::Options options;
+    options.create_if_missing = true;
+    leveldb::Status status = leveldb::DB::Open( options, m_filename, &m_db );
+    
+    TRACE( "db: 0x%x", m_db );
+  
+    if ( !status.ok() )
+    {
+        TRACE_ERROR( "failed to create dictionary: %s", status.ToString().c_str() );
+        throw std::runtime_error(" ");
+    }
+}
 
 Dictionary::~Dictionary( ) 
 {
     TRACE_ENTERLEAVE();
     
-    tchdbclose( m_hdb );
-    ::remove( m_filename.c_str() );
-    
+    if ( m_db )
+    {
+        delete m_db;
+    }
 }
 
 void Dictionary::addThread()
@@ -59,7 +69,17 @@ void Dictionary::addThread()
     
 }
 
-void Dictionary::set( const char* key, const char* value )
+void Dictionary::set( const std::string& key, const std::string& value )
+{
+    setOrRemove( key.c_str(), &value );
+}
+
+void Dictionary::remove( const std::string& key )
+{
+    setOrRemove( key.c_str(), NULL );
+}
+
+void Dictionary::setOrRemove( const std::string& key, const std::string* value )
 {
     TRACE_ENTERLEAVE();
     intptr_t id = sys::Thread::currentId();
@@ -74,15 +94,17 @@ void Dictionary::set( const char* key, const char* value )
     
     sys::LockEnterLeave lock( m_lock );
     
-    TRACE( "writing %s: %s thread id %ld", key, value, sys::Thread::currentId() );
+    
     
     if ( value )
     {
-        tchdbput2( m_hdb, key, value );
+        TRACE( "writing %s: %s thread id %ld", key.c_str(), value->c_str(), sys::Thread::currentId() );
+        m_db->Put( leveldb::WriteOptions(), key, *value );
     } 
     else
     {
-        tchdbout2( m_hdb, key );
+        TRACE( "deleting %s", key.c_str() );
+        m_db->Delete( leveldb::WriteOptions(), key );
     }
     
     //
@@ -91,11 +113,10 @@ void Dictionary::set( const char* key, const char* value )
     for ( LockMap::const_iterator i = m_readLocks.begin(); i != m_readLocks.end(); i++ )
     {
         i->second->unlock();
-    }
-    
+    }    
 }
 
-char* Dictionary::get( const char* key )
+void Dictionary::get( const std::string& key, std::string* value )
 {
     TRACE_ENTERLEAVE();
     
@@ -104,35 +125,13 @@ char* Dictionary::get( const char* key )
     if ( found == m_readLocks.end() )
     {
         TRACE( "no read lock found for thread %ld", id );
-        return NULL;
+        return;
     }
-    
     
     TRACE( "read lock for thread id %ld 0x%x", sys::Thread::currentId(), found->second );
     
-    
     sys::LockEnterLeave lock( *( found->second ) );
-    
-    char* value =  tchdbget2( m_hdb, key );
-    TRACE( "read %s: %s", key, value );
-    return value;
+    m_db->Get(leveldb::ReadOptions(), key, value );
+    TRACE( "read %s: %s", key.c_str(), value->c_str() );
 }
 
-
-
-TCLIST* Dictionary::getkeys( const char* prefix )
-{
-    intptr_t id = sys::Thread::currentId();
-    LockMap::const_iterator found = m_readLocks.find( id );
-    if ( found == m_readLocks.end() )
-    {
-        TRACE( "no read lock found for thread %ld", id );
-        return NULL;
-    }
-     
-   TRACE( "read lock for thread id %ld 0x%x", sys::Thread::currentId(), found->second );
-    
-    sys::LockEnterLeave lock( *( found->second ) );
-    
-    return tchdbfwmkeys2( m_hdb, prefix, 100 );
-}
