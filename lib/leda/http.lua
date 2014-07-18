@@ -8,7 +8,7 @@
 -- @module leda.http
 
 local common = require 'leda.common'
-local utility = require 'leda.utility'
+local util = require 'leda.util'
 
 --- request class
 -- @type Request
@@ -93,7 +93,7 @@ function Server:initialize(port, host)
             response.headers['Content-Type'] = 'text/plain'
         end
 
-        response.headers['Date'] = utility.formatTime(os.time())
+        response.headers['Date'] = util.formatTime(os.time())
         
         -- send response
         response:send()

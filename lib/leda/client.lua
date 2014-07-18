@@ -1,7 +1,7 @@
 --- High perfomance asynchronous HTTP and TCP client functionality
 -- @module leda.client
 
-local utility = require 'leda.utility'
+local util = require 'leda.util'
 local common = require 'leda.common'
 
 local function createClient(threads)
@@ -18,7 +18,7 @@ end
 
 local client = {}
 
--- utility functions
+-- util functions
 
 local addTimer = function(timeout, once, callback) 
     createClient()
