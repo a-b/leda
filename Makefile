@@ -2,6 +2,8 @@ include config.mk
  
 INSTALL ?= install
 
+MAKEOVERRIDES = 
+
 CC = gcc
 
 # C++ compiler 
