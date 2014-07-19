@@ -2,8 +2,6 @@ include config.mk
 
 MAKEOVERRIDES = 
 
-MAKEFLAGS = -j 1
-
 
 INSTALL ?= install
 
