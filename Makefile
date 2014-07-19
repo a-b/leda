@@ -2,7 +2,6 @@ include config.mk
  
 INSTALL ?= install
 
-MAKEOVERRIDES = 
 
 CC = gcc
 
