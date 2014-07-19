@@ -20,7 +20,7 @@ endif
 
 CPPFLAGS ?= -O2
 
-INCLUDES ?= -Ideps/libpropeller/include  -Ideps/luajit/src -Ideps/leveldb/include 
+INCLUDES ?= -Ideps/libpropeller/include  -Ideps/luajit/src -Ideps/leveldb/include  -Ideps/libpropeller/deps/libevent/include
 
 # Standard linker flags 
 LDFLAGS ?= -Ldeps/libpropeller -Ldeps/luajit/src -Ldeps/leveldb -lpropeller -lluajit -levent -levent_pthreads -lleveldb  $(OPENSSL_LIB)
