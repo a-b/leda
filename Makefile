@@ -1,5 +1,10 @@
 include config.mk
 
+MAKEOVERRIDES = 
+
+MAKEFLAGS = -j 1
+
+
 INSTALL ?= install
 
 CC = gcc
@@ -15,10 +20,10 @@ endif
 
 CPPFLAGS ?= -O2
 
-INCLUDES ?= -Ideps/libpropeller/include -Ideps/libpropeller/deps/libevent/include -Ideps/luajit/src -Ideps/leveldb/include 
+INCLUDES ?= -Ideps/libpropeller/include  -Ideps/luajit/src -Ideps/leveldb/include 
 
 # Standard linker flags 
-LDFLAGS ?= -Ldeps/libpropeller -Ldeps/libpropeller/deps/libevent/.libs -Ldeps/luajit/src -Ldeps/leveldb -lpropeller -lluajit -levent -levent_pthreads -lleveldb  $(OPENSSL_LIB)
+LDFLAGS ?= -Ldeps/libpropeller -Ldeps/luajit/src -Ldeps/leveldb -lpropeller -lluajit -levent -levent_pthreads -lleveldb  $(OPENSSL_LIB)
 
 PLATFORM_LDFLAGS ?= 
 
