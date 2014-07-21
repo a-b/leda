@@ -52,4 +52,4 @@ function Server:timeout(timeout, callback)
 end
 
 
-return {Thread=Thread, Server=Server, Utility=Utility}
+return {Thread=Thread, Server=Server}
