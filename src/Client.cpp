@@ -78,7 +78,7 @@ void Client::onConnectionClosed( const propeller::Client::Connection& connection
 }
 
 
-void Client::addTimer( lua_State* lua, unsigned int timeout, bool once, void* data )
+void Client::addTimer( lua_State* lua, const struct timeval* timeout, bool once, void* data )
 {
     TRACE_ENTERLEAVE();
     

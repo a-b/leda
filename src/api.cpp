@@ -1,8 +1,53 @@
 #include "api.h"
 #include "Leda.h"
-#include "Client.h"
+#include "Client.h" 
 #include "Server.h"
 #include "HttpServer.h"
+
+void getTimeval( lua_State* lua, struct timeval* timeout )
+{
+
+    TRACE_ENTERLEAVE( );
+
+    memset( timeout, 0, sizeof( struct timeval ) );
+
+    if ( lua_isnumber( lua, -1 ) )
+    {
+        timeout->tv_sec = lua_tointeger( lua, -1 );
+    }
+    else if ( lua_istable( lua, -1 ) )
+    {
+        lua_pushnil( lua );
+
+        while ( lua_next( lua, -2 ) != 0 )
+        {
+            std::string name = lua_tostring( lua, -2 );
+
+            unsigned int value = lua_tointeger( lua, -1 );
+
+            TRACE( "%s %d", name.c_str( ), value );
+            if ( name == "sec" )
+            {
+                timeout->tv_sec = value;
+            }
+
+            if ( name == "usec" )
+            {
+                timeout->tv_usec = value;
+            }
+
+            if ( name == "msec" )
+            {
+                timeout->tv_usec = value * 1000;
+            }
+
+            lua_pop( lua, 1 );
+        }
+
+    }
+
+    lua_pop( lua, 1 );
+}
 
 //
 // exported c functions
@@ -13,11 +58,13 @@
      
      int callback = luaL_ref( lua, LUA_REGISTRYINDEX );
      bool once = lua_toboolean( lua, -1 );
-     int interval = lua_tointeger( lua, -2 );
+     lua_pop( lua, 1 );
      
-    
+     struct timeval timeout;
+     getTimeval( lua,  &timeout );
+
      Server* server = ( Server* ) Leda::instance()->server();
-     server->addTimer( lua, interval, once, new Leda::TimerData( callback, once ) );
+     server->addTimer( lua, &timeout, once, new Leda::TimerData( callback, once ) );
      
      return 0;
  }
@@ -172,13 +219,15 @@
      
      int callback = luaL_ref( lua, LUA_REGISTRYINDEX );
      
-     int interval = lua_tointeger( lua, -2 );
      bool once = lua_toboolean( lua, -1 );
-     lua_pop( lua, 2 );
+     lua_pop( lua, 1 );
+     
+     struct timeval timeout;
+     getTimeval( lua, &timeout );
      
      Client* client = ( Client* ) Leda::instance()->client();
      
-     client->addTimer( lua, interval, once, new Leda::TimerData( callback, once ) );
+     client->addTimer( lua, &timeout, once, new Leda::TimerData( callback, once ) );
 
      return 0;
  }

@@ -95,7 +95,7 @@ void Server::onTimer( const propeller::Server::Thread& thread, void* data )
     }
 }
 
-void Server::addTimer( lua_State* lua, unsigned int timeout, bool once, void* data )
+void Server::addTimer( lua_State* lua, const struct timeval* timeout, bool once, void* data )
 {
     TRACE_ENTERLEAVE();
     

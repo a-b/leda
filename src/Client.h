@@ -15,7 +15,7 @@ class Client: public propeller::Client
     {
     public:
         Client( unsigned int threadCount );
-        void addTimer( lua_State* lua, unsigned int timeout, bool once, void* data );
+        void addTimer( lua_State* lua, const struct timeval* timeout, bool once, void* data );
             
     protected:
         

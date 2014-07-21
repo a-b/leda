@@ -46,14 +46,14 @@ function client.currentThread()
 end
 
 --- set timer. calls the function every time the seconds value elapses
--- @param seconds number of seconds 
+-- @param timeout. can be a number of seconds or a table with one or more keys: 'sec' specifying seconds, 'msec' specifying milliseconds and 'usec' specifying  microseconds
 -- @param callback function
 client.timer = function(timeout, callback)    
     addTimer(timeout, false, callback)
 end
 
 --- set timeout. calls the function once after the seconds value elapses
--- @param seconds number of seconds 
+-- @param timeout. can be a number of seconds or a table with one or more keys: 'sec' specifying seconds, 'msec' specifying milliseconds and 'usec' specifying  microseconds
 -- @param callback function
 client.timeout = function(timeout, callback) 
     addTimer(timeout, true, callback)

@@ -115,6 +115,7 @@ void LuaState::addPaths( const char* name ) const
     if ( lua_isnil( m_lua, -1 ) )
     {
         TRACE( "package.%s is not set in lua", name );
+        lua_pop( m_lua, 1 );
         return;
     }
     
@@ -240,7 +241,7 @@ void LuaState::call( const std::string& callbackName, int registryIndex, bool ex
     {
         TRACE( "no lua function found on top of stack", "" );
         
-        lua_pop( m_lua, -debugIndex );
+        lua_pop( m_lua, -debugIndex + 1 );
         return;
     }
     //
