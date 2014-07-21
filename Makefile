@@ -2,7 +2,6 @@ include config.mk
  
 INSTALL ?= install
 
-
 CC = gcc
 
 # C++ compiler 
@@ -62,6 +61,9 @@ clean: 	clean_leda
 	-(cd deps/luajit && $(MAKE) clean)
 	-(cd deps/leveldb && $(MAKE) clean)
 	
+distclean: 	clean
+	-(cd deps/libpropeller && $(MAKE) distclean)
+	
 libs: 
 	-(cd deps/libpropeller && $(MAKE))
 	-(cd deps/luajit && $(MAKE) && rm src/libluajit.so)
@@ -95,7 +97,7 @@ test:
 	$(CXX) -c -o $@ $(LEDA_CXXFLAGS) $(CPPDEPS) $<
 
 
-.PHONY: all install uninstall clean install_leda uninstall_leda doc test
+.PHONY: all install uninstall clean install_leda uninstall_leda doc test distclean
 
 
 # Dependencies tracking:
