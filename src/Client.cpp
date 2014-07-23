@@ -78,13 +78,30 @@ void Client::onConnectionClosed( const propeller::Client::Connection& connection
 }
 
 
-void Client::addTimer( lua_State* lua, const struct timeval* timeout, bool once, void* data )
-{
-    TRACE_ENTERLEAVE();
+ void Client::onProcessExit( const propeller::Client::ChildProcess& process, const propeller::Client::Thread& thread, unsigned int code )
+ {
+     TRACE_ENTERLEAVE();
+     
+    LuaState& lua = LuaState::luaFromThread( thread, thread.id() );
     
-    unsigned int threadId = LuaState::getThreadId( lua );
+    lua.setGlobal( "process", ( void* ) &process );
+    lua.setGlobal( "processExitCode", code );
     
-    TRACE( "adding timer to thread id %d", threadId );
-    propeller::Client::addTimer( threadId, timeout, once, data );
-}
+    lua.call( "onProcessExit" );
+     
+ }
 
+ void Client::onProcessData( const propeller::Client::ChildProcess& process, const propeller::Client::Thread& thread, unsigned int type, const char* data, unsigned int length )
+ {
+     TRACE_ENTERLEAVE();
+     
+     LuaState& lua = LuaState::luaFromThread( thread, thread.id() );
+     lua.setGlobal( "process", ( void* ) &process );
+     lua.setGlobal( "processData", data, length );
+     lua.setGlobal( "processDataType", type );
+     
+     lua.call( "onProcessData" );
+     
+     
+     
+ }

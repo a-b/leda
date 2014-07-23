@@ -1,5 +1,6 @@
 local luaunit = require 'luaunit'
-local http = require 'leda.http'
+
+local http = require 'leda.client.http'
 local client = require 'leda.client'
 
 TestHttp = {}
@@ -24,8 +25,6 @@ function TestHttpLoad:initialize(url, requestsCount)
         self:_newConnection(i)
      end
      
-
-    
     self:_sendRequests()
 end
 
@@ -38,7 +37,7 @@ end
 
 function TestHttpLoad:_newConnection(id)
     
-    local connection = client.HttpConnection(self.url, {error = TestHttpLoad._connectionError})
+    local connection = http(self.url, {error = TestHttpLoad._connectionError})
     connection.id = id
     connection.load = self
     
@@ -66,7 +65,9 @@ function TestHttpLoad:_sendRequests()
 end
 
 
-local server = http.Server(port, host)
+local server = require 'leda.server.http'
+
+server = server(port, host)
 local testHeaderName = 'x-leda-test'
 local testHeaderValue = 'test'
 local testBody = "test"
@@ -95,7 +96,7 @@ local url = string.format("%s:%s", host, port)
 local load = TestHttpLoad(url, 10000)
 
 client.timeout(1, function()
-    local connection = client.HttpConnection(url)
+    local connection = http(url)
     local headers = {}
     headers[testHeaderName] = testHeaderValue
     connection:get(path1, headers, function(response) 
@@ -104,7 +105,7 @@ client.timeout(1, function()
 end)
 
 client.timeout(1, function()
-    local connection = client.HttpConnection(url)
+    local connection = http(url)
     local headers = {}
     headers[testHeaderName] = testHeaderValue
     connection:post(path2, headers, testBody, function(response) 
@@ -114,14 +115,14 @@ end)
     
     
 
-client.timeout(8, function()
+client.timeout(10, function()
         os.exit(luaunit:run())
         end)
     
 function  TestHttp:testRun()
             print(load.requests, load.responses)
 
-    assert(load.requests == load.responses)
+            assert(load.requests == load.responses)
 
 
 if json then

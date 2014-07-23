@@ -1,5 +1,9 @@
 local luaunit = require 'luaunit'
-local tcp = require 'leda.tcp'
+local tcp = require 'leda.client.tcp'
+
+
+
+
 local client = require 'leda.client'
 
 TestTcp = {stringsSent = {}, stringsReceived = {}}
@@ -11,7 +15,7 @@ local host = 'localhost'
 math.randomseed(os.time())
 local port = 10000 + math.random(2000) + math.random(1000)
 
-local connection = client.Connection(host, port)
+local connection = tcp(host, port)
 
 TestTcp.sendStrings = function()
     if #TestTcp.stringsSent < 2000 then
@@ -53,7 +57,9 @@ connection.data = function(connection, data)
     end
 end
 
-local server = tcp.Server(port, host)
+local server = require 'leda.server.tcp'
+
+server = server(port, host)
 
 server.data = function(server, connection, data)
     connection:send(data)

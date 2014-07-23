@@ -1,11 +1,11 @@
 --- UDP server functionality
--- @usage local udp = require('leda.udp')
--- local server = tcp.Server(10000, 'localhost')
+-- @usage local udp = require('leda.server.udp')
+-- local server = udp(10000, 'localhost')
 -- server.data = function(server, from, data)
 --     print(string.format("received %s from %s", data, from))
 -- end
 --
--- @module leda.udp
+-- @module leda.server.udp
 
 local common = require ('leda.common')
 
@@ -78,4 +78,4 @@ local function send(host, port, data)
     -- todo: implement
 end
         
-return {Server = Server}
+return Server

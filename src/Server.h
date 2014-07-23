@@ -12,7 +12,6 @@ class Server: public propeller::Server
 public:
     Server( propeller::Server::Type type );
     virtual ~Server( );
-    void addTimer( lua_State* lua, const struct timeval* timeout, bool once, void* data );
     
     
  protected:

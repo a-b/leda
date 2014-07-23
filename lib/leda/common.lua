@@ -51,5 +51,11 @@ function Server:timeout(timeout, callback)
     end
 end
 
+local function createClient(threads)
+    if __leda.init then
+        __leda.client =__leda.client or __api.clientCreate(threads or 1)
+    end
+end
 
-return {Thread=Thread, Server=Server}
+
+return {Thread=Thread, Server=Server, createClient=createClient}

@@ -1,8 +1,7 @@
 #include "api.h"
 #include "Leda.h"
-#include "Client.h" 
-#include "Server.h"
 #include "HttpServer.h"
+
 
 void getTimeval( lua_State* lua, struct timeval* timeout )
 {
@@ -43,7 +42,6 @@ void getTimeval( lua_State* lua, struct timeval* timeout )
 
             lua_pop( lua, 1 );
         }
-
     }
 
     lua_pop( lua, 1 );
@@ -63,8 +61,7 @@ void getTimeval( lua_State* lua, struct timeval* timeout )
      struct timeval timeout;
      getTimeval( lua,  &timeout );
 
-     Server* server = ( Server* ) Leda::instance()->server();
-     server->addTimer( lua, &timeout, once, new Leda::TimerData( callback, once ) );
+     Leda::instance()->server()->addTimer( &timeout, once, new Leda::TimerData( callback, once ) );
      
      return 0;
  }
@@ -178,6 +175,11 @@ void getTimeval( lua_State* lua, struct timeval* timeout )
  {
      TRACE_ENTERLEAVE();
      
+     if ( !Leda::instance()->client() )
+     {
+         Leda::instance()->clientCreate();
+     }
+     
      bool secure = lua_toboolean( lua, -1 );
      unsigned int port = lua_tonumber( lua, -2 );
      const char* host = lua_tostring( lua, -3 );
@@ -191,7 +193,7 @@ void getTimeval( lua_State* lua, struct timeval* timeout )
          return 0;
      }
              
-     Client::Connection* connection = Leda::instance()->client()->connect( host, port, LuaState::getThreadId( lua ), secure );
+     propeller::Client::Connection* connection = Leda::instance()->client()->connect( host, port, secure );
      
      lua_pop( lua, 3 );
      
@@ -213,8 +215,7 @@ void getTimeval( lua_State* lua, struct timeval* timeout )
      TRACE_ENTERLEAVE();
      if ( !Leda::instance()->client() )
      {
-         TRACE( "no client instance found", "" );
-         return 0;
+         Leda::instance()->clientCreate();
      }
      
      int callback = luaL_ref( lua, LUA_REGISTRYINDEX );
@@ -225,9 +226,7 @@ void getTimeval( lua_State* lua, struct timeval* timeout )
      struct timeval timeout;
      getTimeval( lua, &timeout );
      
-     Client* client = ( Client* ) Leda::instance()->client();
-     
-     client->addTimer( lua, &timeout, once, new Leda::TimerData( callback, once ) );
+     Leda::instance()->client()->addTimer( &timeout, once, new Leda::TimerData( callback, once ) );
 
      return 0;
  }
@@ -519,7 +518,6 @@ int dictionaryRemove( lua_State* lua )
 int dictionaryGetKeys( lua_State* lua )
 {
     TRACE_ENTERLEAVE();
-    sys::LockEnterLeave lock( Leda::instance()->lock() );
     
     lua_newtable( lua );
     leveldb::Iterator* it = Leda::instance()->dictionary()->NewIterator( leveldb::ReadOptions() );
@@ -534,4 +532,44 @@ int dictionaryGetKeys( lua_State* lua )
     }
     
     return 1;    
+}
+
+int processStart( lua_State* lua )
+{
+    TRACE_ENTERLEAVE();
+    std::string command = lua_tostring( lua, -1 );
+    
+    TRACE( "%s", command.c_str() );
+    
+    propeller::Client::ChildProcess* process = Leda::instance()->client()->processStart( command );
+    lua_pop( lua, 1 );
+    
+    lua_pushlightuserdata( lua, process );
+    return 1;
+}
+
+int processWrite( lua_State* lua )
+{
+    TRACE_ENTERLEAVE();
+    
+    if ( lua_isnil( lua, -2 ) )
+    {
+        TRACE( "no process instance passed", "" );
+        lua_pop( lua, 2 );
+        return 0;
+    }
+            
+    propeller::Client::ChildProcess* process = ( propeller::Client::ChildProcess* ) lua_touserdata( lua, -2 );
+    
+    const char* data = NULL;
+    size_t length = 0;
+    
+    if ( lua_isstring( lua, -1 ) )
+    {
+        data = lua_tolstring( lua, -1, &length );
+    }
+
+    process->write( data, length );
+    
+    return 0;
 }

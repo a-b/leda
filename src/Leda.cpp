@@ -237,6 +237,7 @@ LuaState* Leda::newLua()
 propeller::Client* Leda::clientCreate( unsigned int threadCount )
 {
     TRACE_ENTERLEAVE( );
+    TRACE("creating client with %d threads", threadCount );
     m_client = new Client( threadCount );
     
     return m_client;

@@ -36,5 +36,85 @@ export.formatTime = function(timestamp, format, tzoffset, tzname)
     return os.date(format, timestamp + tzoffset)
 end
 
+export.parseQuery = function(query)
+    
+	local parsed = {}
+	local pos = 0
+
+	query = string.gsub(query, "&amp;", "&")
+	query = string.gsub(query, "&lt;", "<")
+	query = string.gsub(query, "&gt;", ">")
+
+	local function ginsert(qstr)
+		local first, last = string.find(qstr, "=")
+		if first then
+			parsed[string.sub(qstr, 0, first-1)] = string.sub(qstr, first+1)
+		end
+	end
+
+	while true do
+		local first, last = string.find(query, "&", pos)
+		if first then
+			ginsert(string.sub(query, pos, first-1));
+			pos = last+1
+            
+		else
+			ginsert(string.sub(query, pos));
+			break;
+		end
+	end
+	return parsed
+end
+
+
+export.parseUrl = function(url)
+    local result = {}
+
+    local slashes = url:find("//")
+    local scheme
+    if slashes then
+         scheme = url:sub(1, slashes - 2) 
+         url = url:sub(slashes + 2)
+     else
+         scheme = 'http'
+    end        
+    
+    local slash = url:find("/")
+    local path
+    if slash then 
+        path = url:sub(slash)
+
+        url = url:sub(1, slash - 1)
+    end
+    
+    local ports = {https = 443, http = 80}
+    
+    local host, port = url:match("(.*):(%d+)")
+    
+    if not host then host = url end
+    if not port then port = ports[scheme] end
+
+    result.query = ""
+    result.params = {}
+    
+    
+    local sep
+    if path then sep = path:find("?") end
+     
+    if  sep then 
+        result.query = path:sub(sep)
+        result.params = parseQuery(result.query:sub(2))
+        path = path:sub(1, sep - 1)
+    end
+    
+
+    result.host = host
+    result.port = tonumber(port)
+    
+    result.path = path
+    result.scheme = scheme
+    
+    return result    
+end
 
 return export

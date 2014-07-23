@@ -9,6 +9,7 @@
 #include "Leda.h"
 #include "api.h"
 
+
 sys::Lock LuaState::s_lock;
 
 LuaState::LuaState( const std::string& filename, const ScriptArguments* arguments  )
@@ -93,6 +94,9 @@ void LuaState::create()
         {"dictionarySet", dictionarySet},
         {"dictionaryRemove", dictionaryRemove},
         {"dictionaryGetKeys", dictionaryGetKeys},
+        {"processStart", processStart},
+        {"processWrite", processWrite},
+        
         {NULL, NULL }
     };
 
@@ -306,7 +310,7 @@ void LuaState::reload( unsigned int threadId )
 }
 
 
-void LuaState::load( unsigned int threadId, bool exception, const char* init ) 
+ void LuaState::load( unsigned int threadId, bool exception, const char* init ) 
 {
     TRACE_ENTERLEAVE();
     
@@ -495,23 +499,5 @@ unsigned int LuaState::getGlobal( const std::string& name )
     lua_pop( m_lua, 1 ); 
 
     return result;
-}
-    
-unsigned int LuaState::getThreadId( lua_State* lua )
-{
-    lua_getglobal( lua, "__leda" );
-
-    if ( lua_istable( lua, -1 ) )
-    {
-        lua_getfield( lua, -1, "threadId" );
-        unsigned int threadId = lua_tonumber( lua, -1 );
-        lua_pop( lua, 2 );
-
-        return threadId;
-    }
-    
-    lua_pop( lua, 1 );
-    
-    return 0;
 }
     

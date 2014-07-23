@@ -15,7 +15,6 @@ class Client: public propeller::Client
     {
     public:
         Client( unsigned int threadCount );
-        void addTimer( lua_State* lua, const struct timeval* timeout, bool once, void* data );
             
     protected:
         
@@ -28,6 +27,10 @@ class Client: public propeller::Client
         virtual void onConnectionClosed( const propeller::Client::Connection& connection );
         
         virtual void onData( const propeller::Client::Connection& connection, const char* data, unsigned int length );
+        
+        virtual void onProcessExit( const propeller::Client::ChildProcess& process, const propeller::Client::Thread& thread, unsigned int code );
+        virtual void onProcessData( const propeller::Client::ChildProcess& process, const propeller::Client::Thread& thread, unsigned int type, const char* data, unsigned int length );
+        
         
         
     };

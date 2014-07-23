@@ -1,12 +1,12 @@
 --- TCP server functionality
--- @usage local tcp = require('leda.tcp')
--- local server = tcp.Server(10000, 'localhost')
+-- @usage local tcp = require('leda.server.tcp')
+-- local server = tcp(10000, 'localhost')
 -- server.data = function(server, connection, data)
 --  -- send back received data
 --     connection:send(data)
 -- end
 --
--- @module leda.tcp
+-- @module leda.server.tcp
 
 local common = require ('leda.common')
 
@@ -121,4 +121,4 @@ function Server:timer(...)
 end    
 
         
-return {Server = Server}
+return Server

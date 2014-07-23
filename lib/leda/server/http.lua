@@ -1,11 +1,11 @@
 --- HTTP server functionality
--- @usage local http = require('leda.http')
--- local server = http.Server(8080, 'localhost')
+-- @usage local http = require('leda.server.http')
+-- local server = http(8080, 'localhost')
 -- server.request = function(server, response, request)
 --     response.body = 'hello world!' 
 -- end
 --
--- @module leda.http
+-- @module leda.server.http
 
 local common = require 'leda.common'
 local util = require 'leda.util'
@@ -14,34 +14,38 @@ local util = require 'leda.util'
 -- @type Request
 local Request = class('Request')
 
+function Request:initialize()
+    self._request = __leda.httpRequest
+end
+
 --- get request url
 -- @return url
 function Request:url()
-     return __api.httpRequestGetUrl(__leda.httpRequest) 
+     return __api.httpRequestGetUrl(self._request) 
 end
 
 --- get request method
 -- @return method string
 function Request:method()
-     return __api.httpRequestGetMethod(__leda.httpRequest) 
+     return __api.httpRequestGetMethod(self._request) 
 end
 
 --- get request body
 -- @return body
 function Request:body() 
-    return __api.httpRequestGetBody(__leda.httpRequest) 
+    return __api.httpRequestGetBody(self._request) 
 end
 
 --- get request headers
 -- @return table with request headers
 function Request:headers()
-     return  __api.httpRequestGetHeaders(__leda.httpRequest) 
+     return  __api.httpRequestGetHeaders(self._request) 
 end
 
 --- get request remote peer address
 -- @return address string 
 function Request:address()
-     return  __api.httpRequestGetAddress(__leda.httpRequest) 
+     return  __api.httpRequestGetAddress(self._request) 
 end
 
 --- request class
@@ -50,12 +54,13 @@ local Response = class('Respose')
 
 function Response:initialize()
     self.headers = {}
+    self._response = __leda.httpResponse
 end
 
 function Response:send()
-    __api.httpResponseSetStatus(__leda.httpResponse, self.status)
-    __api.httpResponseSetHeaders(__leda.httpResponse, self.headers)
-    __api.httpResponseSetBody(__leda.httpResponse, self.body)
+    __api.httpResponseSetStatus(self._response, self.status)
+    __api.httpResponseSetHeaders(self._response, self.headers)
+    __api.httpResponseSetBody(self._response, self.body)
 end
 
 --- response headers table
@@ -120,5 +125,4 @@ Server.request = nil
 --  end)
 Server.thread = nil
 
-
-return {Server = Server}
+return Server

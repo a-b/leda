@@ -35,6 +35,8 @@ extern int dictionarySet( lua_State* lua );
 extern int dictionaryGet( lua_State* lua );
 extern int dictionaryGetKeys( lua_State* lua );
 extern int dictionaryRemove( lua_State* lua );
+extern int processStart( lua_State* lua );
+extern int processWrite( lua_State* lua );
 
 
 #endif	/* API_H */

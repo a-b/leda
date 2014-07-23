@@ -59,7 +59,6 @@ public:
     
     static LuaState& luaFromThread( const sys::Thread& thread, unsigned int threadId );
     static LuaState* luaForThread( sys::Thread& thread, unsigned int id, const char* init = NULL );
-    static unsigned int getThreadId( lua_State* lua );
      
     
 private:

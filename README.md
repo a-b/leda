@@ -5,13 +5,11 @@ high performance framework for creating powerful network applications with leigh
 
 Features:
 
-* Easy to build high pefomance HTTP, UDP or TCP servers and asynchronous TCP and HTTP clients
-* Synchronous scripting with lua 
-* Super fast VM with LuaJIT(http://luajit.org)
-* Multithreaded process architecture and asynchronous networking with libevent (via https://github.com/sergeyzavadski/libpropeller)
-* Cross platform (Unix and Windows)
+* All network operations are asynchronous with libevent
+* Mltithreaded
+* Embedded [LuaJIT](http://luajit.org) enables easy and synchronous scripting with lua or [moonscript](http://www.moonscript.org)
 
-Installing on Unix:
+Installing:
 
     $ git clone https://github.com/sergeyzavadski/leda.git
     $ cd leda
@@ -20,15 +18,15 @@ Installing on Unix:
     $ make install
     
 
-Running:
+	Getting Started:
 
 Example HTTP server listening on port 8080 and responding  with 'hello world!' on every request
 
 Edit `server.lua` looks like this:
 
-    local http = require('leda.http')
+    local http = require('leda.server.http')
 
-    local server = http.Server(8080, 'localhost')
+    local server = http(8080, 'localhost')
 
     server.request = function(server, request, response)
         response.body = 'hello world!'

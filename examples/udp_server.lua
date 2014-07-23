@@ -1,7 +1,7 @@
 -- UDP server example 
-local udp = require('leda.udp')
+local udp = require('leda.server.udp')
 
-local server = udp.Server(10000, 'localhost')
+local server = udp(10000, 'localhost')
 
 server.started = function() print('server started') end
 
