@@ -4,7 +4,6 @@
 -- echo.data = function(process, data)
 --     print(data)
 -- end
-
 -- @module leda.client.process
 
 local common = require 'leda.common'
@@ -55,6 +54,15 @@ function Process:initialize(command)
     __leda.processMap = __leda.processMap or {}
     __leda.processMap[self._process] = self
 end
+
+
+--- set exit callback. It is called when process exits
+-- @param callback callback function.
+-- @usage process.data = function(process, code) 
+-- print("process exited with code", code)
+--  end)
+Process.exit = nil
+
 
 --- set data callback. It is called when new data is available on process stdout
 -- @param callback callback function.

@@ -3,7 +3,6 @@
 -- http('www.google.com'):get('/', function(response)
 --  print(response.body) 
 --end)
-
 -- @module leda.client.http
 
 local tcp = require 'leda.client.tcp'
