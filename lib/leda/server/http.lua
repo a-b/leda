@@ -57,6 +57,7 @@ function Response:initialize()
     self._response = __leda.httpResponse
 end
 
+--- send the response
 function Response:send()
     __api.httpResponseSetStatus(self._response, self.status)
     __api.httpResponseSetHeaders(self._response, self.headers)
@@ -99,9 +100,6 @@ function Server:initialize(port, host)
         end
 
         response.headers['Date'] = util.formatTime(os.time())
-        
-        -- send response
-        response:send()
     end
     
     

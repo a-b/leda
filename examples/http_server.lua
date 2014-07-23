@@ -6,4 +6,5 @@ local server = http(8080, 'localhost')
 server.request = function(server, request, response)
     print(string.format("request to %s from %s" , request:url(), request:address()))
     response.body =  'hello world!'
+    response:send()
 end

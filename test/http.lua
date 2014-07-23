@@ -88,6 +88,8 @@ server.request = function(server, request, response)
         response.body = {url = request:url(), method=request:method(), body=request:body(), header = header}
         response.headers[testHeaderName] = testHeaderValue
     end
+    
+    response:send()
 end
 
 local url = string.format("%s:%s", host, port)

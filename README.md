@@ -30,6 +30,7 @@ Edit `server.lua` looks like this:
 
     server.request = function(server, request, response)
         response.body = 'hello world!'
+	response:send()
     end
     
 Run
